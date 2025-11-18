@@ -42,3 +42,37 @@ To address the second problem—finding potential MIT roommates—the **Roommate
 Finally, the **UserInfo** and **UserAuthentication** concepts ensure that users can log in securely with their MIT credentials, access content safely, and trust that everyone on the platform is an MIT affiliate. This addresses key concerns raised in our ethics analysis regarding safety, privacy, and preventing misuse of housing-related information. While the overall design forms a coherent system, a few open questions remain regarding the exact data we should display for safety (e.g., precise addresses vs. approximate locations) and how reviews should be moderated to prevent misuse. Overall, the concepts collectively create a streamlined, community-centered, and secure solution to MIT students' summer housing challenges.
 
 ## Development Plan
+| Feature                               | Lead       | Date   | Notes                                                                 |
+|---------------------------------------|------------|--------|------------------------------------------------------------------------|
+| Concept Specs Completed               | All, divided | 11/18 |                                                                        |
+| Sync Specs Completed                  | Christina  | 11/18 |                                                                        |
+| Database Initialization               |Camila| 11/19 | Startup MongoDB Database                                               |
+| Concept Implementations (below)       |All, divided| 11/21 |                                                                        |
+| UserConcept                           |Kailey| 11/21 |                                                                        |
+| UserAuthConcept                       |Christina| 11/21 |                                                                        |
+| ReviewingConcept                      |Kailey| 11/21 |                                                                        |
+| RoomatePostingConcept                 |Meg| 11/21 |                                                                        |
+| NotificationConcept                   |Camila| 11/21 |                                                                        |
+| SavedItems/StatusItemsConcept         |Christina| 11/21 |                                                                        |
+| API Spec for Backend                  |Kailey| 11/22 |                                                                        |
+| Frontend Skeleton                     |All| 11/22 |                                                                        |
+| **Checkpoint Alpha**                  |All| 11/25 | Should have completed: Concept Specs, Sync Specs, Concept Implementations, Sync Implementations, Backend Completed, Frontend Skeleton |
+| Frontend Customization                |Camila, Meg| 11/26 | App-specific and visual-design specific components                     |
+| Team Member Testing and Observations  |Individual| 11/26 | Follow variations of user journeys and edge cases, take notes of what works and what doesn’t. |
+| Sync Implementation                   |All| 11/28 |                                                                        |
+| Render Static Site Hosting            |Christina| 12/1  |                                                                        |
+| **Checkpoint Beta**                   |All| 12/2  | Should have completed: A working application, reflects visual design study, maintained document of design choices/changes, correct server & notification updates, site hosted on public URL |
+| Team Member Testing and Observations  |Individual| 12/3  | Follow variations of user journeys and edge cases, take notes of what works and what doesn’t. |
+| **User Testing**                          |All| 12/7  |                                                                        |
+| Team Member Testing and Observations  |Individual| 12/8  | Follow variations of user journeys and edge cases, take notes of what works and what doesn’t. |
+| **Full Demo**                             |All| 12/9  |                                                                        |
+| **Project Report**                    |All | 12/9  | Final versions: source code, design documents, concept specs, mentoring meeting records; additionally: design summary, individual reflections |
+
+## Key Risks
+- *User Authentication* - Ensuring a user is a member of the MIT community, or is in a known university, specifically for security reasons. 
+    - Mitigate: Begin by ensuring applicants can only sign up with an MIT email, and down the road attempt to require a Touchstone login
+    - Fallback: Ask users to go through a profile confirmation before being allowed to interact with postings or listings on the site, maybe including an image of a school id.
+- *Race Conditions* - Ensuring listings are accurate, and that no two users can rent the same apartment at the same time. 
+    - Mitigate: Begin by ensuring real-time updates and the occasional automatic database refresh. Request that listings keep their posts updated
+    - Fallback: Keep the scope of this application to just connect users with listings, and notify posters to keep their listings updated.
+
