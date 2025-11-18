@@ -7,6 +7,7 @@
 **principle** a user selects items that they want to save, each with corresponding tags; user can then retrieve those items quickly and/or change their tags, unsave them, etc.
 
 **state**
+
    	a set of UserRecords with ...
          	a User
          	a set of SavedItems
