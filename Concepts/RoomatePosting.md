@@ -24,6 +24,5 @@
             requires: posting exists
             effects: deletes the posting
 
-        //coudl have some "edit things--do we want to give users the ability to edit posts?"
 
 
