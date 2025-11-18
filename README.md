@@ -2,5 +2,5 @@
 
 Christina Beggs, Megan Diulus, Kailey Epstein, Camila Pierce, 
 
-- [Team Contract](./team_contract.md)
-- [Problem Framing](./ProblemFraming.md)
+- [Team Contract](./DesignDocs//team_contract.md)
+- [Problem Framing](./DesignDocs//ProblemFraming.md)
