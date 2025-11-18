@@ -26,14 +26,20 @@ Shannon has spent far too many late nights in MacGregor p-setting with her frien
 A few days later, Shannon comes back, and easily resumes her search through the saved items in her profile. While she was away, the fraternity decreased its housing rate, but she was not surprised since she received an email notifying her that the saved item had an update to its listing.
 
 ## UI Sketches
-<img src = "./imgs/HomePage.png" width = 400px/>
-<img src = "./imgs/Widgets.png" width = 400px/>
+<img src = "./imgs/HomePage.png" width = 800px/>
+<img src = "./imgs/Widgets.png" width = 800px/>
 
 ## Visual Desgin Study
 <img src = "./imgs/VisualDesignStudy1.png" width = 400px/>
 <img src = "./imgs/VisualDesignStudy2.png" width = 400px/>
 
 ## Design Summary
+
+Our design addresses two major friction points in the MIT summer housing search: finding short-term housing and identifying compatible MIT roommates in various cities. To solve these problems, our set of concepts work in parallel and support each other where the workflows overlap. For housing discovery, the **Listing** concept allows users to create and publish detailed summer housing posts that other students can browse. This is complemented by the **Reviewing** concept, which lets students rate or review housing they have previously lived in, giving prospective renters a clearer sense of housing quality, safety, and reliability. Additionally, the **Notification** concept alerts users whenever a listing they are following has a significant update—for example, changes in availability, pricing, or new reviews—helping students track options without constantly rechecking the platform.
+
+To address the second problem—finding potential MIT roommates—the **RoommatePosting** concept enables users to post information about themselves and browse potential roommates who will be living in the same city. This promotes community-building and supports students who want to live with other MIT students during the summer. Working alongside both **Listing** and **RoommatePosting**, the **SavedItems** concept allows users to save listings or roommate posts they want to revisit later, reducing search friction and making the process more organized and personalized.
+
+Finally, the **UserInfo** and **UserAuthentication** concepts ensure that users can log in securely with their MIT credentials, access content safely, and trust that everyone on the platform is an MIT affiliate. This addresses key concerns raised in our ethics analysis regarding safety, privacy, and preventing misuse of housing-related information. While the overall design forms a coherent system, a few open questions remain regarding the exact data we should display for safety (e.g., precise addresses vs. approximate locations) and how reviews should be moderated to prevent misuse. Overall, the concepts collectively create a streamlined, community-centered, and secure solution to MIT students' summer housing challenges.
 
 ## Development Plan
 
