@@ -1,72 +1,84 @@
 # Listing Concept
 
 **concept** Listing
-            
-**purpose**  Represent a summer-housing listing posted by an MIT-affiliated lister, including address, availability window, pricing, amenities, and optional photos.
 
-**principle** users can create a listing for their summers housing options so that other users can browse them and find housing easily
+**purpose**  represent a summer-housing listing posted by an MIT-affiliated lister, including address, availability window, pricing, amenities, and photos
+
+**principle** after a user creates a listing for their summer housing options, other users can browse listings to find housing easily
 
 **state**
 
         a set of Listings with
-            _id ID // unique identifier
+            _id ID
             a title String
-            a lister ID // this is the lister's _id
-            amenities: {Amenity}
-            photos {Photo} //unsure about the exact rep for this??
-            an address String // would we want to post the address or wait till they reach out like airbnb?
+            a lister User
+            a set of Amenities
+            a photos set of Images
+            an address String // post the address or wait until they reach out?
             a startDate DateTime
             an endDate DateTime
-            a price Number // we could do this differently like week by week or smth else (think it would be good to be consitent though)
+            a price Number // could be week by week or something else - good to be consitent
 
-               
-            a set of Amenities with
-                _id ID
-                a title String
-                a distance Number
+
+        a set of Amenities with
+            _id ID
+            a title String
+            a distance Number
 
 **actions**
 
-        create(lister: ID, amennities: {Amenity}, photos: {Photo}, address: String, startDate: DateTime, endDate: DateTime, price: Number): newListing: Listing
+        create(lister: User, amenities: set of Amenities, photos: set of Images, address: String, startDate: DateTime, endDate: DateTime, price: Number): (newListing: Listing)
             requires:
-                - no listing with this address on those dates exists
+                - no listing with this address and for these dates exists
                 - startDate < endDate
-            effects: creates a new listing with the inputted attributes
+            effects: creates and returns a new listing with the given lister, amenities, photos, address, startDate, endDate, and price
 
         delete(_id: ID)
             requires: listing with this _id exists
-            effects: deletes the listing
+            effects: deletes the listing from the set of listings
 
-        deletePhoto(listing: ID, photo: ID): editedListing: Listing //unsure how photos are represented...
+        deletePhoto(listing: ID, photo: Image): (editedListing: Listing)
             requires:
                 - listing exists
-                - photo is in this listings photos
-            effects: removes the photo from the listings photos attribute
+                - photo is in this listing's photos
+            effects: removes the photo from the listing's photos attribute and returns listing
 
-        addPhoto(listing: ID, photo: ID): editedListing: Listing
+        addPhoto(listing: ID, photo: Image): (editedListing: Listing)
             requires:
                 - listing exists
                 - photo is not in the listing
-            effects: adds the photo to the listings photos attribute
+            effects: adds the photo to the listings photos attribute and returns listing
 
-        editAddress(listing: ID, newAddress: String): editedListing: Listing
+        editTitle(listing: ID, newTitle: String): (editedListing: Listing)
+            requires:
+                - listing exists
+            effects: changes the title to newTitle and returns listing
+
+        editAddress(listing: ID, newAddress: String): (editedListing: Listing)
             requires:
                 - listing exists
                 - another listing with the same startDate and EndDate does not exist with this address
-            effects: changes the address to newAddress
+            effects: changes the address to newAddress and returns listing
 
-        editStartDate(listing: ID, newStartDate: String): editedListing: Listing
+        editStartDate(listing: ID, newStartDate: DateTime): (editedListing: Listing)
             requires:
                 - listing exists
                 - another listing with the same address and EndDate does not exist with this startDate
                 - startDate < endDate
-            effects: changes the startDate to newStartDate
+            effects: changes the startDate to newStartDate and returns listing
 
-        editPrice(listing: Listing, newPrice: Number): editedListing: Listing
+        editEndDate(listing: ID, newEndDate: DateTime): (editedListing: Listing)
+            requires:
+                - listing exists
+                - another listing with the same address and StartDate does not exist with this endDate
+                - startDate < endDate
+            effects: changes the endDate to newEndDate and returns listing
+
+        editPrice(listing: ID, newPrice: Number): (editedListing: Listing)
             requires: listing exists
-            effects: changes the price to newPrice
+            effects: changes the price to newPrice and returns listing
 
-        addAmenity(listing: ID, title: String, distance: Number):
+        addAmenity(listing: ID, title: String, distance: Number)
             requires:
                 - listing exists
                 - amenity is not already in amenities

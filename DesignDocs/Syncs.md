@@ -3,10 +3,10 @@
 ## Account Registration/Deletion
 
 **sync** createUser
-	**when** Requesting.createUser(username: String, password: String, emailAddress: String)
+	**when** Requesting.createUser(username: String, password: String, emailAddress: String, gender: Gender, age: Number, affiliation: Affiliation)
 	**then**
 	PasswordAuth.register(username, password): (user)
-	UserInfo.setInfo(user, emailAddress): (user)
+	UserInfo.setInfo(user, emailAddress, gender, age, affiliation): (user)
 	SavedItems.addUserRecord(user)
 	NotificationConcept.createMessageBody(template: WelcomeTemplate, email: emailAddress, name: username): (message)
 	NotificationConcept.sendMessage(message)

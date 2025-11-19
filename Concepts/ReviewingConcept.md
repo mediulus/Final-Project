@@ -17,17 +17,17 @@
 
     a set of Ratings with
         a category string
-        a stars int
+        a stars Number
 
 **actions**
 
-    makeReview(user: User, item: Item, set of categories: strings, set of stars: ints, blurb: string): (review: Review)
+    makeReview(user: User, item: Item, set of categories: strings, set of stars: Numbers, blurb: string): (review: Review)
         requires:
             - a review for the user and item doesn’t exist in the set of reviews
             - all categories in the set of categories are unique
         effects: creates ratings from the corresponding categories and stars, and then creates and returns a review associated with the user, item, ratings, and blurb
 
-    editRating(user: User, review: Review, category: string, stars: int) : (review: Review)
+    editRating(user: User, review: Review, category: string, stars: Number) : (review: Review)
         requires: a review with the user and item exists in the set of reviews, and is associated with a rating for the category
         effects: updates the review’s rating for the given category to the given stars amount and returns the review
 
@@ -37,4 +37,4 @@
 
     deleteReview(user: User, review: Review)
         requires: a review with the user and item exists in the set of reviews
-        effects:  removes the review from the set of reviews
+        effects: removes the review from the set of reviews
