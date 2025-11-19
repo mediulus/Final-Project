@@ -16,12 +16,12 @@
         a MessageTemplate string
         a recipientEmail string
         a recipientName string
-		
+
 **actions**
 
-    createMessageBody(template: MessageTemplate, email: recipientEmail, name: recipientName: ) : Message
-        requires: template, email, name are valid, email is an MIT / approved organizational email
-        effects: creates messageBody
+    createMessageBody(template: MessageTemplate, email: recipientEmail, name: recipientName) : Message
+        requires: template, email, name are valid; email is an MIT / approved organizational email
+        effects: creates messageBody with given template, email, and name
 
     sendEmail(message: Message)
         requires: message is a valid Message

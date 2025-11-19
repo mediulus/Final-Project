@@ -4,28 +4,39 @@
 
 **purpose** to keep track of a user’s personal information
 
-**principle** after a user sets their personal contact information (with updates as necessary), it can be used to get in touch with the user outside of the app
+**principle** after a user sets their personal information (with updates as necessary), it can be used to understand a user's identity and how to get in touch with the user outside of the app
 
 **state**
 
-    a set of Users with
-        an emailAddress string
-        a phoneNumber string
-	
+    a set of UserInfos with
+        a User
+        an emailAddress String
+        a gender Enum{Female, Male, Non-Binary, PreferNotToSay}
+        an age Number
+        an affiliation Enum{undergraduate, graduate, professor, affiliate}
+
 **actions**
 
-    setEmailAddress(user: User, emailAddress: string) : (user: User)
-        requires user doesn’t exist in set of users
-        effects associates user with email address in set of users and returns user
+    setInfo(user: User, emailAddress: String, gender: Gender, age: Number, affiliation: Affiliation) : (userInfo: UserInfo)
+        requires a userInfo with user doesn’t exist in set of userInfos
+        effects creates and returns a new userInfo with user, emailAddress, gender, age, and affiliation
 
-    updateEmailAddress(user: User, emailAddress: string): (user: User)
-        requires user exists in set of users
-        effects updates email address associated with user and returns user
+    updateEmailAddress(user: User, emailAddress: String) : (userInfo: UserInfo)
+        requires userInfo with user exists in set of userInfos
+        effects updates emailAddress of user's userInfo to given emailAddress and returns userInfo
 
-    setPhoneNumber(user: User, phoneNumber: string) : (user: User)
-        requires user doesn’t exist in set of users
-        effects associates user with phone number in set of users and returns user
+    updateGender(user: User, gender: Gender) : (userInfo: UserInfo)
+        requires userInfo with user exists in set of userInfos
+        effects updates gender of user's userInfo to given gender and returns userInfo
 
-    updatePhoneNumber(user: User, phoneNumber: string) : (user: User)
-        requires user exists in set of users
-        effects updates phone address associated with user and returns user
+    updateAge(user: User, age: Number) : (userInfo: UserInfo)
+        requires userInfo with user exists in set of userInfos
+        effects updates age of user's userInfo to given age and returns userInfo
+
+    updateAffiliation(user: User, affiliation: Affiliation) : (userInfo: UserInfo)
+        requires userInfo with user exists in set of userInfos
+        effects updates affiliation of user's userInfo to given affiliation and returns userInfo
+
+    deleteInfo(user: User)
+        requires userInfo with user exists in set of userInfos
+        effects removes user's userInfo from set of userInfos
