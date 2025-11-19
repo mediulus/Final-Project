@@ -15,6 +15,10 @@ Navigate to the following concepts:
 - [Notification](../Concepts/NotificationConcept.md)
 - [SavedItems](../Concepts/SavedItemsConcept.md)
 
+## Syncs
+Navigate to documentation of potential syncs using the above concepts
+- [[Syncs]]
+
 ## User Journey
 
 Shannon is an MIT student who is planning to stay on campus over the summer to UROP. She knows that she wants to stay close to campus so her commute is easy, but also wants to be able to easily travel around the city to explore Boston during the summer. There are several places available to her, and remembers seeing some students looking for roommates on dormspam but can’t seem to find those emails again.
@@ -69,10 +73,9 @@ Finally, the **UserInfo** and **UserAuthentication** concepts ensure that users 
 | **Project Report**                    |All | 12/9  | Final versions: source code, design documents, concept specs, mentoring meeting records; additionally: design summary, individual reflections |
 
 ## Key Risks
-- *User Authentication* - Ensuring a user is a member of the MIT community, or is in a known university, specifically for security reasons. 
+- *User Authentication* - Ensuring a user is a member of the MIT community, or is in a known university, specifically for security reasons.
     - Mitigate: Begin by ensuring applicants can only sign up with an MIT email, and down the road attempt to require a Touchstone login
     - Fallback: Ask users to go through a profile confirmation before being allowed to interact with postings or listings on the site, maybe including an image of a school id.
-- *Race Conditions* - Ensuring listings are accurate, and that no two users can rent the same apartment at the same time. 
+- *Race Conditions* - Ensuring listings are accurate, and that no two users can rent the same apartment at the same time.
     - Mitigate: Begin by ensuring real-time updates and the occasional automatic database refresh. Request that listings keep their posts updated
     - Fallback: Keep the scope of this application to just connect users with listings, and notify posters to keep their listings updated.
-
