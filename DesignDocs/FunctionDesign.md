@@ -17,7 +17,7 @@ Navigate to the following concepts:
 
 ## Syncs
 Navigate to documentation of potential syncs using the above concepts
-- [[Syncs]]
+- [Syncs](Syncs.md)
 
 ## User Journey
 
