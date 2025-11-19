@@ -17,7 +17,7 @@
 
     register (username: String, password: String): (user: User)
       requires: no User currently exists with the given `username`.
-      effects: A new User is created and returned, associated with the provided `username` and `password`hash corresponding with the inputted password. 
+      effects: A new User is created and returned, associated with the provided `username` and `password`hash corresponding with the inputted password.
 
 
     authenticate (username: String, password: String): (user: User)
@@ -25,9 +25,9 @@
       effect: returns user associated with username
 
 
-    deleteAccount (username: String, password: String):
+    deleteAccount (username: String, password: String): (user: User)
       requires: A User exists whose `username` matches the input `username` and whose `password` hash corresponds to the input `password`.
-      effects: The User associated with the given `username` is deleted.
+      effects: The User associated with the given `username` is deleted. 
 
 
     changePassword (username: String, currentPass: String, newPass: String):
