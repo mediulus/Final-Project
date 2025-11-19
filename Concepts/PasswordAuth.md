@@ -25,7 +25,7 @@
       effect: returns user associated with username
 
 
-    deleteAccount (username: String, password: String): (user: User)
+    deleteAccount (username: String, password: String)
       requires: A User exists whose `username` matches the input `username` and whose `password` hash corresponds to the input `password`.
       effects: The User associated with the given `username` is deleted. 
 
