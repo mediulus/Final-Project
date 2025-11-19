@@ -21,7 +21,7 @@
 
 **actions**
 
-    makeReview(user: User, item: Item, set of categories: strings, set of stars: Numbers, blurb: string): (review: Review)
+    makeReview(user: User, item: Item, set of categories: strings, set of stars: Numbers, blurb: string) : (review: Review)
         requires:
             - a review for the user and item doesn’t exist in the set of reviews
             - all categories in the set of categories are unique

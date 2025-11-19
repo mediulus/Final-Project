@@ -15,11 +15,11 @@
 
 **actions**
 
-    register(username: String, password: String): (user: User)
+    register(username: String, password: String) : (user: User)
       requires: no User currently exists with the given `username`
       effects: a new User is created and returned, associated with the provided `username` and `password` hash corresponding with the inputted password
 
-    authenticate(username: String, password: String): (user: User)
+    authenticate(username: String, password: String) : (user: User)
       requires: a User exists whose `username` matches the input `username` and whose `password` hash corresponds to the input `password`
       effect: returns user associated with username
 

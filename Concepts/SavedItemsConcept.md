@@ -18,7 +18,7 @@
 
 **actions**
 
-    addUserRecord(user: User): (userRecord: UserRecord)
+    addUserRecord(user: User) : (userRecord: UserRecord)
         requires: no UserRecord for user already exists
         effects: creates a new UserRecord for user with an empty set of SavedItems
 

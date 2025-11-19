@@ -16,23 +16,23 @@
 
 **actions**
 
-        create(poster: User, city: String, gender: Gender, age: Number, description: String): RoommatePosting
+        create(poster: User, city: String, gender: Gender, age: Number, description: String) : RoommatePosting
             requires: a roommatePosting with this poster does not already exist in set of roommatePostings
             effects: creates and returns new posting with the given poster, city, gender, age, and description
 
-        editCity(poster: User, city: String): RoommatePosting
+        editCity(poster: User, city: String) : RoommatePosting
             requires: a roomatePosting with this poster exists in set of roommatePostings
             effects: updates the posting's city to the given city and returns the posting
 
-        editGender(poster: User, gender: Gender): RoommatePosting
+        editGender(poster: User, gender: Gender) : RoommatePosting
             requires: a roomatePosting with this poster exists in set of roommatePostings
             effects: updates the posting's gender to the given gender and returns the posting
 
-        editAge(poster: User, age: Number): RoommatePosting
+        editAge(poster: User, age: Number) : RoommatePosting
             requires: a roomatePosting with this poster exists in set of roommatePostings
             effects: updates the posting's age to the given age and returns the posting
 
-        editDescription(poster: User, age: Number): RoommatePosting
+        editDescription(poster: User, age: Number) : RoommatePosting
             requires: a roomatePosting with this poster exists in set of roommatePostings
             effects: updates the posting's description to the given description and returns the posting
 

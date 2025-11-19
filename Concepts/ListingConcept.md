@@ -27,7 +27,7 @@
 
 **actions**
 
-        create(lister: User, amenities: set of Amenities, photos: set of Images, address: String, startDate: DateTime, endDate: DateTime, price: Number): (newListing: Listing)
+        create(lister: User, amenities: set of Amenities, photos: set of Images, address: String, startDate: DateTime, endDate: DateTime, price: Number) : (newListing: Listing)
             requires:
                 - no listing with this address and for these dates exists
                 - startDate < endDate
@@ -37,44 +37,44 @@
             requires: listing with this _id exists
             effects: deletes the listing from the set of listings
 
-        deletePhoto(listing: ID, photo: Image): (editedListing: Listing)
+        deletePhoto(listing: ID, photo: Image) : (editedListing: Listing)
             requires:
                 - listing exists
                 - photo is in this listing's photos
             effects: removes the photo from the listing's photos attribute and returns listing
 
-        addPhoto(listing: ID, photo: Image): (editedListing: Listing)
+        addPhoto(listing: ID, photo: Image) : (editedListing: Listing)
             requires:
                 - listing exists
                 - photo is not in the listing
             effects: adds the photo to the listings photos attribute and returns listing
 
-        editTitle(listing: ID, newTitle: String): (editedListing: Listing)
+        editTitle(listing: ID, newTitle: String) : (editedListing: Listing)
             requires:
                 - listing exists
             effects: changes the title to newTitle and returns listing
 
-        editAddress(listing: ID, newAddress: String): (editedListing: Listing)
+        editAddress(listing: ID, newAddress: String) : (editedListing: Listing)
             requires:
                 - listing exists
                 - another listing with the same startDate and EndDate does not exist with this address
             effects: changes the address to newAddress and returns listing
 
-        editStartDate(listing: ID, newStartDate: DateTime): (editedListing: Listing)
+        editStartDate(listing: ID, newStartDate: DateTime) : (editedListing: Listing)
             requires:
                 - listing exists
                 - another listing with the same address and EndDate does not exist with this startDate
                 - startDate < endDate
             effects: changes the startDate to newStartDate and returns listing
 
-        editEndDate(listing: ID, newEndDate: DateTime): (editedListing: Listing)
+        editEndDate(listing: ID, newEndDate: DateTime) : (editedListing: Listing)
             requires:
                 - listing exists
                 - another listing with the same address and StartDate does not exist with this endDate
                 - startDate < endDate
             effects: changes the endDate to newEndDate and returns listing
 
-        editPrice(listing: ID, newPrice: Number): (editedListing: Listing)
+        editPrice(listing: ID, newPrice: Number) : (editedListing: Listing)
             requires: listing exists
             effects: changes the price to newPrice and returns listing
 

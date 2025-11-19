@@ -21,11 +21,11 @@
         requires a userInfo with user doesn’t exist in set of userInfos
         effects creates and returns a new userInfo with user, emailAddress, gender, age, and affiliation
 
-    updateEmailAddress(user: User, emailAddress: String): (userInfo: UserInfo)
+    updateEmailAddress(user: User, emailAddress: String) : (userInfo: UserInfo)
         requires userInfo with user exists in set of userInfos
         effects updates emailAddress of user's userInfo to given emailAddress and returns userInfo
 
-    updateGender(user: User, gender: Gender): (userInfo: UserInfo)
+    updateGender(user: User, gender: Gender) : (userInfo: UserInfo)
         requires userInfo with user exists in set of userInfos
         effects updates gender of user's userInfo to given gender and returns userInfo
 
