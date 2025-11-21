@@ -11,11 +11,11 @@
     a set of Reviews with
         a User
         an Item
-
-    a set of Ratings
+        a set of Ratings
         a blurb string
 
     a set of Ratings with
+        a Review
         a category string
         a stars Number
 
@@ -28,13 +28,13 @@
         effects: creates ratings from the corresponding categories and stars, and then creates and returns a review associated with the user, item, ratings, and blurb
 
     editRating(user: User, review: Review, category: string, stars: Number) : (review: Review)
-        requires: a review with the user and item exists in the set of reviews, and is associated with a rating for the category
+        requires: the review exists in the set of reviews and is associated with the user
         effects: updates the review’s rating for the given category to the given stars amount and returns the review
 
-    editBlurb(user: User, review: Review, blurb: string)
-        requires: a review with the user and item exists in the set of reviews
+    editBlurb(user: User, review: Review, blurb: string) : (review: Review)
+        requires: the review exists in the set of reviews and is associated with the user
         effects: updates the review’s blurb and returns the review
 
     deleteReview(user: User, review: Review)
-        requires: a review with the user and item exists in the set of reviews
+        requires: the review exists in the set of reviews and is associated with the user
         effects: removes the review from the set of reviews
