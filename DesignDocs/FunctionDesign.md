@@ -7,13 +7,13 @@ Our only update from our [previous problem framing](./ProblemFraming.md) is that
 
 Navigate to the following concepts:
 
-- [UserInfo](../Concepts/UserInfoConcept.md)
-- [UserAuthentication](../Concepts/PasswordAuth.md)
-- [Reviewing](../Concepts/ReviewingConcept.md)
-- [Listing](../Concepts/ListingConcept.md)
-- [RoomatePosting](../Concepts/RoomatePosting.md)
-- [Notification](../Concepts/NotificationConcept.md)
-- [SavedItems](../Concepts/SavedItemsConcept.md)
+- [UserInfo](../Concepts/UserInfoConcept/UserInfoConcept.md)
+- [UserAuthentication](../Concepts/PasswordAuthConcept/PasswordAuth.md)
+- [Reviewing](../Concepts/ReviewingConcept/ReviewingConcept.md)
+- [Listing](../Concepts/ListingConcept/ListingConcept.md)
+- [RoomatePosting](../Concepts/RoomatePostingConcept/RoomatePosting.md)
+- [Notification](../Concepts/NotificationConcept/NotificationConcept.md)
+- [SavedItems](../Concepts/SavedItemsConcept/SavedItemsConcept.md)
 
 ## Syncs
 Navigate to documentation of potential syncs using the above concepts
