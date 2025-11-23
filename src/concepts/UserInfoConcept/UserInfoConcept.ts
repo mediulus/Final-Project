@@ -11,13 +11,13 @@ type User = ID;
 // Internal entity types, represented as IDs
 type UserInfo = ID;
 
-enum Gender {
+export enum Gender {
   Female,
   Male,
   NonBinary,
   PreferNotToSay,
 }
-enum Affiliation {
+export enum Affiliation {
   Undergraduate,
   Graduate,
   Faculty,
