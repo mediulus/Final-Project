@@ -24,7 +24,11 @@
  * inclusions = {"route": "justification"}
  */
 
-export const inclusions: Record<string, string> = {};
+export const inclusions: Record<string, string> = {
+  // Reviewing
+  "/api/Reviewing/_getReviewByItem": "can publicly get reviews for an item",
+  "/api/Reviewing/_getReviewFromUser": "can publicly get a user's reviews",
+};
 
 /**
  * EXCLUSIONS
@@ -41,4 +45,18 @@ export const exclusions: Array<string> = [
   "/api/Sessioning/create",
   "/api/Sessioning/delete",
   "/api/Sessioning/_getUser",
+
+  // Reviewing
+  "/api/Reviewing/create",
+  "/api/Reviewing/deleteReview",
+  "/api/Reviewing/editRanking",
+  "/api/Reviewing/editBlurb",
+
+  // UserInfo
+  "/api/UserInfo/setInfo",
+  "/api/UserInfo/deleteInfo",
+  "/api/UserInfo/updateAge",
+  "/api/UserInfo/updateAffiliation",
+  "/api/UserInfo/updateGender",
+  "/api/UserInfo/updateEmailAddress",
 ];

@@ -207,10 +207,11 @@ export default class ReviewingConcept {
    */
   async _getReviewsByItem(
     { item }: { item: Item },
-  ): Promise<{ review: Review }[]> {
+  ): Promise<{ review: Review; user: User }[]> {
     const posts = await this.reviews.find({ item: item }).toArray();
-    return posts.map((r) => ({ review: r._id }));
+    return posts.map((r) => ({ review: r._id, user: r.user }));
   }
+
   /**
    * Query: Retrieves all created by a given user.
    * @effects returns all reviews created by a given user
