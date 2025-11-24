@@ -29,7 +29,7 @@ export interface RoommatePosting {
 /**
  * Manages roommate postings for MIT students looking for summer housing companions
  */
-export class RoommatePostingConcept {
+export default class RoommatePostingConcept {
   private postings: Collection<RoommatePosting>;
 
   constructor(private readonly db: Db) {
