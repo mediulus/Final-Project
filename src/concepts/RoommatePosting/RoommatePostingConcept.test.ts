@@ -1,9 +1,8 @@
 import { assertEquals, assertObjectMatch } from "jsr:@std/assert";
 import { testDb } from "@utils/database.ts";
-import {
+import RoommatePostingConcept, {
   Gender,
-  RoommatePosting,
-  RoommatePostingConcept,
+  RoommatePosting
 } from "./RoommatePostingConcept.ts";
 import { ID } from "@utils/types.ts";
 

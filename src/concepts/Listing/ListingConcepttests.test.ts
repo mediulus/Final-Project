@@ -1,6 +1,6 @@
 import { assertEquals, assertObjectMatch } from "jsr:@std/assert";
 import { testDb } from "@utils/database.ts";
-import { ListingConcept, Listing } from "./ListingConcept.ts";
+import ListingConcept, { Listing } from "./ListingConcept.ts";
 import UserInfoConcept from "../UserInfo/UserInfoConcept.ts"; // Assuming this path
 import { ID } from "@utils/types.ts";
 
