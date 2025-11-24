@@ -173,7 +173,11 @@ export class ListingConcept {
 
 
   /**
-   * Deletes an existing listing by its ID.
+   * Deletes an existing listing by its ID.\
+   * 
+   * @requires listing with this id exists
+   * @effects  deletes the listing from the set of listings
+   *
    * @param id The ID of the listing to delete.
    * @throws Error if the listing does not exist.
    */
@@ -183,6 +187,11 @@ export class ListingConcept {
 
   /**
    * Removes a photo from a listing.
+   * 
+   * @requires listing exists
+   * @requires photo is in this listing's photos
+   * @effects removes the photo from the listing's photos attribute and returns listing
+   * 
    * @param listingId The ID of the listing to modify.
    * @param photoId The ID of the photo to remove.
    * @returns The updated Listing.
@@ -216,6 +225,11 @@ export class ListingConcept {
 
   /**
    * Adds a new photo to a listing.
+   * 
+   * @requires listing exists
+   * @requires photo is not in the listing
+   * @effects adds the photo to the listings photos attribute and returns listing
+   * 
    * @param listingId The ID of the listing to modify.
    * @param photo The Image object to add.
    * @returns The updated Listing.
@@ -262,6 +276,10 @@ export class ListingConcept {
 
   /**
    * Changes the title of a listing.
+   * 
+   * @requires listing exists
+   * @effects changes the title to newTitle and returns listing
+   * 
    * @param listingId The ID of the listing to modify.
    * @param newTitle The new title for the listing.
    * @returns The updated Listing.
@@ -282,6 +300,10 @@ export class ListingConcept {
 
   /**
    * Changes the address of a listing.
+   * @requires listing exists
+   * @requires  another listing with the same startDate and EndDate does not exist with this address
+   * @effects changes the address to newAddress and returns listing
+   * 
    * @param listingId The ID of the listing to modify.
    * @param newAddress The new address for the listing.
    * @returns The updated Listing.
@@ -311,6 +333,12 @@ export class ListingConcept {
 
   /**
    * Changes the start date of a listing.
+   * 
+   * @requires listing exists
+   * @requires startDate < endDate
+   * @requires another listing with the same address and EndDate does not exist with this startDate
+   * @effects changes the startDate to newStartDate and returns listing
+   * 
    * @param listingId The ID of the listing to modify.
    * @param newStartDate The new start date for the listing.
    * @returns The updated Listing.
@@ -345,6 +373,12 @@ export class ListingConcept {
 
   /**
    * Changes the end date of a listing.
+   * 
+   * @requires listing exists
+   * @requires startDate < endDate
+   * @requires another listing with the same address and EndDate does not exist with this startDate
+   * @effects changes the endDate to newEndDate and returns listing
+   * 
    * @param listingId The ID of the listing to modify.
    * @param newEndDate The new end date for the listing.
    * @returns The updated Listing.
@@ -379,6 +413,10 @@ export class ListingConcept {
 
   /**
    * Changes the price of a listing.
+   * 
+   * @requires listing exists
+   * @effects changes the price to newPrice and returns listing
+   * 
    * @param listingId The ID of the listing to modify.
    * @param newPrice The new price for the listing.
    * @returns The updated Listing.
@@ -402,6 +440,11 @@ export class ListingConcept {
 
   /**
    * Adds a new amenity to a listing. This creates a new Amenity instance specific to the listing.
+   * 
+   * @requires listing exists
+   * @requires amenity is not already in amenities
+   * @effects add the amenity to the amenities attribute
+   * 
    * @param listingId The ID of the listing to modify.
    * @param title The title of the amenity.
    * @param distance The distance associated with the amenity.
@@ -434,6 +477,10 @@ export class ListingConcept {
 
   /**
    * Deletes an amenity from a listing by its ID.
+   * @requires listing exists
+   * @requires amenity is part of the listing
+   * @effects removes amenity from amenities
+   * 
    * @param listingId The ID of the listing to modify.
    * @param amenityId The ID of the amenity to remove.
    * @returns The updated Listing.
@@ -460,7 +507,6 @@ export class ListingConcept {
     return { ...listing };
   }
 
-  // --- 4. Read/Query Methods (for completeness, not in original concept) ---
 
   /**
    * Retrieves a listing by its ID.

@@ -7,7 +7,6 @@
 **principle** an MIT student can create a roomatePost to let others know their summer plans and preferences, which other students can then browse to find a match
 
     a set of RoommatePostings with
-        an _id ID
         a poster User
         a city String
         a gender Enum{Female, Male, Non-Binary, PreferNotToSay}
@@ -36,6 +35,6 @@
             requires: a roomatePosting with this poster exists in set of roommatePostings
             effects: updates the posting's description to the given description and returns the posting
 
-        delete(posting: ID)
+        delete(posting: RoommatePosting)
             requires: posting exists
             effects: deletes the posting from the set of roommatePostings
