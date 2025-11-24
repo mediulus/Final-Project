@@ -4,7 +4,7 @@ import {
   Gender,
   RoommatePosting,
   RoommatePostingConcept,
-} from "./RoomatePostingConcept.ts";
+} from "./RoommatePostingConcept.ts";
 import { ID } from "@utils/types.ts";
 
 Deno.test("RoommatePosting Concept", async (t) => {
