@@ -38,3 +38,11 @@
     deleteReview(user: User, review: Review)
         requires: the review exists in the set of reviews and is associated with the user
         effects: removes the review from the set of reviews
+
+**actions**
+
+    getReviewsByItem(item: item) : (reviews: set of Reviews)
+        effects: returns all reviews for a given item
+
+    getReviewsByUser(user: user) : (reviews: set of Reviews)
+        effects: returns all reviews created by a given user

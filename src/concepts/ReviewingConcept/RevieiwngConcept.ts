@@ -14,7 +14,9 @@ type Review = ID;
 type Rating = ID;
 
 /**
- * State: A set of Posts with a creator; title; city, region, and country; start and end date; and description.
+ * State:
+ * A set of Reviews with a user, item, set of ratings, and blurb.
+ * A set of Ratings with a review, category, and stars.
  */
 export interface ReviewDoc {
   _id: Review;
@@ -32,10 +34,10 @@ export interface RatingDoc {
 }
 
 /**
- * @concept Posting
- * @purpose To make a record of a user's trip.
+ * @concept Reviewing
+ * @purpose to allow users to indicate their opinions about items
  */
-export default class PostingConcept {
+export default class ReviewingConcept {
   reviews: Collection<ReviewDoc>;
   ratings: Collection<RatingDoc>;
 
@@ -197,5 +199,26 @@ export default class PostingConcept {
     await this.ratings.deleteMany({ review: review });
 
     return {};
+  }
+
+  /**
+   * Query: Retrieves all reviews for a given item.
+   * @effects returns all reviews for a given item
+   */
+  async _getReviewsByItem(
+    { item }: { item: Item },
+  ): Promise<{ review: Review }[]> {
+    const posts = await this.reviews.find({ item: item }).toArray();
+    return posts.map((r) => ({ review: r._id }));
+  }
+  /**
+   * Query: Retrieves all created by a given user.
+   * @effects returns all reviews created by a given user
+   */
+  async _getReviewsFromUser(
+    { user }: { user: User },
+  ): Promise<{ review: Review }[]> {
+    const posts = await this.reviews.find({ user: user }).toArray();
+    return posts.map((r) => ({ review: r._id }));
   }
 }
