@@ -60,7 +60,7 @@ export interface Listing {
 /**
  * Manages the state and actions related to summer housing listings.
  */
-export class ListingConcept {
+export default class ListingConcept {
   // A private map to store listings, keyed by their unique ID for efficient lookup.
   private listings: Collection<Listing>;
 
