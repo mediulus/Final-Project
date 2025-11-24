@@ -1,1 +1,0 @@
-![@concept.7f5806fa](../../../context/design/concepts/LikertSurvey/implementation.md/steps/concept.7f5806fa.md)

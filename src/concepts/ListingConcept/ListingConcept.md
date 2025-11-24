@@ -9,9 +9,8 @@
 **state**
 
         a set of Listings with
-            _id ID
             a title String
-            a lister User
+            a lister ID
             a set of Amenities
             a photos set of Images
             an address String // post the address or wait until they reach out?
@@ -21,70 +20,69 @@
 
 
         a set of Amenities with
-            _id ID
             a title String
             a distance Number
 
 **actions**
 
-        create(lister: User, amenities: set of Amenities, photos: set of Images, address: String, startDate: DateTime, endDate: DateTime, price: Number) : (newListing: Listing)
+        create(lister: User, amenities: set of Amenities, title: string, photos: set of Images, address: String, startDate: DateTime, endDate: DateTime, price: Number) : (newListing: Listing)
             requires:
                 - no listing with this address and for these dates exists
                 - startDate < endDate
             effects: creates and returns a new listing with the given lister, amenities, photos, address, startDate, endDate, and price
 
-        delete(_id: ID)
+        delete(listing: Listing)
             requires: listing with this _id exists
             effects: deletes the listing from the set of listings
 
-        deletePhoto(listing: ID, photo: Image) : (editedListing: Listing)
+        deletePhoto(listing: Listing, photo: Image) : (editedListing: Listing)
             requires:
                 - listing exists
                 - photo is in this listing's photos
             effects: removes the photo from the listing's photos attribute and returns listing
 
-        addPhoto(listing: ID, photo: Image) : (editedListing: Listing)
+        addPhoto(listing: Listing, photo: Image) : (editedListing: Listing)
             requires:
                 - listing exists
                 - photo is not in the listing
             effects: adds the photo to the listings photos attribute and returns listing
 
-        editTitle(listing: ID, newTitle: String) : (editedListing: Listing)
+        editTitle(listing: Listing, newTitle: String) : (editedListing: Listing)
             requires:
                 - listing exists
             effects: changes the title to newTitle and returns listing
 
-        editAddress(listing: ID, newAddress: String) : (editedListing: Listing)
+        editAddress(listing: Listing, newAddress: String) : (editedListing: Listing)
             requires:
                 - listing exists
                 - another listing with the same startDate and EndDate does not exist with this address
             effects: changes the address to newAddress and returns listing
 
-        editStartDate(listing: ID, newStartDate: DateTime) : (editedListing: Listing)
+        editStartDate(listing: Listing, newStartDate: DateTime) : (editedListing: Listing)
             requires:
                 - listing exists
                 - another listing with the same address and EndDate does not exist with this startDate
                 - startDate < endDate
             effects: changes the startDate to newStartDate and returns listing
 
-        editEndDate(listing: ID, newEndDate: DateTime) : (editedListing: Listing)
+        editEndDate(listing: Listing, newEndDate: DateTime) : (editedListing: Listing)
             requires:
                 - listing exists
                 - another listing with the same address and StartDate does not exist with this endDate
                 - startDate < endDate
             effects: changes the endDate to newEndDate and returns listing
 
-        editPrice(listing: ID, newPrice: Number) : (editedListing: Listing)
+        editPrice(listing: Listing, newPrice: Number) : (editedListing: Listing)
             requires: listing exists
             effects: changes the price to newPrice and returns listing
 
-        addAmenity(listing: ID, title: String, distance: Number)
+        addAmenity(listing: Listing, title: String, distance: Number)
             requires:
                 - listing exists
                 - amenity is not already in amenities
             effects: add the amenity to the amenities attribute
 
-        deleteAmenity(listing: ID, amenity: ID)
+        deleteAmenity(listing: Listing, amenity: ID)
             requires:
                 - listing exists
                 - amenity is part of the listing
