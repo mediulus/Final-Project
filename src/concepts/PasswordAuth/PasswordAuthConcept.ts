@@ -98,7 +98,7 @@ export default class PasswordAuthConcept {
    * a User exists whose `username` matches the input `username` and whose `password` hash corresponds to the input `password`
    *
    * @effects
-   * deletes the User associated with the given `username`
+   * deletes the User associated with the given `username`, returns that user upon deletion
    */
   async deleteAccount({
     username,
@@ -106,7 +106,7 @@ export default class PasswordAuthConcept {
   }: {
     username: string;
     password: string;
-  }): Promise<Empty | { error: string }> {
+  }): Promise<{ user: User } | { error: string }> {
     const record = await this.users.findOne({ username });
     if (!record) return { error: "No such user" };
 
@@ -114,7 +114,7 @@ export default class PasswordAuthConcept {
     if (record.password !== hashed) return { error: "Incorrect password" };
 
     await this.users.deleteOne({ _id: record._id });
-    return {};
+    return { user: record._id };
   }
 
   /**
@@ -161,5 +161,11 @@ export default class PasswordAuthConcept {
   async _getUsers(): Promise<{ user: { username: string } }[]> {
     const users = await this.users.find().toArray();
     return users.map((u) => ({ user: { username: u.username } }));
+  }
+
+  async _getUsername({ user }: { user: User }): Promise<{ username: string }[]> {
+    const record = await this.users.findOne({ _id: user });
+    if (!record) return [];
+    return [{ username: record.username }];
   }
 }
