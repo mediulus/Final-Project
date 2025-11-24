@@ -25,4 +25,4 @@
 
     sendEmail(message: Message)
         requires: message is a valid Message
-        effects: sends message to message’s recipient
+        effects: (temporary) instead of sending via an email server, the message is printed to the application's console/log output for testing and development. In a later stage this will call the Gmail API to deliver the message to the recipient.
