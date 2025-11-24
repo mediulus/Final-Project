@@ -1,7 +1,7 @@
 import { assertEquals, assertObjectMatch } from "jsr:@std/assert";
 import { testDb } from "@utils/database.ts";
 import { ListingConcept, Listing } from "./ListingConcept.ts";
-import UserInfoConcept from "../UserInfoConcept/UserInfoConcept.ts"; // Assuming this path
+import UserInfoConcept from "../UserInfo/UserInfoConcept.ts"; // Assuming this path
 import { ID } from "@utils/types.ts";
 
 // Helper function to create dates easily
@@ -39,7 +39,7 @@ Deno.test("Listing Concept", async (t) => {
   // Common test data
   const address1 = "123 Main St, Cambridge";
   const address2 = "456 Broadway, Cambridge";
-  
+
   let listing1: Listing; // Will store the main listing used across tests
 
   Deno.test("1. create action", async (t) => {
@@ -184,7 +184,7 @@ Deno.test("Listing Concept", async (t) => {
       const updated = result as Listing;
       assertEquals(updated.photos.length, 1);
       assertEquals(updated.photos[0].url, photoData.url);
-      
+
       // Update our local reference
       listing1 = updated;
     });
@@ -287,7 +287,7 @@ Deno.test("Listing Concept", async (t) => {
   Deno.test("6. delete action", async (t) => {
     await t.step("6.1. effects: should delete the listing", async () => {
       await listingConcept.delete(listing1._id);
-      
+
       const check = await listingConcept.getListingById(listing1._id);
       assertEquals(check, null);
     });
@@ -327,7 +327,7 @@ Deno.test("Listing Concept", async (t) => {
       const photoRes = await listingConcept.addPhoto(traceListing._id, {
         url: "http://mit.edu/dorm.jpg"
       });
-      
+
       traceListing = photoRes as Listing;
       assertEquals(traceListing.amenities.length, 1);
       assertEquals(traceListing.photos.length, 1);
