@@ -41,4 +41,8 @@ export const exclusions: Array<string> = [
   "/api/Sessioning/create",
   "/api/Sessioning/delete",
   "/api/Sessioning/_getUser",
+
+  // Listing
+  "/api/Listing/create",
+  "/api/Listing/delete",
 ];

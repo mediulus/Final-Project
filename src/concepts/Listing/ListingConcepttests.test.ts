@@ -46,19 +46,19 @@ Deno.test("Listing Concept", async (t) => {
     await t.step(
       "1.1. effects: should successfully create a listing with valid data",
       async () => {
-        const result = await listingConcept.create(
-          user1Id,
-          "Alice's Summer Sublet",
-          [], // No amenities yet
-          [], // No photos yet
-          address1,
-          d("2025-06-01"),
-          d("2025-08-01"),
-          500
-        );
+        const createResult = await listingConcept.create({
+          lister: user1Id,
+          title: "Alice's Summer Sublet",
+          amenities: [], // No amenities yet
+          photos: [], // No photos yet
+          address: address1,
+          startDate: d("2025-06-01"),
+          endDate: d("2025-08-01"),
+          price: 500
+        });
 
-        assertEquals("error" in result, false, "Should return listing object");
-        listing1 = result as Listing;
+        assertEquals("error" in createResult, false, "Should return listing object");
+        listing1 = (createResult as { listing: Listing }).listing;
 
         // Verify properties
         assertObjectMatch(listing1, {
@@ -77,19 +77,19 @@ Deno.test("Listing Concept", async (t) => {
     await t.step(
       "1.2. requires: should fail if startDate is after endDate",
       async () => {
-        const result = await listingConcept.create(
-          user1Id,
-          "Bad Dates",
-          [],
-          [],
-          address2,
-          d("2025-09-01"), // Start
-          d("2025-08-01"), // End (before start)
-          500
-        );
-        assertEquals("error" in result, true);
+        const createResult = await listingConcept.create({
+          lister: user1Id,
+          title: "Bad Dates",
+          amenities: [],
+          photos: [],
+          address: address2,
+          startDate: d("2025-09-01"), // Start
+          endDate: d("2025-08-01"), // End (before start)
+          price: 500
+        });
+        assertEquals("error" in createResult, true);
         assertEquals(
-          (result as { error: string }).error,
+          (createResult as { error: string }).error,
           "Create listing failed: Start date must be strictly before end date."
         );
       }
@@ -101,20 +101,20 @@ Deno.test("Listing Concept", async (t) => {
         // Attempt to create a listing for Bob at Alice's address with overlapping dates
         // Alice: June 1 - Aug 1
         // Bob attempts: July 1 - Sept 1
-        const result = await listingConcept.create(
-          user2Id,
-          "Bob's Invasion",
-          [],
-          [],
-          address1, // Same address as Alice
-          d("2025-07-01"),
-          d("2025-09-01"),
-          600
-        );
+        const createResult = await listingConcept.create({
+          lister: user2Id,
+          title: "Bob's Invasion",
+          amenities: [],
+          photos: [],
+          address: address1, // Same address as Alice
+          startDate: d("2025-07-01"),
+          endDate: d("2025-09-01"),
+          price: 600
+        });
 
-        assertEquals("error" in result, true);
+        assertEquals("error" in createResult, true);
         assertEquals(
-          (result as { error: string }).error.includes("overlaps"),
+          (createResult as { error: string }).error.includes("overlaps"),
           true,
           "Should detect date/address conflict"
         );
@@ -124,17 +124,17 @@ Deno.test("Listing Concept", async (t) => {
     await t.step(
       "1.4. effects: should create a second listing if address differs",
       async () => {
-        const result = await listingConcept.create(
-          user2Id,
-          "Bob's Place",
-          [],
-          [],
-          address2, // Different address
-          d("2025-06-01"),
-          d("2025-08-01"),
-          550
-        );
-        assertEquals("error" in result, false);
+        const createResult = await listingConcept.create({
+          lister: user2Id,
+          title: "Bob's Place",
+          amenities: [],
+          photos: [],
+          address: address2, // Different address
+          startDate: d("2025-06-01"),
+          endDate: d("2025-08-01"),
+          price: 550
+        });
+        assertEquals("error" in createResult, false);
       }
     );
   });
@@ -268,9 +268,17 @@ Deno.test("Listing Concept", async (t) => {
 
     // To test conflict on edit, let's create a 3rd listing at Address1
     // that sits in the gap we just created (June 1 - June 30)
-    await listingConcept.create(
-        "user3" as ID, "Gap Filler", [], [], address1, d("2025-06-01"), d("2025-06-30"), 300
-    );
+    const gapResult = await listingConcept.create({
+        lister: "user3" as ID,
+        title: "Gap Filler",
+        amenities: [],
+        photos: [],
+        address: address1,
+        startDate: d("2025-06-01"),
+        endDate: d("2025-06-30"),
+        price: 300
+    });
+    if ("error" in gapResult) throw new Error("Failed to create gap listing");
 
     await t.step("5.3. requires: editStartDate fails if expanding into conflict", async () => {
       // Alice tries to move start date back to June 15
@@ -286,7 +294,7 @@ Deno.test("Listing Concept", async (t) => {
 
   Deno.test("6. delete action", async (t) => {
     await t.step("6.1. effects: should delete the listing", async () => {
-      await listingConcept.delete(listing1._id);
+      await listingConcept.delete({ listingId: listing1._id });
 
       const check = await listingConcept.getListingById(listing1._id);
       assertEquals(check, null);
@@ -307,18 +315,18 @@ Deno.test("Listing Concept", async (t) => {
 
     // 1. User posts a listing
     await t.step("7.1. User posts a basic listing", async () => {
-      const result = await listingConcept.create(
-        traceUser,
-        "MIT Dorm",
-        [],
-        [],
-        traceAddress,
-        d("2026-06-01"),
-        d("2026-08-31"),
-        1000
-      );
+      const result = await listingConcept.create({
+        lister: traceUser,
+        title: "MIT Dorm",
+        amenities: [],
+        photos: [],
+        address: traceAddress,
+        startDate: d("2026-06-01"),
+        endDate: d("2026-08-31"),
+        price: 1000
+      });
       assertEquals("error" in result, false);
-      traceListing = result as Listing;
+      traceListing = (result as { listing: Listing }).listing;
     });
 
     // 2. User enriches listing with photos and amenities
@@ -335,17 +343,17 @@ Deno.test("Listing Concept", async (t) => {
 
     // 3. Another user tries to post at same address/time (Conflict)
     await t.step("7.3. Second user blocked by conflict", async () => {
-      const result = await listingConcept.create(
-        "otherUser" as ID,
-        "Invader",
-        [],
-        [],
-        traceAddress,
-        d("2026-07-01"), // Overlaps
-        d("2026-07-15"),
-        500
-      );
-      assertEquals("error" in result, true);
+      const createResult = await listingConcept.create({
+        lister: "otherUser" as ID,
+        title: "Invader",
+        amenities: [],
+        photos: [],
+        address: traceAddress,
+        startDate: d("2026-07-01"), // Overlaps
+        endDate: d("2026-07-15"),
+        price: 500
+      });
+      assertEquals("error" in createResult, true);
     });
 
     // 4. First user shortens their listing dates
@@ -360,17 +368,17 @@ Deno.test("Listing Concept", async (t) => {
 
     // 5. Now second user can post in the newly freed slot (July 2 - Aug)
     await t.step("7.5. Second user successfully posts in freed slot", async () => {
-        const result = await listingConcept.create(
-            "otherUser" as ID,
-            "Success Post",
-            [],
-            [],
-            traceAddress,
-            d("2026-07-02"), // After July 1st
-            d("2026-08-01"),
-            500
-          );
-          assertEquals("error" in result, false);
+        const createResult = await listingConcept.create({
+            lister: "otherUser" as ID,
+            title: "Success Post",
+            amenities: [],
+            photos: [],
+            address: traceAddress,
+            startDate: d("2026-07-02"), // After July 1st
+            endDate: d("2026-08-01"),
+            price: 500
+          });
+          assertEquals("error" in createResult, false);
     });
   });
 
