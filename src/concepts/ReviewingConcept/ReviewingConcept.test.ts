@@ -1,7 +1,7 @@
 import { assertEquals, assertExists, assertNotEquals } from "jsr:@std/assert";
 import { testDb } from "@utils/database.ts";
 import { ID } from "@utils/types.ts";
-import ReviewingConcept from "./RevieiwngConcept.ts";
+import ReviewingConcept from "./ReviewingConcept.ts";
 
 // Setup mock IDs for users and items
 const userAlice = "user:Alice" as ID;
