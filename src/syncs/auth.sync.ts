@@ -1,6 +1,11 @@
 import { actions, Sync } from "@engine";
-import { Requesting, PasswordAuth, Sessioning, SavedItems } from "@concepts";
-
+import {
+  PasswordAuth,
+  Requesting,
+  SavedItems,
+  Sessioning,
+  UserInfo,
+} from "@concepts";
 
 //-- User Registration - Auto-Login upon success --//
 export const RegisterRequest: Sync = ({ request, username, password }) => ({
@@ -34,7 +39,6 @@ export const RegisterResponseError: Sync = ({ request, error }) => ({
   then: actions([Requesting.respond, { request, error }]),
 });
 
-
 //--Automatically create user record after registration --//
 export const AddUserRecordAfterRegister: Sync = ({ user }) => ({
   when: actions([PasswordAuth.register, {}, { user }]),
@@ -43,7 +47,11 @@ export const AddUserRecordAfterRegister: Sync = ({ user }) => ({
 
 //-- User Login & Session Creation --//
 export const LoginRequest: Sync = ({ request, username, password }) => ({
-  when: actions([Requesting.request, { path: "/PasswordAuth/authenticate", username, password }, { request }]),
+  when: actions([Requesting.request, {
+    path: "/PasswordAuth/authenticate",
+    username,
+    password,
+  }, { request }]),
   then: actions([PasswordAuth.authenticate, { username, password }]),
 });
 
@@ -64,14 +72,16 @@ export const LoginResponseSuccess: Sync = ({ request, user, session }) => ({
 export const LoginResponseError: Sync = ({ request, error }) => ({
   when: actions(
     [Requesting.request, { path: "/PasswordAuth/authenticate" }, { request }],
-    [PasswordAuth.authenticate, {}, { error }]
+    [PasswordAuth.authenticate, {}, { error }],
   ),
   then: actions([Requesting.respond, { request, error }]),
 });
 
 //-- User Logout --//
 export const LogoutRequest: Sync = ({ request, session, user }) => ({
-  when: actions([Requesting.request, { path: "/logout", session }, { request }]),
+  when: actions([Requesting.request, { path: "/logout", session }, {
+    request,
+  }]),
   where: (frames) => frames.query(Sessioning._getUser, { session }, { user }),
   then: actions([Sessioning.delete, { session }]),
 });
@@ -84,9 +94,10 @@ export const LogoutResponse: Sync = ({ request }) => ({
   then: actions([Requesting.respond, { request, status: "logged_out" }]),
 });
 
-
 //-- Delete User --//
-export const DeleteAccountRequest: Sync = ({ request, session, username, password, user }) => ({
+export const DeleteAccountRequest: Sync = (
+  { request, session, username, password, user },
+) => ({
   when: actions([
     Requesting.request,
     { path: "/PasswordAuth/deleteAccount", session, password },
@@ -94,23 +105,31 @@ export const DeleteAccountRequest: Sync = ({ request, session, username, passwor
   ]),
   // use the session to get user → then get username
   where: async (frames) => {
-    const userFrames = await frames.query(Sessioning._getUser, { session }, { user });
-    const usernameFrames = await userFrames.query(PasswordAuth._getUsername, { user }, { username });
+    const userFrames = await frames.query(Sessioning._getUser, { session }, {
+      user,
+    });
+    const usernameFrames = await userFrames.query(PasswordAuth._getUsername, {
+      user,
+    }, { username });
     return usernameFrames;
   },
   then: actions([PasswordAuth.deleteAccount, { username, password }]),
 });
 
-
 export const DeleteUserRecordAfterAccountDeletion: Sync = ({ user }) => ({
-  when: actions([PasswordAuth.deleteAccount, {}, { user}]),
+  when: actions([PasswordAuth.deleteAccount, {}, { user }]),
   then: actions([SavedItems.deleteUserRecord, { user }]),
-})
+});
+
+export const DeleteUserInfoAfterAccountDeletion: Sync = ({ user }) => ({
+  when: actions([PasswordAuth.deleteAccount, {}, { user }]),
+  then: actions([UserInfo.deleteInfo, { user }]),
+});
 
 export const DeleteAccountResponseSuccess: Sync = ({ request, user }) => ({
   when: actions(
     [Requesting.request, { path: "/PasswordAuth/deleteAccount" }, { request }],
-    [PasswordAuth.deleteAccount, {}, { user }]
+    [PasswordAuth.deleteAccount, {}, { user }],
   ),
   then: actions([Requesting.respond, { request }]),
 });
@@ -118,13 +137,15 @@ export const DeleteAccountResponseSuccess: Sync = ({ request, user }) => ({
 export const DeleteAccountResponseError: Sync = ({ request, error }) => ({
   when: actions(
     [Requesting.request, { path: "/PasswordAuth/deleteAccount" }, { request }],
-    [PasswordAuth.deleteAccount, {}, { error }]
+    [PasswordAuth.deleteAccount, {}, { error }],
   ),
   then: actions([Requesting.respond, { request, error }]),
 });
 
 //-- Change Password --//
-export const ChangePasswordRequest: Sync = ({ request, username, currentPass, newPass }) => ({
+export const ChangePasswordRequest: Sync = (
+  { request, username, currentPass, newPass },
+) => ({
   when: actions([
     Requesting.request,
     { path: "/PasswordAuth/changePassword", username, currentPass, newPass },
