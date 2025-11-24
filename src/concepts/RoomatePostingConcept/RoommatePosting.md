@@ -38,3 +38,19 @@
         delete(posting: RoommatePosting)
             requires: posting exists
             effects: deletes the posting from the set of roommatePostings
+        
+        getPostingByPosterId(poster:User): roommatePosting
+            requires: poster has a posting
+            effects: returns the posters post
+
+        getPostingsByCity(city: string): roomatePosting[]
+            requires: there are postings with that city
+            effects: returns the postings with that city or an error if no posts have that city
+
+        getPostingByAge(age: Number): roommatePosting[]
+            requires: there are postings with that age
+            effects: returns the postings with the age and error if no posts have that age
+
+        getAllPostings(): roommatePosting[]
+            requires: there are postings
+            effects: returns all of the roomatePostings
