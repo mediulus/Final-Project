@@ -87,3 +87,64 @@
                 - listing exists
                 - amenity is part of the listing
             effects: removes amenity from amenities
+
+        _getListingsByLister(lister: ID) : Listing[]
+            requires: at least one listing exists for the given lister
+            effects:  returns all listing IDs for the given lister
+
+        deleteListingsByLister(lister: ID)
+            requires:  at least one listing exists for the given lister
+            effects: deletes all listings for the given lister
+
+
+**Syncs**
+
+    sync CreateListingRequest
+      when
+          Requesting.request (path: "/Listing/create", session, title, amenities, photos, address, startDate, endDate, price) : (request)
+      where
+          in Sessioning: user is associated with session
+      then
+          Listing.create (lister: user, title, amenities, photos, address, startDate, endDate, price)
+
+
+    sync CreateListingResponseSuccess
+      when
+          Requesting.request (path: "/Listing/create") : (request)
+          Listing.create () : (listing)
+      then
+          Requesting.respond (request, listing)
+
+
+    sync CreateListingResponseError
+      when
+          Requesting.request (path: "/Listing/create") : (request)
+          Listing.create () : (error)
+      then
+          Requesting.respond (request, error)
+
+
+    sync DeleteListingRequest
+      when
+          Requesting.request (path: "/Listing/delete", session, listingId) : (request)
+      where
+          in Sessioning: user is associated with session
+      then
+          Listing.delete (listingId)
+
+
+    sync DeleteListingResponse
+      when
+          Requesting.request (path: "/Listing/delete", listingId) : (request)
+          Listing.delete (listingId) : ()
+      then
+          Requesting.respond (request, status: "deleted", listingId)
+
+
+    sync RemoveListingFromSavedItems
+      when
+          Listing.delete (listingId) : ()
+      where
+          in SavedItems: user has saved item matching listingId
+      then
+          SavedItems.removeItem (user, item: listingId)
