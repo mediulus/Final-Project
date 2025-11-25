@@ -2,7 +2,7 @@
 // Usage:
 // deno run --allow-net --allow-env scripts/send_example.ts
 
-import { sendEmail } from "../src/concepts/NotificationConcept/send_email.ts";
+import NotificationConcept from "../src/concepts/Notification/NotificationConcept.ts";
 
 function getEnv(name: string): string | null {
   return Deno.env.get(name) ?? null;
@@ -24,13 +24,16 @@ if (missing.length) {
 
 async function main() {
   try {
-    const result = await sendEmail({
+    const notifier = new NotificationConcept();
+    const message = {
       from: "Notification <notifications@example.com>",
       to: "camilaepierce@gmail.com",
       subject: "Test message from Final-Project",
       body: `This is a test message sent at ${new Date().toISOString()}`,
       html: false,
-    });
+    };
+
+    const result = await notifier.sendEmail(message);
 
     console.log("Send result:", JSON.stringify(result, null, 2));
   } catch (err) {
