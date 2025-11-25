@@ -62,7 +62,7 @@ export default class RoommatePostingConcept {
    * @param description Details about preferences and plans
    * @returns The newly created RoommatePosting or error if requirements not met
    */
-  async create(poster: ID, city: string, gender: Gender, age: number, description: string): Promise<RoommatePosting | { error: string }> {
+  async create({ poster, city, gender, age, description }: { poster: ID; city: string; gender: Gender; age: number; description: string }): Promise<{ posting: RoommatePosting } | { error: string }> {
     // Check if poster already has a posting
     const existingPosting = await this.getPostingByPoster(poster);
     if (existingPosting) {
@@ -82,7 +82,7 @@ export default class RoommatePostingConcept {
     };
 
     await this.postings.insertOne(newPosting);
-    return newPosting;
+    return { posting: newPosting };
   }
 
   /**
@@ -198,7 +198,7 @@ export default class RoommatePostingConcept {
    *
    * @param postingId The ID of the posting to delete
    */
-  async delete(postingId: ID): Promise<void> {
+  async delete({ postingId }: { postingId: ID }): Promise<void> {
     await this.postings.deleteOne({ _id: postingId });
   }
 

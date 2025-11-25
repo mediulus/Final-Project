@@ -24,7 +24,11 @@
  * inclusions = {"route": "justification"}
  */
 
-export const inclusions: Record<string, string> = {};
+export const inclusions: Record<string, string> = {
+  // Reviewing
+  "/api/Reviewing/_getReviewByItem": "can publicly get reviews for an item",
+  "/api/Reviewing/_getReviewFromUser": "can publicly get a user's reviews",
+};
 
 /**
  * EXCLUSIONS
@@ -54,5 +58,27 @@ export const exclusions: Array<string> = [
   "/api/SavedItems/removeItemTag",
   "/api/SavedItems/removeItem",
   "/api/SavedItems/_getSavedItems",
-  "/api/SavedItems/_getUsersTrackingItem", 
+  "/api/SavedItems/_getUsersTrackingItem",
+
+  // Reviewing
+  "/api/Reviewing/create",
+  "/api/Reviewing/deleteReview",
+  "/api/Reviewing/editRanking",
+  "/api/Reviewing/editBlurb",
+
+  // UserInfo
+  "/api/UserInfo/setInfo",
+  "/api/UserInfo/deleteInfo",
+  "/api/UserInfo/updateAge",
+  "/api/UserInfo/updateAffiliation",
+  "/api/UserInfo/updateGender",
+  "/api/UserInfo/updateEmailAddress",
+
+  // Listing
+  "/api/Listing/create",
+  "/api/Listing/delete",
+
+  // RoommatePosting
+  "/api/RoommatePosting/create",
+  "/api/RoommatePosting/delete",
 ];

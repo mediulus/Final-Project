@@ -131,8 +131,12 @@ export default class ListingConcept {
    * @returns The newly created Listing.
    * @returns Error if creation requirements are not met (e.g., date order, address/date conflict).
    */
-  async create(lister: ID, title: string, amenities: Amenity[], photos: NewPhoto[], address: string, startDate: Date, endDate: Date, price: number): Promise<Listing | { error: string }> {
-    if (startDate >= endDate) {
+  async create({ lister, title, amenities, photos, address, startDate, endDate, price }: { lister: ID; title: string; amenities: Amenity[]; photos: NewPhoto[]; address: string; startDate: Date | string; endDate: Date | string; price: number }): Promise<{ listing: Listing } | { error: string }> {
+    console.log("Creating listing with lister:", lister);
+    // Convert string dates to Date objects if needed
+    const start = startDate instanceof Date ? startDate : new Date(startDate);
+    const end = endDate instanceof Date ? endDate : new Date(endDate);
+    if (start >= end) {
       return { error: "Create listing failed: Start date must be strictly before end date." };
     }
 
@@ -157,8 +161,8 @@ export default class ListingConcept {
       amenities,
       photos: normalizedPhotos,
       address,
-      startDate,
-      endDate,
+      startDate: start,
+      endDate: end,
       price,
     };
 
@@ -168,7 +172,7 @@ export default class ListingConcept {
     }
 
     await this.listings.insertOne(newListing);
-    return newListing;
+    return { listing: newListing };
   }
 
 
@@ -181,7 +185,8 @@ export default class ListingConcept {
    * @param id The ID of the listing to delete.
    * @throws Error if the listing does not exist.
    */
-  async delete(listingId: ID): Promise<void> {
+  async delete({ listingId }: { listingId: ID }): Promise<void> {
+    console.log("Deleting listing with ID:", listingId);
     await this.listings.deleteOne({ _id: listingId });
   }
 

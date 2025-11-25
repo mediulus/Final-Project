@@ -697,6 +697,7 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
+        "npm:bson@7",
         "npm:mongodb@7"
       ]
     }
