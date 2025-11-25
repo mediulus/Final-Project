@@ -531,4 +531,40 @@ export default class ListingConcept {
     const listings = await this.listings.find({}).toArray();
     return listings.map(l => ({ ...l }));
   }
+
+  /**
+   * gets the listings for a given lister
+   * 
+   * @requires at least one listing exists for the given lister
+   * @effects returns all listing IDs for the given lister
+   * 
+   * @param lister The ID of the lister.
+   * @returns The listing IDs for the given lister.
+   * @throws Error if the lister does not exist or if there are no listings for the given lister.
+   */
+  async _getListingsByLister({ lister }: { lister: ID }): Promise<{ listing: { listingId: ID } }[]> {
+    const listings = await this.listings.find({ lister }).toArray();
+    return listings.map(l => ({ listing: { listingId: l._id } }));
+  }
+
+  /**
+   * deletes all listings for a given lister
+   * 
+   * @requires at least one listing exists for the given lister
+   * @effects deletes all listings for the given lister and returns the IDs of deleted listings
+   * 
+   * @param lister The ID of the lister.
+   * @returns The IDs of the deleted listings.
+   * @throws Error if the lister does not exist or if there are no listings for the given lister.
+   */
+  async deleteListingsByLister({ lister }: { lister: ID }): Promise<{ deletedListings: { listingId: ID }[] }> {
+    // Get all listing IDs before deleting
+    const listings = await this.listings.find({ lister }).toArray();
+    const listingIds = listings.map(l => ({ listingId: l._id }));
+    
+    // Delete all listings in one operation
+    await this.listings.deleteMany({ lister });
+    
+    return { deletedListings: listingIds };
+  }
 }
