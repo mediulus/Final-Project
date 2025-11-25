@@ -8,7 +8,7 @@ Hi {{name}},
 
 🎉 Welcome to Dam Good Housing!
 
-Your account ({{email}}) has been successfully created.
+Your account ({{name}}) has been successfully created.
 You can now log in and start exploring listings or roommate postings right away.
 
 — The DGH Team
@@ -17,7 +17,7 @@ You can now log in and start exploring listings or roommate postings right away.
 export const ACCOUNT_DELETION_TEMPLATE = `
 Hi {{name}},
 
-Your Dam Good Housing account ({{email}}) has been deleted.
+Your Dam Good Housing account ({{name}}) has been deleted.
 We’re sorry to see you go — your data and saved items have been securely removed from our system.
 
 If you change your mind, you’re always welcome to create a new account.

@@ -7,7 +7,10 @@ import {
   SavedItems,
   Sessioning,
   UserInfo,
+  Notification,
 } from "@concepts";
+
+import { ACCOUNT_WELCOME_TEMPLATE, ACCOUNT_DELETION_TEMPLATE, PASSWORD_CHANGE_TEMPLATE } from "../concepts/Notification/emailTemplates.ts";
 
 //-- Create Account Request --//
 export const CreateAccountRequest: Sync = ({
@@ -86,6 +89,62 @@ export const CreateAccountResponseError: Sync = ({ request, error }) => ({
 });
 
 
+///-- Create welcome email message after account creation --//
+export const CreateWelcomeEmailMessage: Sync = ({ user, emailAddress, username }) => ({
+  when: actions([PasswordAuth.register, {}, { user }]),
+
+  where: async (frames) => {
+
+    // Step 1️⃣: Query for email
+    const emailFrames = await frames.query(
+      UserInfo._getUserEmailAddress,
+      { user },
+      { emailAddress },
+    );
+
+    // Step 2️⃣: Query for username
+    const usernameFrames = await emailFrames.query(
+      PasswordAuth._getUsername,
+      { user },
+      { username },
+    );
+
+
+    if (!usernameFrames || usernameFrames.length === 0) {
+      console.warn("⚠️ [CreateWelcomeEmailMessage] No username frames found for user:", user);
+    }
+
+    return usernameFrames;
+  },
+
+  then: actions([
+    Notification.createMessageBody,
+    {
+      template: ACCOUNT_WELCOME_TEMPLATE,
+      email: emailAddress,
+      name: username,
+      subjectOverride: "Welcome to DamGoodHousing!",
+    },
+  ]),
+});
+
+
+//-- Send welcome email after account registration --//
+export const SendWelcomeEmailAfterRegistration: Sync = ({ message, user }) => ({
+  when: actions(
+    [PasswordAuth.register, {}, { user }],
+    [Notification.createMessageBody, {}, { message }],
+  ),
+  then: actions([
+    Notification.sendEmail,
+    { message },
+  ]),
+});
+
+
+
+
+
 //-- User Login & Session Creation --//
 export const LoginRequest: Sync = ({ request, username, password }) => ({
   when: actions([Requesting.request, {
@@ -135,27 +194,53 @@ export const LogoutResponse: Sync = ({ request }) => ({
   then: actions([Requesting.respond, { request, status: "logged_out" }]),
 });
 
-//-- Delete User --//
+
+//-- Delete Account Request with email notification --//
 export const DeleteAccountRequest: Sync = (
-  { request, session, username, password, user },
+  { request, session, username, password, user, emailAddress }
 ) => ({
   when: actions([
     Requesting.request,
     { path: "/PasswordAuth/deleteAccount", session, password },
     { request },
   ]),
-  // use the session to get user → then get username
+
+  // Fetch user, username, and email before deletion
   where: async (frames) => {
-    const userFrames = await frames.query(Sessioning._getUser, { session }, {
-      user,
-    });
-    const usernameFrames = await userFrames.query(PasswordAuth._getUsername, {
-      user,
-    }, { username });
-    return usernameFrames;
+    const userFrames = await frames.query(Sessioning._getUser, { session }, { user });
+    const usernameFrames = await userFrames.query(PasswordAuth._getUsername, { user }, { username });
+    const emailFrames = await usernameFrames.query(
+      UserInfo._getUserEmailAddress,
+      { user },
+      { emailAddress },
+    );
+    return emailFrames;
   },
-  then: actions([PasswordAuth.deleteAccount, { username, password }]),
+
+  // Delete the account *and* send the notification email before user info is wiped
+  then: actions(
+    [PasswordAuth.deleteAccount, { username, password }],
+    [Notification.createMessageBody, {
+      template: ACCOUNT_DELETION_TEMPLATE,
+      email: emailAddress,
+      name: username,
+      subjectOverride: `Your DamGoodHousing account has been deleted`,
+    }],
+  ),
 });
+
+
+//-- Send the deletion email after message creation --//
+export const SendAccountDeletionEmail: Sync = ({ message, user }) => ({
+  when: actions(
+    [PasswordAuth.deleteAccount, {}, { user }],
+    [Notification.createMessageBody, {}, { message }],
+  ),
+  then: actions([Notification.sendEmail, { message }]),
+});
+
+
+
 
 export const DeleteUserRecordAfterAccountDeletion: Sync = ({ user }) => ({
   when: actions([PasswordAuth.deleteAccount, {}, { user }]),
@@ -189,13 +274,13 @@ export const RemoveDeletedListingsFromSavedItems: Sync = ({ deletedListings, lis
       // No listings to clean up, return empty array
       return [];
     }
-    
+
     // For each deleted listing, query for users who saved it and create frames
     const allFrames: any[] = [];
     for (const deletedListing of deletedListingsData) {
       const listingIdVal = deletedListing.listingId;
       const usersFrames = await frames.query(SavedItems._getUsersTrackingItem, { item: listingIdVal }, { user: userObj });
-      
+
       for (const frame of usersFrames) {
         const userData = frame[userObj] as { user: any; tags: string[] } | undefined;
         if (userData && userData.user) {
@@ -207,7 +292,7 @@ export const RemoveDeletedListingsFromSavedItems: Sync = ({ deletedListings, lis
         }
       }
     }
-    
+
     return allFrames;
   },
   then: actions([SavedItems.removeItem, { user, item: listingIdValue }]),
@@ -227,13 +312,13 @@ export const RemoveDeletedRoommatePostingsFromSavedItems: Sync = ({ deletedPosti
       // No postings to clean up, return empty array
       return [];
     }
-    
+
     // For each deleted posting, query for users who saved it and create frames
     const allFrames: any[] = [];
     for (const deletedPosting of deletedPostingsData) {
       const postingIdVal = deletedPosting.postingId;
       const usersFrames = await frames.query(SavedItems._getUsersTrackingItem, { item: postingIdVal }, { user: userObj });
-      
+
       for (const frame of usersFrames) {
         const userData = frame[userObj] as { user: any; tags: string[] } | undefined;
         if (userData && userData.user) {
@@ -245,7 +330,7 @@ export const RemoveDeletedRoommatePostingsFromSavedItems: Sync = ({ deletedPosti
         }
       }
     }
-    
+
     return allFrames;
   },
   then: actions([SavedItems.removeItem, { user, item: postingIdValue }]),
@@ -272,6 +357,12 @@ export const DeleteAccountResponseError: Sync = ({ request, error }) => ({
   then: actions([Requesting.respond, { request, error }]),
 });
 
+
+
+
+
+
+
 //-- Change Password --//
 export const ChangePasswordRequest: Sync = (
   { request, username, currentPass, newPass },
@@ -285,6 +376,52 @@ export const ChangePasswordRequest: Sync = (
     PasswordAuth.changePassword,
     { username, currentPass, newPass },
   ]),
+});
+
+
+export const CreatePasswordChangeEmailMessage: Sync = ({ user, username, emailAddress }) => ({
+  when: actions([PasswordAuth.changePassword, { username }, {}]),
+
+  where: async (frames) => {
+    console.log("📬 [CreatePasswordChangeEmailMessage] Triggered for username:", username);
+
+    // Step 1️⃣: find the user from username
+    const userFrames = await frames.query(
+      PasswordAuth._getUser,
+      { username },
+      { user },
+    );
+    console.log("👤 Found user frames:", JSON.stringify(userFrames, null, 2));
+
+    // Step 2️⃣: get the user’s email
+    const emailFrames = await userFrames.query(
+      UserInfo._getUserEmailAddress,
+      { user },
+      { emailAddress },
+    );
+    console.log("📧 Email frames:", JSON.stringify(emailFrames, null, 2));
+
+    return emailFrames;
+  },
+
+  then: actions([
+    Notification.createMessageBody,
+    {
+      template: PASSWORD_CHANGE_TEMPLATE,
+      email: emailAddress,
+      name: username,
+      subjectOverride: `Your DamGoodHousing password was changed`,
+    },
+  ]),
+});
+
+//-- Send email after password change message creation --//
+export const SendPasswordChangeEmailAfterMessage: Sync = ({ message, user }) => ({
+  when: actions(
+    [PasswordAuth.changePassword, {}, {}],
+    [Notification.createMessageBody, {}, { message }],
+  ),
+  then: actions([Notification.sendEmail, { message }]),
 });
 
 export const ChangePasswordResponseSuccess: Sync = ({ request }) => ({

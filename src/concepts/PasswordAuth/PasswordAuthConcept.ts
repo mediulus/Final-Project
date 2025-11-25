@@ -168,4 +168,19 @@ export default class PasswordAuthConcept {
     if (!record) return [];
     return [{ username: record.username }];
   }
+
+  /**
+   * _getUser (username: string): { user: User }[]
+   *
+   * **requires** username exists
+   * **effects** returns the corresponding user ID for that username
+   */
+  async _getUser(
+    { username }: { username: string },
+  ): Promise<{ user: string }[]> {
+    const record = await this.users.findOne({ username });
+    if (!record) return [];
+    return [{ user: record._id }];
+  }
+
 }
