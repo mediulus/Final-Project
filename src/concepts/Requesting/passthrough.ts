@@ -76,6 +76,7 @@ export const exclusions: Array<string> = [
   "/api/UserInfo/updateAffiliation",
   "/api/UserInfo/updateGender",
   "/api/UserInfo/updateEmailAddress",
+  "/api/UserInfo/_getUserInfo",
 
   // Listing
   "/api/Listing/create",

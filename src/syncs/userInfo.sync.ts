@@ -26,19 +26,22 @@ export const SetUserInfoRequest: Sync = ({
     frames = await frames.query(Sessioning._getUser, { session }, { user });
     return frames;
   },
-  then: actions([UserInfo.setInfo, {
-    user,
-    age,
-    gender,
-    affiliation,
-    emailAddress,
-  }]),
+  then: actions([
+    UserInfo.setInfo,
+    {
+      user,
+      age,
+      gender,
+      affiliation,
+      emailAddress,
+    },
+  ]),
 });
 
 export const SetUserInfoResponse: Sync = ({ request, userInfo }) => ({
   when: actions(
     [Requesting.request, { path: "/UserInfo/setInfo" }, { request }],
-    [UserInfo.setInfo, {}, { userInfo }],
+    [UserInfo.setInfo, {}, { userInfo }]
   ),
   then: actions([Requesting.respond, { request, userInfo }]),
 });
@@ -46,7 +49,7 @@ export const SetUserInfoResponse: Sync = ({ request, userInfo }) => ({
 export const SetUserInfoResponseError: Sync = ({ request, error }) => ({
   when: actions(
     [Requesting.request, { path: "/UserInfo/setInfo" }, { request }],
-    [UserInfo.setInfo, {}, { error }],
+    [UserInfo.setInfo, {}, { error }]
   ),
   then: actions([Requesting.respond, { request, error }]),
 });
@@ -70,16 +73,19 @@ export const UpdateUserAgeRequest: Sync = ({
     frames = await frames.query(Sessioning._getUser, { session }, { user });
     return frames;
   },
-  then: actions([UserInfo.updateAge, {
-    user,
-    age,
-  }]),
+  then: actions([
+    UserInfo.updateAge,
+    {
+      user,
+      age,
+    },
+  ]),
 });
 
 export const UpdateUserAgeResponse: Sync = ({ request, userInfo }) => ({
   when: actions(
     [Requesting.request, { path: "/UserInfo/updateAge" }, { request }],
-    [UserInfo.updateAge, {}, { userInfo }],
+    [UserInfo.updateAge, {}, { userInfo }]
   ),
   then: actions([Requesting.respond, { request, userInfo }]),
 });
@@ -87,7 +93,7 @@ export const UpdateUserAgeResponse: Sync = ({ request, userInfo }) => ({
 export const EditUserAgeResponseError: Sync = ({ request, error }) => ({
   when: actions(
     [Requesting.request, { path: "/UserInfo/updateAge" }, { request }],
-    [UserInfo.updateAge, {}, { error }],
+    [UserInfo.updateAge, {}, { error }]
   ),
   then: actions([Requesting.respond, { request, error }]),
 });
@@ -111,16 +117,19 @@ export const UpdateUserAffiliationRequest: Sync = ({
     frames = await frames.query(Sessioning._getUser, { session }, { user });
     return frames;
   },
-  then: actions([UserInfo.updateAffiliation, {
-    user,
-    affiliation,
-  }]),
+  then: actions([
+    UserInfo.updateAffiliation,
+    {
+      user,
+      affiliation,
+    },
+  ]),
 });
 
 export const UpdateUserAffiliationResponse: Sync = ({ request, userInfo }) => ({
   when: actions(
     [Requesting.request, { path: "/UserInfo/updateAffiliation" }, { request }],
-    [UserInfo.updateAffiliation, {}, { userInfo }],
+    [UserInfo.updateAffiliation, {}, { userInfo }]
   ),
   then: actions([Requesting.respond, { request, userInfo }]),
 });
@@ -128,7 +137,7 @@ export const UpdateUserAffiliationResponse: Sync = ({ request, userInfo }) => ({
 export const EditUserAffiliationResponseError: Sync = ({ request, error }) => ({
   when: actions(
     [Requesting.request, { path: "/UserInfo/updateAffiliation" }, { request }],
-    [UserInfo.updateAffiliation, {}, { error }],
+    [UserInfo.updateAffiliation, {}, { error }]
   ),
   then: actions([Requesting.respond, { request, error }]),
 });
@@ -152,16 +161,19 @@ export const UpdateUserGenderRequest: Sync = ({
     frames = await frames.query(Sessioning._getUser, { session }, { user });
     return frames;
   },
-  then: actions([UserInfo.updateGender, {
-    user,
-    gender,
-  }]),
+  then: actions([
+    UserInfo.updateGender,
+    {
+      user,
+      gender,
+    },
+  ]),
 });
 
 export const UpdateUserGenderResponse: Sync = ({ request, userInfo }) => ({
   when: actions(
     [Requesting.request, { path: "/UserInfo/updateGender" }, { request }],
-    [UserInfo.updateGender, {}, { userInfo }],
+    [UserInfo.updateGender, {}, { userInfo }]
   ),
   then: actions([Requesting.respond, { request, userInfo }]),
 });
@@ -169,7 +181,7 @@ export const UpdateUserGenderResponse: Sync = ({ request, userInfo }) => ({
 export const EditUserGenderResponseError: Sync = ({ request, error }) => ({
   when: actions(
     [Requesting.request, { path: "/UserInfo/updateGender" }, { request }],
-    [UserInfo.updateGender, {}, { error }],
+    [UserInfo.updateGender, {}, { error }]
   ),
   then: actions([Requesting.respond, { request, error }]),
 });
@@ -193,16 +205,19 @@ export const UpdateUserEmailRequest: Sync = ({
     frames = await frames.query(Sessioning._getUser, { session }, { user });
     return frames;
   },
-  then: actions([UserInfo.updateEmailAddress, {
-    user,
-    emailAddress,
-  }]),
+  then: actions([
+    UserInfo.updateEmailAddress,
+    {
+      user,
+      emailAddress,
+    },
+  ]),
 });
 
 export const UpdateUserEmailResponse: Sync = ({ request, userInfo }) => ({
   when: actions(
     [Requesting.request, { path: "/UserInfo/updateEmailAddress" }, { request }],
-    [UserInfo.updateEmailAddress, {}, { userInfo }],
+    [UserInfo.updateEmailAddress, {}, { userInfo }]
   ),
   then: actions([Requesting.respond, { request, userInfo }]),
 });
@@ -210,7 +225,55 @@ export const UpdateUserEmailResponse: Sync = ({ request, userInfo }) => ({
 export const EditUserEmailResponseError: Sync = ({ request, error }) => ({
   when: actions(
     [Requesting.request, { path: "/UserInfo/updateEmailAddress" }, { request }],
-    [UserInfo.updateEmailAddress, {}, { error }],
+    [UserInfo.updateEmailAddress, {}, { error }]
   ),
   then: actions([Requesting.respond, { request, error }]),
+});
+
+// Get User Info Request
+export const GetUserInfoRequest: Sync = ({
+  request,
+  session,
+  user,
+  userInfo,
+  age,
+  gender,
+  affiliation,
+  emailAddress,
+}) => ({
+  when: actions([
+    Requesting.request,
+    {
+      path: "/UserInfo/_getUserInfo",
+      session,
+    },
+    { request },
+  ]),
+  where: async (frames) => {
+    // Step 1: Get user from session
+    const userFrames = await frames.query(
+      Sessioning._getUser,
+      { session },
+      { user }
+    );
+    // Step 2: Get user info for that user
+    const infoFrames = await userFrames.query(
+      UserInfo._getUserInfo,
+      { user },
+      { userInfo, user: user, age, gender, affiliation, emailAddress }
+    );
+    return infoFrames;
+  },
+  then: actions([
+    Requesting.respond,
+    {
+      request,
+      userInfo,
+      user,
+      age,
+      gender,
+      affiliation,
+      emailAddress,
+    },
+  ]),
 });

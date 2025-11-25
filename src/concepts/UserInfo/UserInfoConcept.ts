@@ -52,15 +52,19 @@ export default class UserInfoConcept {
    * @requires a userInfo with user doesn’t exist in set of userInfos
    * @effects creates and returns a new userInfo with user, emailAddress, gender, age, and affiliation
    */
-  async setInfo(
-    { user, age, gender, affiliation, emailAddress }: {
-      user: User;
-      age: number;
-      gender: Gender;
-      affiliation: Affiliation;
-      emailAddress: string;
-    },
-  ): Promise<{ userInfo: UserInfo } | { error: string }> {
+  async setInfo({
+    user,
+    age,
+    gender,
+    affiliation,
+    emailAddress,
+  }: {
+    user: User;
+    age: number;
+    gender: Gender;
+    affiliation: Affiliation;
+    emailAddress: string;
+  }): Promise<{ userInfo: UserInfo } | { error: string }> {
     // checks userInfo doesn't already exist for user
     const existingUser = await this.userInfos.findOne({
       user,
@@ -92,11 +96,11 @@ export default class UserInfoConcept {
    * @requires userInfo with user exists in set of userInfos
    * @effects removes user's userInfo from set of userInfos
    */
-  async deleteInfo(
-    { user }: {
-      user: User;
-    },
-  ): Promise<Empty | { error: string }> {
+  async deleteInfo({
+    user,
+  }: {
+    user: User;
+  }): Promise<Empty | { error: string }> {
     // checks userInfo already exists for user
     const currUser = await this.userInfos.findOne({ user: user });
     if (!currUser) {
@@ -113,12 +117,13 @@ export default class UserInfoConcept {
    * @requires userInfo with user exists in set of userInfos
    * @effects updates age of user's userInfo to given age and returns userInfo
    */
-  async updateAge(
-    { user, age }: {
-      user: User;
-      age: number;
-    },
-  ): Promise<{ userInfo: UserInfo } | { error: string }> {
+  async updateAge({
+    user,
+    age,
+  }: {
+    user: User;
+    age: number;
+  }): Promise<{ userInfo: UserInfo } | { error: string }> {
     // checks userInfo already exists for user
     const currUser = await this.userInfos.findOne({ user: user });
     if (!currUser) {
@@ -140,12 +145,13 @@ export default class UserInfoConcept {
    * @requires userInfo with user exists in set of userInfos
    * @effects updates gender of user's userInfo to given gender and returns userInfo
    */
-  async updateGender(
-    { user, gender }: {
-      user: User;
-      gender: Gender;
-    },
-  ): Promise<{ userInfo: UserInfo } | { error: string }> {
+  async updateGender({
+    user,
+    gender,
+  }: {
+    user: User;
+    gender: Gender;
+  }): Promise<{ userInfo: UserInfo } | { error: string }> {
     // checks userInfo already exists for user
     const currUser = await this.userInfos.findOne({ user: user });
     if (!currUser) {
@@ -153,9 +159,12 @@ export default class UserInfoConcept {
     }
 
     // update gender
-    await this.userInfos.updateOne({ user: user }, {
-      $set: { gender: gender },
-    });
+    await this.userInfos.updateOne(
+      { user: user },
+      {
+        $set: { gender: gender },
+      }
+    );
 
     const userInfo = await this.userInfos.find({ user: user }).toArray();
 
@@ -169,12 +178,13 @@ export default class UserInfoConcept {
    * @requires userInfo with user exists in set of userInfos
    * @effects updates affiliation of user's userInfo to given affiliation and returns userInfo
    */
-  async updateAffiliation(
-    { user, affiliation }: {
-      user: User;
-      affiliation: Affiliation;
-    },
-  ): Promise<{ userInfo: UserInfo } | { error: string }> {
+  async updateAffiliation({
+    user,
+    affiliation,
+  }: {
+    user: User;
+    affiliation: Affiliation;
+  }): Promise<{ userInfo: UserInfo } | { error: string }> {
     // checks userInfo already exists for user
     const currUser = await this.userInfos.findOne({ user: user });
     if (!currUser) {
@@ -182,9 +192,12 @@ export default class UserInfoConcept {
     }
 
     // update affiliation
-    await this.userInfos.updateOne({ user: user }, {
-      $set: { affiliation: affiliation },
-    });
+    await this.userInfos.updateOne(
+      { user: user },
+      {
+        $set: { affiliation: affiliation },
+      }
+    );
 
     const userInfo = await this.userInfos.find({ user: user }).toArray();
 
@@ -198,12 +211,13 @@ export default class UserInfoConcept {
    * @requires userInfo with user exists in set of userInfos
    * @effects updates email address of user's userInfo to given email address and returns userInfo
    */
-  async updateEmailAddress(
-    { user, emailAddress }: {
-      user: User;
-      emailAddress: string;
-    },
-  ): Promise<{ userInfo: UserInfo } | { error: string }> {
+  async updateEmailAddress({
+    user,
+    emailAddress,
+  }: {
+    user: User;
+    emailAddress: string;
+  }): Promise<{ userInfo: UserInfo } | { error: string }> {
     // checks userInfo already exists for user
     const currUser = await this.userInfos.findOne({ user: user });
     if (!currUser) {
@@ -211,9 +225,12 @@ export default class UserInfoConcept {
     }
 
     // update email address
-    await this.userInfos.updateOne({ user: user }, {
-      $set: { emailAddress: emailAddress },
-    });
+    await this.userInfos.updateOne(
+      { user: user },
+      {
+        $set: { emailAddress: emailAddress },
+      }
+    );
 
     const userInfo = await this.userInfos.find({ user: user }).toArray();
 
@@ -226,10 +243,42 @@ export default class UserInfoConcept {
    * Query: Retrieves a user's email
    * @effects returns the email of agiven user
    */
-  async _getUserEmailAddress(
-    { user }: { user: User },
-  ): Promise<{ emailAddress: string }[]> {
+  async _getUserEmailAddress({
+    user,
+  }: {
+    user: User;
+  }): Promise<{ emailAddress: string }[]> {
     const posts = await this.userInfos.find({ user: user }).toArray();
     return posts.map((u) => ({ emailAddress: u.emailAddress }));
+  }
+
+  /**
+   * Query: Retrieves a user's full info
+   * @effects returns the full userInfo for a given user
+   */
+  async _getUserInfo({ user }: { user: User }): Promise<
+    Array<{
+      userInfo: UserInfo;
+      user: User;
+      age: number;
+      gender: Gender;
+      affiliation: Affiliation;
+      emailAddress: string;
+    }>
+  > {
+    const userInfoDoc = await this.userInfos.findOne({ user: user });
+    if (!userInfoDoc) {
+      return [];
+    }
+    return [
+      {
+        userInfo: userInfoDoc._id,
+        user: userInfoDoc.user,
+        age: userInfoDoc.age,
+        gender: userInfoDoc.gender,
+        affiliation: userInfoDoc.affiliation,
+        emailAddress: userInfoDoc.emailAddress,
+      },
+    ];
   }
 }
