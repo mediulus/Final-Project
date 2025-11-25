@@ -269,10 +269,14 @@ export default class RoommatePostingConcept {
   }
 
   /**
-   * deletePostingsByPoster (poster: ID): (deletedPostings: {postingId: ID}[])
+   * deletes all roommate postings for a given poster
    * 
-   * **requires** true
-   * **effects** deletes all roommate postings for the given poster and returns the IDs of deleted postings
+   * @requires at least one posting exists for the given poster
+   * @effects deletes all roommate postings for the given poster and returns the IDs of deleted postings
+   * 
+   * @param poster The ID of the poster.
+   * @returns The IDs of the deleted postings.
+   * @throws Error if the poster does not exist or if there are no postings for the given poster.
    */
   async deletePostingsByPoster({ poster }: { poster: ID }): Promise<{ deletedPostings: { postingId: ID }[] }> {
     // Get all posting IDs before deleting

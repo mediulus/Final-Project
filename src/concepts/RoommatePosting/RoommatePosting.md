@@ -54,3 +54,63 @@
         getAllPostings(): roommatePosting[]
             requires: there are postings
             effects: returns all of the roomatePostings
+        
+        deletePostingsByPoster(Poster: ID)
+            requires: at least one posting exists for the given poster
+            effects: deletes all roommate postings for the given poster and returns the IDs of deleted postings
+
+
+**Syncs**
+
+    sync CreateRoommatePostingRequest
+      when
+          Requesting.request (path: "/RoommatePosting/create", session, city, gender, age, description) : (request)
+      where
+          in Sessioning: user is associated with session
+      then
+          RoommatePosting.create (poster: user, city, gender, age, description)
+
+
+    sync CreateRoommatePostingResponseSuccess
+      when
+          Requesting.request (path: "/RoommatePosting/create") : (request)
+          RoommatePosting.create () : (posting)
+      then
+          Requesting.respond (request, posting)
+
+
+    sync CreateRoommatePostingResponseError
+      when
+          Requesting.request (path: "/RoommatePosting/create") : (request)
+          RoommatePosting.create () : (error)
+      then
+          Requesting.respond (request, error)
+
+
+    sync DeleteRoommatePostingRequest
+      when
+          Requesting.request (path: "/RoommatePosting/delete", session, postingId) : (request)
+      where
+          in Sessioning: user is associated with session
+      then
+          RoommatePosting.delete (postingId)
+
+    sync DeleteRoommatePostingResponse
+      when
+          Requesting.request (path: "/RoommatePosting/delete", postingId) : (request)
+          RoommatePosting.delete (postingId) : ()
+      then
+          Requesting.respond (request, status: "deleted", postingId)
+
+
+    sync RemoveRoommatePostingFromSavedItems
+      when
+          RoommatePosting.delete (postingId) : ()
+      where
+          in SavedItems: user has saved item matching postingId
+      then
+          SavedItems.removeItem (user, item: postingId)
+
+
+These are all the the changes made for now, however depending on progress it may be feasible to add pictures to the roomate profile per the suggestions in out feature design assignment. 
+
