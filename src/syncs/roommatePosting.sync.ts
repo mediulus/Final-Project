@@ -240,6 +240,41 @@ export const SendContactRoommateEmail: Sync = ({ message }) => ({
   then: actions([Notification.sendEmail, { message }]),
 });
 
+// Tag the posting as 'Contacted' after sending email
+export const TagContactedRoommatePosting: Sync = (
+  { user, postingId, session },
+) => ({
+  when: actions(
+    [Requesting.request, {
+      path: "/RoommatePosting/contact",
+      postingId,
+      session,
+    }, {}],
+    [Notification.sendEmail, {}, {}],
+  ),
+  where: async (frames) => {
+    // Query for the user from the session
+    const userFrames = await frames.query(Sessioning._getUser, { session }, {
+      user,
+    });
+    console.log(
+      "🏷️ [TagContactedRoommatePosting] Attempting to tag posting for user:",
+      {
+        user: userFrames.length > 0 ? userFrames[0][user] : "no user",
+        postingId: userFrames.length > 0
+          ? userFrames[0][postingId]
+          : "no postingId",
+      },
+    );
+    return userFrames;
+  },
+  then: actions([SavedItems.addItemTag, {
+    user,
+    item: postingId,
+    tag: "Contacted",
+  }]),
+});
+
 // Send success response back to frontend
 export const ContactRoommateResponse: Sync = ({ request }) => ({
   when: actions(

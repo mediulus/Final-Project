@@ -285,6 +285,35 @@ export const SendListingInterestEmail: Sync = ({ message }) => ({
   then: actions([Notification.sendEmail, { message }]),
 });
 
+// Tag the listing as 'Contacted' after sending email
+export const TagContactedListing: Sync = ({ user, listingId, session }) => ({
+  when: actions(
+    [Requesting.request, { path: "/Listing/interest", listingId, session }, {}],
+    [Notification.sendEmail, {}, {}],
+  ),
+  where: async (frames) => {
+    // Query for the user from the session
+    const userFrames = await frames.query(Sessioning._getUser, { session }, {
+      user,
+    });
+    console.log(
+      "🏷️ [TagContactedListing] Attempting to tag listing for user:",
+      {
+        user: userFrames.length > 0 ? userFrames[0][user] : "no user",
+        listingId: userFrames.length > 0
+          ? userFrames[0][listingId]
+          : "no listingId",
+      },
+    );
+    return userFrames;
+  },
+  then: actions([SavedItems.addItemTag, {
+    user,
+    item: listingId,
+    tag: "Contacted",
+  }]),
+});
+
 // Send success response back to frontend
 export const ListingInterestResponse: Sync = ({ request }) => ({
   when: actions(

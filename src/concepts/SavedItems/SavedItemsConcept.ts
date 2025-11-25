@@ -1,5 +1,5 @@
 import { Collection, Db } from "npm:mongodb";
-import { ID, Empty } from "@utils/types.ts";
+import { Empty, ID } from "@utils/types.ts";
 import { freshID } from "@utils/database.ts";
 
 const PREFIX = "SavedItems" + ".";
@@ -9,8 +9,6 @@ type User = ID;
 type Item = ID;
 type UserRecord = ID;
 type SavedItem = ID;
-
-
 
 /**
  * a set of UserRecords with
@@ -35,7 +33,6 @@ interface SavedItemDoc {
   user: User; // associate with user for uniqueness per user
 }
 
-
 /**
  * SavedItems Concept
  *
@@ -53,7 +50,6 @@ export default class SavedItemsConcept {
     this.userRecords = this.db.collection(PREFIX + "userRecords");
     this.savedItems = this.db.collection(PREFIX + "savedItems");
   }
-
 
   /**
    * addUserRecord (user: User): (userRecord: UserRecord)
@@ -116,11 +112,21 @@ export default class SavedItemsConcept {
     item: Item;
     tag: string;
   }): Promise<Empty | { error: string }> {
+    console.log(
+      `🏷️ [SavedItems.addItemTag] Called with user: ${user}, item: ${item}, tag: ${tag}`,
+    );
+
     const record = await this.userRecords.findOne({ user });
-    if (!record) return { error: "No UserRecord for user" };
+    if (!record) {
+      console.log(`❌ [SavedItems.addItemTag] No UserRecord for user: ${user}`);
+      return { error: "No UserRecord for user" };
+    }
 
     let saved = await this.savedItems.findOne({ user, item });
     if (!saved) {
+      console.log(
+        `➕ [SavedItems.addItemTag] Creating new saved item for user: ${user}, item: ${item}`,
+      );
       const savedItem: SavedItem = freshID();
       await this.savedItems.insertOne({
         _id: savedItem,
@@ -130,15 +136,23 @@ export default class SavedItemsConcept {
       });
       await this.userRecords.updateOne(
         { _id: record._id },
-        { $push: { savedItems: savedItem } }
+        { $push: { savedItems: savedItem } },
       );
     } else if (saved.tags.includes(tag)) {
+      console.log(
+        `⚠️ [SavedItems.addItemTag] Tag "${tag}" already exists for item: ${item}`,
+      );
       return { error: "Tag already exists for this item" };
     } else {
+      console.log(
+        `✅ [SavedItems.addItemTag] Adding tag "${tag}" to existing item. Current tags:`,
+        saved.tags,
+      );
       await this.savedItems.updateOne(
         { _id: saved._id },
-        { $push: { tags: tag } }
+        { $push: { tags: tag } },
       );
+      console.log(`✅ [SavedItems.addItemTag] Tag added successfully`);
     }
     return {};
   }
@@ -172,12 +186,12 @@ export default class SavedItemsConcept {
       await this.savedItems.deleteOne({ _id: saved._id });
       await this.userRecords.updateOne(
         { _id: record._id },
-        { $pull: { savedItems: saved._id } }
+        { $pull: { savedItems: saved._id } },
       );
     } else {
       await this.savedItems.updateOne(
         { _id: saved._id },
-        { $set: { tags: newTags } }
+        { $set: { tags: newTags } },
       );
     }
     return {};
@@ -206,11 +220,10 @@ export default class SavedItemsConcept {
     await this.savedItems.deleteOne({ _id: saved._id });
     await this.userRecords.updateOne(
       { _id: record._id },
-      { $pull: { savedItems: saved._id } }
+      { $pull: { savedItems: saved._id } },
     );
     return {};
   }
-
 
   /**
    * _getSavedItems (user: User): (item: {item: Item, tags: String[]})
@@ -233,7 +246,6 @@ export default class SavedItemsConcept {
       savedItem: { item: s.item, tags: s.tags },
     }));
   }
-
 
   /**
    * _getUsersTrackingItem (item: Item): (user: {user: User, tags: String[]})
