@@ -47,11 +47,15 @@ export const exclusions: Array<string> = [
   "/api/Sessioning/_getUser",
   "/api/PasswordAuth/hashPassword",
   "/api/PasswordAuth/register",
+
+  // PasswordAuth
   "/api/PasswordAuth/authenticate",
   "/api/PasswordAuth/deleteAccount",
   "/api/PasswordAuth/changePassword",
   "/api/PasswordAuth/_getUsers",
   "/api/PasswordAuth/_getUsername",
+
+  // SavedItems
   "/api/SavedItems/addUserRecord",
   "/api/SavedItems/deleteUserRecord",
   "/api/SavedItems/addItemTag",

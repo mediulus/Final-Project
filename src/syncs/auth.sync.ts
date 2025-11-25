@@ -7,43 +7,82 @@ import {
   UserInfo,
 } from "@concepts";
 
-//-- User Registration - Auto-Login upon success --//
-export const RegisterRequest: Sync = ({ request, username, password }) => ({
+//-- Create Account Request --//
+export const CreateAccountRequest: Sync = ({
+  request,
+  username,
+  password,
+  age,
+  gender,
+  affiliation,
+  emailAddress,
+}) => ({
   when: actions([
     Requesting.request,
-    { path: "/PasswordAuth/register", username, password },
+    {
+      path: "/createAccount",
+      username,
+      password,
+      age,
+      gender,
+      affiliation,
+      emailAddress,
+    },
     { request },
   ]),
-  then: actions([PasswordAuth.register, { username, password }]),
+  then: actions([
+    PasswordAuth.register,
+    { username, password },
+  ]),
 });
 
-export const RegisterCreatesSession: Sync = ({ user }) => ({
-  when: actions([PasswordAuth.register, {}, { user }]),
-  then: actions([Sessioning.create, { user }]),
-});
-
-export const RegisterResponseSuccess: Sync = ({ request, user, session }) => ({
+//-- After Register: create session, savedItems, and user info --//
+export const CreateAccountPostRegister: Sync = ({
+  user,
+  age,
+  gender,
+  affiliation,
+  emailAddress,
+}) => ({
   when: actions(
-    [Requesting.request, { path: "/PasswordAuth/register" }, { request }],
+    [Requesting.request, { path: "/createAccount", age, gender, affiliation, emailAddress }, {}],
+    [PasswordAuth.register, {}, { user }],
+  ),
+  then: actions(
+    [Sessioning.create, { user }],
+    [SavedItems.addUserRecord, { user }],
+    [UserInfo.setInfo, { user, age, gender, affiliation, emailAddress }],
+  ),
+});
+
+//-- Final Response --//
+export const CreateAccountResponseSuccess: Sync = ({
+  request,
+  user,
+  session,
+  userInfo,
+}) => ({
+  when: actions(
+    [Requesting.request, { path: "/createAccount" }, { request }],
     [PasswordAuth.register, {}, { user }],
     [Sessioning.create, { user }, { session }],
+    [UserInfo.setInfo, { user }, { userInfo }],
   ),
-  then: actions([Requesting.respond, { request, user, session }]),
+  then: actions([
+    Requesting.respond,
+    { request, user, session, userInfo },
+  ]),
 });
 
-export const RegisterResponseError: Sync = ({ request, error }) => ({
+//-- Error handling --//
+export const CreateAccountResponseError: Sync = ({ request, error }) => ({
   when: actions(
-    [Requesting.request, { path: "/PasswordAuth/register" }, { request }],
+    [Requesting.request, { path: "/createAccount" }, { request }],
     [PasswordAuth.register, {}, { error }],
   ),
   then: actions([Requesting.respond, { request, error }]),
 });
 
-//--Automatically create user record after registration --//
-export const AddUserRecordAfterRegister: Sync = ({ user }) => ({
-  when: actions([PasswordAuth.register, {}, { user }]),
-  then: actions([SavedItems.addUserRecord, { user }]),
-});
 
 //-- User Login & Session Creation --//
 export const LoginRequest: Sync = ({ request, username, password }) => ({

@@ -105,34 +105,49 @@ export const RemoveItemTagResponseError: Sync = ({ request, error }) => ({
 
 // get saved items
 
-export const GetSavedItemsRequest: Sync = ({ request, session, user }) => ({
+export const GetSavedItemsRequest: Sync = ({
+  request,
+  session,
+  user,
+  results,
+  savedItem,
+}) => ({
   when: actions([
     Requesting.request,
-    { path: "/SavedItems/getSavedItems", session },
+    { path: "/SavedItems/_getSavedItems", session },
     { request },
   ]),
-  where: (frames) => {
-    console.log("🧩 running _getUser for session", session);
-    return frames.query(Sessioning._getUser, { session }, { user });
+
+  where: async (frames) => {
+    console.log("🧩 [GetSavedItemsRequest] Starting for session:", session);
+
+    // 1️⃣ Resolve user from session
+    frames = await frames.query(Sessioning._getUser, { session }, { user });
+    console.log("👤 [GetSavedItemsRequest] User:", frames?.[0]?.[user]);
+
+    // 2️⃣ Query saved items (returns [{ savedItem: {...} }])
+    const queried = await frames.query(
+      SavedItems._getSavedItems,
+      { user },
+      { savedItem },
+    );
+    console.log(
+      "📦 [GetSavedItemsRequest] Queried:",
+      JSON.stringify(queried, null, 2),
+    );
+
+    // 3️⃣ Collect results
+    const collected = queried.collectAs([user, savedItem], results);
+    console.log("✅ [GetSavedItemsRequest] Collected:", collected);
+
+    return collected;
   },
+
   then: actions([
-    SavedItems._getSavedItems,
-    { user },
-  ]),
-});
-
-export const GetSavedItemsResponseSuccess: Sync = ({ request, user, items }) => ({
-  when: actions(
-    [Requesting.request, { path: "/SavedItems/getSavedItems" }, { request }],
-    [SavedItems._getSavedItems, { user }, { items }],
-  ),
-  then: actions([Requesting.respond, { request, items }]),
-});
-
-export const GetSavedItemsResponseError: Sync = ({ request, error }) => ({
-  when: actions(
-    [Requesting.request, { path: "/SavedItems/getSavedItems" }, { request }],
-    [SavedItems._getSavedItems, {}, { error }],
-  ),
-  then: actions([Requesting.respond, { request, error }]),
+  Requesting.respond,
+  {
+    request,
+    results: results.map((r: any) => r.savedItem),
+  },
+]),
 });

@@ -222,13 +222,18 @@ export default class SavedItemsConcept {
     user,
   }: {
     user: User;
-  }): Promise<{ item: { item: Item; tags: string[] } }[] | { error: string }> {
+  }): Promise<{ savedItem: { item: Item; tags: string[] } }[]> {
     const record = await this.userRecords.findOne({ user });
-    if (!record) return { error: "No UserRecord for user" };
+    if (!record) return []; // no error, just empty array
 
     const items = await this.savedItems.find({ user }).toArray();
-    return items.map((s) => ({ item: { item: s.item, tags: s.tags } }));
+
+    // 🔧 Wrap each record under a consistent key "savedItem"
+    return items.map((s) => ({
+      savedItem: { item: s.item, tags: s.tags },
+    }));
   }
+
 
   /**
    * _getUsersTrackingItem (item: Item): (user: {user: User, tags: String[]})
