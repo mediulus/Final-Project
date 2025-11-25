@@ -119,11 +119,9 @@ export const GetSavedItemsRequest: Sync = ({
   ]),
 
   where: async (frames) => {
-    console.log("🧩 [GetSavedItemsRequest] Starting for session:", session);
 
     // 1️⃣ Resolve user from session
     frames = await frames.query(Sessioning._getUser, { session }, { user });
-    console.log("👤 [GetSavedItemsRequest] User:", frames?.[0]?.[user]);
 
     // 2️⃣ Query saved items (returns [{ savedItem: {...} }])
     const queried = await frames.query(
@@ -131,23 +129,16 @@ export const GetSavedItemsRequest: Sync = ({
       { user },
       { savedItem },
     );
-    console.log(
-      "📦 [GetSavedItemsRequest] Queried:",
-      JSON.stringify(queried, null, 2),
-    );
+
 
     // 3️⃣ Collect results
     const collected = queried.collectAs([user, savedItem], results);
-    console.log("✅ [GetSavedItemsRequest] Collected:", collected);
 
     return collected;
   },
 
   then: actions([
-  Requesting.respond,
-  {
-    request,
-    results: results.map((r: any) => r.savedItem),
-  },
-]),
+    Requesting.respond,
+    { request, results },
+  ]),
 });
