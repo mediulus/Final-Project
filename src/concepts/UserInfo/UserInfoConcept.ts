@@ -221,4 +221,15 @@ export default class UserInfoConcept {
       userInfo: u._id,
     }))[0];
   }
+
+  /**
+   * Query: Retrieves a user's email
+   * @effects returns the email of agiven user
+   */
+  async _getUserEmailAddress(
+    { user }: { user: User },
+  ): Promise<{ emailAddress: string }[]> {
+    const posts = await this.userInfos.find({ user: user }).toArray();
+    return posts.map((u) => ({ emailAddress: u.emailAddress }));
+  }
 }
