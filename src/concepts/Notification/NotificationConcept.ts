@@ -25,49 +25,61 @@ export default class NotificationConcept {
   }
 
   /**
-   * Create a Message object from a template, recipient email, and name.
-   * Supported placeholders: {{name}}, {{email}}
+   * ✅ Concept Action: createMessageBody (template, email, name)
+   *
+   * **effects** creates a formatted message with placeholders replaced
    */
-  createMessageBody(
-    template: MessageTemplate,
-    email: string,
-    name: string,
-  ): Message {
+  async createMessageBody({
+    template,
+    email,
+    name,
+  }: {
+    template: MessageTemplate;
+    email: string;
+    name: string;
+  }): Promise<{ message: Message }> {
     if (!template) throw new Error("template is required");
     if (!email) throw new Error("recipient email is required");
     if (!name) throw new Error("recipient name is required");
     if (!this.isValidEmail(email)) {
       throw new Error(`invalid email address: ${email}`);
     }
-    // optional domain enforcement
-    // if (!this.isAllowedDomain(email)) throw new Error(`recipient domain not allowed: ${email}`);
 
     const body = template
       .replace(/\{\{\s*name\s*\}\}/gi, name)
       .replace(/\{\{\s*email\s*\}\}/gi, email);
 
-    const subject = `Notification for ${name}`;
+    const subject = `Welcome to DamGoodHousing, ${name}!`;
     const from = Deno.env.get("GMAIL_SENDER") ?? "dam.good.housing@gmail.com";
 
     return {
-      from,
-      to: email,
-      subject,
-      body,
-      html: false,
+      message: {
+        from,
+        to: email,
+        subject,
+        body,
+        html: false,
+      },
     };
   }
 
   /**
-   * Send a Message. Delegates to the send helper which supports dry-run via env.
+   * ✅ Concept Action: sendEmail (message)
+   *
+   * **effects** sends the provided email
    */
-  async sendEmail(message: Message): Promise<unknown> {
+  async sendEmail({
+    message,
+  }: {
+    message: Message;
+  }): Promise<{ delivered: boolean }> {
     if (!message) throw new Error("message is required");
     if (!message.to) throw new Error("message.to is required");
     if (!this.isValidEmail(message.to)) {
       throw new Error(`invalid recipient email: ${message.to}`);
     }
 
-    return await sendViaGmail(message);
+    await sendViaGmail(message);
+    return {delivered: true };
   }
 }

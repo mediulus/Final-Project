@@ -8,7 +8,7 @@ Hi {{name}},
 
 🎉 Welcome to Dam Good Housing!
 
-Your account ({{email}}) has been successfully created.
+Your account ({{name}}) has been successfully created.
 You can now log in and start exploring listings or roommate postings right away.
 
 — The DGH Team

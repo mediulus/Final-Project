@@ -7,7 +7,10 @@ import {
   SavedItems,
   Sessioning,
   UserInfo,
+  Notification,
 } from "@concepts";
+
+import { ACCOUNT_WELCOME_TEMPLATE } from "../concepts/Notification/emailTemplates.ts";
 
 //-- Create Account Request --//
 export const CreateAccountRequest: Sync = ({
@@ -84,6 +87,79 @@ export const CreateAccountResponseError: Sync = ({ request, error }) => ({
   ),
   then: actions([Requesting.respond, { request, error }]),
 });
+
+
+///-- Create welcome email message after account creation --//
+export const CreateWelcomeEmailMessage: Sync = ({ user, emailAddress, username }) => ({
+  when: actions([PasswordAuth.register, {}, { user }]),
+  
+  where: async (frames) => {
+    console.log("📬 [CreateWelcomeEmailMessage] Triggered for user:", user);
+
+    // Step 1️⃣: Query for email
+    const emailFrames = await frames.query(
+      UserInfo._getUserEmailAddress,
+      { user },
+      { emailAddress },
+    );
+    console.log("📧 [CreateWelcomeEmailMessage] Email frames result:", JSON.stringify(emailFrames, null, 2));
+
+    // Step 2️⃣: Query for username
+    const usernameFrames = await emailFrames.query(
+      PasswordAuth._getUsername,
+      { user },
+      { username },
+    );
+    console.log("👤 [CreateWelcomeEmailMessage] Username frames result:", JSON.stringify(usernameFrames, null, 2));
+
+    if (!usernameFrames || usernameFrames.length === 0) {
+      console.warn("⚠️ [CreateWelcomeEmailMessage] No username frames found for user:", user);
+    }
+
+    // Check if the email symbol actually exists in frames
+    try {
+      const firstFrame = usernameFrames?.[0];
+      const emailVal = firstFrame?.[emailAddress];
+      const nameVal = firstFrame?.[username];
+      console.log("🧩 [CreateWelcomeEmailMessage] Bound values → email:", emailVal, ", username:", nameVal);
+    } catch (err) {
+      console.error("💥 [CreateWelcomeEmailMessage] Error inspecting frame bindings:", err);
+    }
+
+    return usernameFrames;
+  },
+
+  then: actions([
+    Notification.createMessageBody,
+    {
+      template: ACCOUNT_WELCOME_TEMPLATE,
+      email: emailAddress,
+      name: username,
+    },
+  ]),
+});
+
+
+//-- Send welcome email after account registration --//
+export const SendWelcomeEmailAfterRegistration: Sync = ({ message, user }) => ({
+  when: actions(
+    [PasswordAuth.register, {}, { user }],
+    [Notification.createMessageBody, {}, { message }],
+  ),
+  then: actions([
+    Notification.sendEmail,
+    { message },
+  ]),
+});
+
+
+
+
+
+
+
+
+
 
 
 //-- User Login & Session Creation --//
@@ -189,13 +265,13 @@ export const RemoveDeletedListingsFromSavedItems: Sync = ({ deletedListings, lis
       // No listings to clean up, return empty array
       return [];
     }
-    
+
     // For each deleted listing, query for users who saved it and create frames
     const allFrames: any[] = [];
     for (const deletedListing of deletedListingsData) {
       const listingIdVal = deletedListing.listingId;
       const usersFrames = await frames.query(SavedItems._getUsersTrackingItem, { item: listingIdVal }, { user: userObj });
-      
+
       for (const frame of usersFrames) {
         const userData = frame[userObj] as { user: any; tags: string[] } | undefined;
         if (userData && userData.user) {
@@ -207,7 +283,7 @@ export const RemoveDeletedListingsFromSavedItems: Sync = ({ deletedListings, lis
         }
       }
     }
-    
+
     return allFrames;
   },
   then: actions([SavedItems.removeItem, { user, item: listingIdValue }]),
@@ -227,13 +303,13 @@ export const RemoveDeletedRoommatePostingsFromSavedItems: Sync = ({ deletedPosti
       // No postings to clean up, return empty array
       return [];
     }
-    
+
     // For each deleted posting, query for users who saved it and create frames
     const allFrames: any[] = [];
     for (const deletedPosting of deletedPostingsData) {
       const postingIdVal = deletedPosting.postingId;
       const usersFrames = await frames.query(SavedItems._getUsersTrackingItem, { item: postingIdVal }, { user: userObj });
-      
+
       for (const frame of usersFrames) {
         const userData = frame[userObj] as { user: any; tags: string[] } | undefined;
         if (userData && userData.user) {
@@ -245,7 +321,7 @@ export const RemoveDeletedRoommatePostingsFromSavedItems: Sync = ({ deletedPosti
         }
       }
     }
-    
+
     return allFrames;
   },
   then: actions([SavedItems.removeItem, { user, item: postingIdValue }]),
