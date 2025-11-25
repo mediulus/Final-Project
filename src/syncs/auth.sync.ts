@@ -123,7 +123,7 @@ export const CreateWelcomeEmailMessage: Sync = ({ user, emailAddress, username }
       template: ACCOUNT_WELCOME_TEMPLATE,
       email: emailAddress,
       name: username,
-      subjectOverride: "Welcome to DamGood Housing!",
+      subjectOverride: "Welcome to DamGoodHousing!",
     },
   ]),
 });
