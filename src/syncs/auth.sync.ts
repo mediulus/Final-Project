@@ -10,7 +10,7 @@ import {
   Notification,
 } from "@concepts";
 
-import { ACCOUNT_WELCOME_TEMPLATE, ACCOUNT_DELETION_TEMPLATE } from "../concepts/Notification/emailTemplates.ts";
+import { ACCOUNT_WELCOME_TEMPLATE, ACCOUNT_DELETION_TEMPLATE, PASSWORD_CHANGE_TEMPLATE } from "../concepts/Notification/emailTemplates.ts";
 
 //-- Create Account Request --//
 export const CreateAccountRequest: Sync = ({
@@ -194,28 +194,6 @@ export const LogoutResponse: Sync = ({ request }) => ({
   then: actions([Requesting.respond, { request, status: "logged_out" }]),
 });
 
-//-- Delete User --//
-// export const DeleteAccountRequest: Sync = (
-//   { request, session, username, password, user },
-// ) => ({
-//   when: actions([
-//     Requesting.request,
-//     { path: "/PasswordAuth/deleteAccount", session, password },
-//     { request },
-//   ]),
-//   // use the session to get user → then get username
-//   where: async (frames) => {
-//     const userFrames = await frames.query(Sessioning._getUser, { session }, {
-//       user,
-//     });
-//     const usernameFrames = await userFrames.query(PasswordAuth._getUsername, {
-//       user,
-//     }, { username });
-//     return usernameFrames;
-//   },
-//   then: actions([PasswordAuth.deleteAccount, { username, password }]),
-// });
-
 
 //-- Delete Account Request with email notification --//
 export const DeleteAccountRequest: Sync = (
@@ -398,6 +376,52 @@ export const ChangePasswordRequest: Sync = (
     PasswordAuth.changePassword,
     { username, currentPass, newPass },
   ]),
+});
+
+
+export const CreatePasswordChangeEmailMessage: Sync = ({ user, username, emailAddress }) => ({
+  when: actions([PasswordAuth.changePassword, { username }, {}]),
+
+  where: async (frames) => {
+    console.log("📬 [CreatePasswordChangeEmailMessage] Triggered for username:", username);
+
+    // Step 1️⃣: find the user from username
+    const userFrames = await frames.query(
+      PasswordAuth._getUser,
+      { username },
+      { user },
+    );
+    console.log("👤 Found user frames:", JSON.stringify(userFrames, null, 2));
+
+    // Step 2️⃣: get the user’s email
+    const emailFrames = await userFrames.query(
+      UserInfo._getUserEmailAddress,
+      { user },
+      { emailAddress },
+    );
+    console.log("📧 Email frames:", JSON.stringify(emailFrames, null, 2));
+
+    return emailFrames;
+  },
+
+  then: actions([
+    Notification.createMessageBody,
+    {
+      template: PASSWORD_CHANGE_TEMPLATE,
+      email: emailAddress,
+      name: username,
+      subjectOverride: `Your DamGoodHousing password was changed`,
+    },
+  ]),
+});
+
+//-- Send email after password change message creation --//
+export const SendPasswordChangeEmailAfterMessage: Sync = ({ message, user }) => ({
+  when: actions(
+    [PasswordAuth.changePassword, {}, {}],
+    [Notification.createMessageBody, {}, { message }],
+  ),
+  then: actions([Notification.sendEmail, { message }]),
 });
 
 export const ChangePasswordResponseSuccess: Sync = ({ request }) => ({

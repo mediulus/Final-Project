@@ -54,6 +54,7 @@ export const exclusions: Array<string> = [
   "/api/PasswordAuth/changePassword",
   "/api/PasswordAuth/_getUsers",
   "/api/PasswordAuth/_getUsername",
+  "/api/PasswordAuth/_getUser",
 
   // SavedItems
   "/api/SavedItems/addUserRecord",
