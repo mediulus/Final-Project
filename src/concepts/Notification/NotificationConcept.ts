@@ -33,10 +33,12 @@ export default class NotificationConcept {
     template,
     email,
     name,
+    subjectOverride,
   }: {
     template: MessageTemplate;
     email: string;
     name: string;
+    subjectOverride?: string;
   }): Promise<{ message: Message }> {
     if (!template) throw new Error("template is required");
     if (!email) throw new Error("recipient email is required");
@@ -49,7 +51,7 @@ export default class NotificationConcept {
       .replace(/\{\{\s*name\s*\}\}/gi, name)
       .replace(/\{\{\s*email\s*\}\}/gi, email);
 
-    const subject = `Welcome to DamGoodHousing, ${name}!`;
+    const subject = subjectOverride ?? `Notification for ${name}`;
     const from = Deno.env.get("GMAIL_SENDER") ?? "dam.good.housing@gmail.com";
 
     return {
