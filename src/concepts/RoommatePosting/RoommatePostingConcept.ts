@@ -36,7 +36,6 @@ export default class RoommatePostingConcept {
     this.postings = this.db.collection(PREFIX + "postings");
   }
 
-
   /**
    * Internal helper to retrieve a posting by poster ID
    * @param posterId The ID of the poster
@@ -62,7 +61,15 @@ export default class RoommatePostingConcept {
    * @param description Details about preferences and plans
    * @returns The newly created RoommatePosting or error if requirements not met
    */
-  async create({ poster, city, gender, age, description }: { poster: ID; city: string; gender: Gender; age: number; description: string }): Promise<{ posting: RoommatePosting } | { error: string }> {
+  async create(
+    { poster, city, gender, age, description }: {
+      poster: ID;
+      city: string;
+      gender: Gender;
+      age: number;
+      description: string;
+    },
+  ): Promise<{ posting: RoommatePosting } | { error: string }> {
     // Check if poster already has a posting
     const existingPosting = await this.getPostingByPoster(poster);
     if (existingPosting) {
@@ -95,7 +102,10 @@ export default class RoommatePostingConcept {
    * @param city The new city value
    * @returns The updated RoommatePosting or error
    */
-  async editCity(poster: ID, city: string): Promise<RoommatePosting | { error: string }> {
+  async editCity(
+    poster: ID,
+    city: string,
+  ): Promise<RoommatePosting | { error: string }> {
     const existingPosting = await this.getPostingByPoster(poster);
 
     if (!existingPosting) {
@@ -121,7 +131,10 @@ export default class RoommatePostingConcept {
    * @param gender The new gender value
    * @returns The updated RoommatePosting or error
    */
-  async editGender(poster: ID, gender: Gender): Promise<RoommatePosting | { error: string }> {
+  async editGender(
+    poster: ID,
+    gender: Gender,
+  ): Promise<RoommatePosting | { error: string }> {
     const existingPosting = await this.getPostingByPoster(poster);
 
     if (!existingPosting) {
@@ -147,7 +160,10 @@ export default class RoommatePostingConcept {
    * @param age The new age value
    * @returns The updated RoommatePosting or error
    */
-  async editAge(poster: ID, age: number): Promise<RoommatePosting | { error: string }> {
+  async editAge(
+    poster: ID,
+    age: number,
+  ): Promise<RoommatePosting | { error: string }> {
     const existingPosting = await this.getPostingByPoster(poster);
 
     if (!existingPosting) {
@@ -173,7 +189,10 @@ export default class RoommatePostingConcept {
    * @param description The new description value
    * @returns The updated RoommatePosting or error
    */
-  async editDescription(poster: ID,description: string): Promise<RoommatePosting | { error: string }> {
+  async editDescription(
+    poster: ID,
+    description: string,
+  ): Promise<RoommatePosting | { error: string }> {
     const existingPosting = await this.getPostingByPoster(poster);
 
     if (!existingPosting) {
@@ -202,7 +221,6 @@ export default class RoommatePostingConcept {
     await this.postings.deleteOne({ _id: postingId });
   }
 
-
   /**
    * Retrieves a posting by its ID
    * @param postingId The ID of the posting
@@ -215,10 +233,10 @@ export default class RoommatePostingConcept {
 
   /**
    * Retrieves a posting by poster ID
-   * 
+   *
    * @requires poster has a posting
    * @effects retrieves the posting for the given poster
-   * 
+   *
    * @param posterId The ID of the poster
    * @returns The posting if found, otherwise null
    */
@@ -232,7 +250,7 @@ export default class RoommatePostingConcept {
    *
    * @requires at least one posting exists
    * @effects returns all postings
-   * 
+   *
    * @returns An array of all postings
    */
   async getAllPostings(): Promise<RoommatePosting[]> {
@@ -242,10 +260,10 @@ export default class RoommatePostingConcept {
 
   /**
    * Retrieves postings filtered by city
-   * 
+   *
    * @requires at least one posting exists with the given city
    * @effects returns the postings with that city or an error if no posts have that city
-   * 
+   *
    * @param city The city to filter by
    * @returns An array of postings in the specified city
    */
@@ -256,10 +274,10 @@ export default class RoommatePostingConcept {
 
   /**
    * Retrieves postings filtered by age
-   * 
+   *
    * @requires at least one posting exists with the given age
    * @effects returns the postings with that age or an error if no posts have that age
-   * 
+   *
    * @param age The age to filter by
    * @returns An array of postings with the specified age
    */
@@ -270,22 +288,43 @@ export default class RoommatePostingConcept {
 
   /**
    * deletes all roommate postings for a given poster
-   * 
+   *
    * @requires at least one posting exists for the given poster
    * @effects deletes all roommate postings for the given poster and returns the IDs of deleted postings
-   * 
+   *
    * @param poster The ID of the poster.
    * @returns The IDs of the deleted postings.
    * @throws Error if the poster does not exist or if there are no postings for the given poster.
    */
-  async deletePostingsByPoster({ poster }: { poster: ID }): Promise<{ deletedPostings: { postingId: ID }[] }> {
+  async deletePostingsByPoster(
+    { poster }: { poster: ID },
+  ): Promise<{ deletedPostings: { postingId: ID }[] }> {
     // Get all posting IDs before deleting
     const postings = await this.postings.find({ poster }).toArray();
-    const postingIds = postings.map(p => ({ postingId: p._id }));
-    
+    const postingIds = postings.map((p) => ({ postingId: p._id }));
+
     // Delete all postings in one operation
     await this.postings.deleteMany({ poster });
-    
+
     return { deletedPostings: postingIds };
+  }
+
+  /**
+   * Query: retrieves the poster (owner) of a roommate posting
+   *
+   * @requires posting with the given postingId exists
+   * @effects returns the poster ID for the given posting
+   *
+   * @param postingId The ID of the posting
+   * @returns Array with poster ID or empty array if posting not found
+   */
+  async _getPosterByPostingId(
+    { postingId }: { postingId: ID },
+  ): Promise<{ poster: ID }[]> {
+    const posting = await this.postings.findOne({ _id: postingId });
+    if (!posting) {
+      return [];
+    }
+    return [{ poster: posting.poster }];
   }
 }

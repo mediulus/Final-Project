@@ -9,7 +9,10 @@ import {
   UserInfo,
 } from "@concepts";
 
-import { SAVED_POST_UPDATE_TEMPLATE } from "../concepts/Notification/emailTemplates.ts";
+import {
+  HOUSING_CONTACT_NOTIFICATION_TEMPLATE,
+  SAVED_POST_UPDATE_TEMPLATE,
+} from "../concepts/Notification/emailTemplates.ts";
 
 //-- Create Listing --//
 export const CreateListingRequest: Sync = (
@@ -206,4 +209,87 @@ export const SendSavedPostUpdateEmail: Sync = ({ message, user }) => ({
     [Notification.createMessageBody, {}, { message }],
   ),
   then: actions([Notification.sendEmail, { message }]),
+});
+
+//-- Express Interest in Listing via Email Notification --//
+// This sync allows a user to express interest in a listing and notify the owner
+export const ExpressListingInterestRequest: Sync = (
+  { request, session, user, listingId, lister, emailAddress, username },
+) => ({
+  when: actions([
+    Requesting.request,
+    { path: "/Listing/interest", session, listingId },
+    { request },
+  ]),
+  where: async (frames) => {
+    // Get the logged-in user from session
+    const userFrames = await frames.query(Sessioning._getUser, { session }, {
+      user,
+    });
+
+    // Get the lister (owner) of the listing
+    const listerFrames = await userFrames.query(
+      Listing._getListerByListingId,
+      { listingId },
+      { lister },
+    );
+
+    if (!listerFrames || listerFrames.length === 0) {
+      console.warn(
+        "⚠️ [ExpressListingInterestRequest] Listing not found for listingId:",
+        listingId,
+      );
+      return listerFrames;
+    }
+
+    // Query for lister's email
+    const emailFrames = await listerFrames.query(
+      UserInfo._getUserEmailAddress,
+      { user: lister },
+      { emailAddress },
+    );
+
+    // Query for lister's username
+    const usernameFrames = await emailFrames.query(
+      PasswordAuth._getUsername,
+      { user: lister },
+      { username },
+    );
+
+    if (!usernameFrames || usernameFrames.length === 0) {
+      console.warn(
+        "⚠️ [ExpressListingInterestRequest] No username frames found for lister:",
+        lister,
+      );
+    }
+
+    return usernameFrames;
+  },
+  then: actions([
+    Notification.createMessageBody,
+    {
+      template: HOUSING_CONTACT_NOTIFICATION_TEMPLATE,
+      email: emailAddress,
+      name: username,
+      subjectOverride: "Someone is interested in your housing listing!",
+    },
+  ]),
+});
+
+// Send the email after message is created
+export const SendListingInterestEmail: Sync = ({ message }) => ({
+  when: actions(
+    [Requesting.request, { path: "/Listing/interest" }, {}],
+    [Notification.createMessageBody, {}, { message }],
+  ),
+  then: actions([Notification.sendEmail, { message }]),
+});
+
+// Send success response back to frontend
+export const ListingInterestResponse: Sync = ({ request }) => ({
+  when: actions(
+    [Requesting.request, { path: "/Listing/interest" }, { request }],
+    [Notification.sendEmail, {}, {}],
+  ),
+  then: actions([Requesting.respond, { request, status: "interest_sent" }]),
 });

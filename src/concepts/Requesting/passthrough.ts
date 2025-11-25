@@ -45,6 +45,7 @@ export const exclusions: Array<string> = [
   "/api/Sessioning/create",
   "/api/Sessioning/delete",
   "/api/Sessioning/_getUser",
+  "/api/logout",
 
   // PasswordAuth
   "/api/PasswordAuth/authenticate",
@@ -81,6 +82,7 @@ export const exclusions: Array<string> = [
   // Listing
   "/api/Listing/create",
   "/api/Listing/delete",
+  "/api/Listing/interest",
 
   // RoommatePosting
   "/api/RoommatePosting/create",
@@ -90,4 +92,5 @@ export const exclusions: Array<string> = [
   "/api/RoommatePosting/editAge",
   "/api/RoommatePosting/editDescription",
   "/api/RoommatePosting/deletePostingsByPoster",
+  "/api/RoommatePosting/contact",
 ];

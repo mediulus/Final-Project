@@ -1,16 +1,20 @@
 import { actions, Sync } from "@engine";
 import {
   Listing,
+  Notification,
   PasswordAuth,
   Requesting,
   RoommatePosting,
   SavedItems,
   Sessioning,
   UserInfo,
-  Notification,
 } from "@concepts";
 
-import { ACCOUNT_WELCOME_TEMPLATE, ACCOUNT_DELETION_TEMPLATE, PASSWORD_CHANGE_TEMPLATE } from "../concepts/Notification/emailTemplates.ts";
+import {
+  ACCOUNT_DELETION_TEMPLATE,
+  ACCOUNT_WELCOME_TEMPLATE,
+  PASSWORD_CHANGE_TEMPLATE,
+} from "../concepts/Notification/emailTemplates.ts";
 
 //-- Create Account Request --//
 export const CreateAccountRequest: Sync = ({
@@ -50,7 +54,13 @@ export const CreateAccountPostRegister: Sync = ({
   emailAddress,
 }) => ({
   when: actions(
-    [Requesting.request, { path: "/createAccount", age, gender, affiliation, emailAddress }, {}],
+    [Requesting.request, {
+      path: "/createAccount",
+      age,
+      gender,
+      affiliation,
+      emailAddress,
+    }, {}],
     [PasswordAuth.register, {}, { user }],
   ),
   then: actions(
@@ -88,13 +98,13 @@ export const CreateAccountResponseError: Sync = ({ request, error }) => ({
   then: actions([Requesting.respond, { request, error }]),
 });
 
-
 ///-- Create welcome email message after account creation --//
-export const CreateWelcomeEmailMessage: Sync = ({ user, emailAddress, username }) => ({
+export const CreateWelcomeEmailMessage: Sync = (
+  { user, emailAddress, username },
+) => ({
   when: actions([PasswordAuth.register, {}, { user }]),
 
   where: async (frames) => {
-
     // Step 1️⃣: Query for email
     const emailFrames = await frames.query(
       UserInfo._getUserEmailAddress,
@@ -109,9 +119,11 @@ export const CreateWelcomeEmailMessage: Sync = ({ user, emailAddress, username }
       { username },
     );
 
-
     if (!usernameFrames || usernameFrames.length === 0) {
-      console.warn("⚠️ [CreateWelcomeEmailMessage] No username frames found for user:", user);
+      console.warn(
+        "⚠️ [CreateWelcomeEmailMessage] No username frames found for user:",
+        user,
+      );
     }
 
     return usernameFrames;
@@ -128,7 +140,6 @@ export const CreateWelcomeEmailMessage: Sync = ({ user, emailAddress, username }
   ]),
 });
 
-
 //-- Send welcome email after account registration --//
 export const SendWelcomeEmailAfterRegistration: Sync = ({ message, user }) => ({
   when: actions(
@@ -140,10 +151,6 @@ export const SendWelcomeEmailAfterRegistration: Sync = ({ message, user }) => ({
     { message },
   ]),
 });
-
-
-
-
 
 //-- User Login & Session Creation --//
 export const LoginRequest: Sync = ({ request, username, password }) => ({
@@ -194,10 +201,26 @@ export const LogoutResponse: Sync = ({ request }) => ({
   then: actions([Requesting.respond, { request, status: "logged_out" }]),
 });
 
+//-- Alternative Logout via /Sessioning/delete (for frontend compatibility) --//
+export const SessioningDeleteRequest: Sync = ({ request, session, user }) => ({
+  when: actions([Requesting.request, { path: "/Sessioning/delete", session }, {
+    request,
+  }]),
+  where: (frames) => frames.query(Sessioning._getUser, { session }, { user }),
+  then: actions([Sessioning.delete, { session }]),
+});
+
+export const SessioningDeleteResponse: Sync = ({ request }) => ({
+  when: actions(
+    [Requesting.request, { path: "/Sessioning/delete" }, { request }],
+    [Sessioning.delete, {}, {}],
+  ),
+  then: actions([Requesting.respond, { request, status: "logged_out" }]),
+});
 
 //-- Delete Account Request with email notification --//
 export const DeleteAccountRequest: Sync = (
-  { request, session, username, password, user, emailAddress }
+  { request, session, username, password, user, emailAddress },
 ) => ({
   when: actions([
     Requesting.request,
@@ -207,8 +230,12 @@ export const DeleteAccountRequest: Sync = (
 
   // Fetch user, username, and email before deletion
   where: async (frames) => {
-    const userFrames = await frames.query(Sessioning._getUser, { session }, { user });
-    const usernameFrames = await userFrames.query(PasswordAuth._getUsername, { user }, { username });
+    const userFrames = await frames.query(Sessioning._getUser, { session }, {
+      user,
+    });
+    const usernameFrames = await userFrames.query(PasswordAuth._getUsername, {
+      user,
+    }, { username });
     const emailFrames = await usernameFrames.query(
       UserInfo._getUserEmailAddress,
       { user },
@@ -229,7 +256,6 @@ export const DeleteAccountRequest: Sync = (
   ),
 });
 
-
 //-- Send the deletion email after message creation --//
 export const SendAccountDeletionEmail: Sync = ({ message, user }) => ({
   when: actions(
@@ -238,9 +264,6 @@ export const SendAccountDeletionEmail: Sync = ({ message, user }) => ({
   ),
   then: actions([Notification.sendEmail, { message }]),
 });
-
-
-
 
 export const DeleteUserRecordAfterAccountDeletion: Sync = ({ user }) => ({
   when: actions([PasswordAuth.deleteAccount, {}, { user }]),
@@ -254,22 +277,30 @@ export const DeleteUserListingsAfterAccountDeletion: Sync = ({ user }) => ({
 });
 
 //-- Delete all user's roommate postings when account is deleted --//
-export const DeleteUserRoommatePostingsAfterAccountDeletion: Sync = ({ user }) => ({
+export const DeleteUserRoommatePostingsAfterAccountDeletion: Sync = (
+  { user },
+) => ({
   when: actions([PasswordAuth.deleteAccount, {}, { user }]),
   then: actions([RoommatePosting.deletePostingsByPoster, { poster: user }]),
 });
 
 //-- Remove all deleted listings from saved items after bulk delete --//
 // This sync fans out over the deletedListings array and removes each from saved items
-export const RemoveDeletedListingsFromSavedItems: Sync = ({ deletedListings, lister, user, userObj, listingIdValue }) => ({
-  when: actions([Listing.deleteListingsByLister, { lister }, { deletedListings }]),
+export const RemoveDeletedListingsFromSavedItems: Sync = (
+  { deletedListings, lister, user, userObj, listingIdValue },
+) => ({
+  when: actions([Listing.deleteListingsByLister, { lister }, {
+    deletedListings,
+  }]),
   where: async (frames) => {
     // Extract the deletedListings array from the frame
     if (frames.length === 0) {
       console.log("RemoveDeletedListingsFromSavedItems: no frames");
       return [];
     }
-    const deletedListingsData = frames[0][deletedListings] as { listingId: any }[] | undefined;
+    const deletedListingsData = frames[0][deletedListings] as {
+      listingId: any;
+    }[] | undefined;
     if (!deletedListingsData || deletedListingsData.length === 0) {
       // No listings to clean up, return empty array
       return [];
@@ -279,15 +310,19 @@ export const RemoveDeletedListingsFromSavedItems: Sync = ({ deletedListings, lis
     const allFrames: any[] = [];
     for (const deletedListing of deletedListingsData) {
       const listingIdVal = deletedListing.listingId;
-      const usersFrames = await frames.query(SavedItems._getUsersTrackingItem, { item: listingIdVal }, { user: userObj });
+      const usersFrames = await frames.query(SavedItems._getUsersTrackingItem, {
+        item: listingIdVal,
+      }, { user: userObj });
 
       for (const frame of usersFrames) {
-        const userData = frame[userObj] as { user: any; tags: string[] } | undefined;
+        const userData = frame[userObj] as
+          | { user: any; tags: string[] }
+          | undefined;
         if (userData && userData.user) {
           allFrames.push({
             ...frame,
             [user]: userData.user,
-            [listingIdValue]: listingIdVal
+            [listingIdValue]: listingIdVal,
           });
         }
       }
@@ -299,15 +334,21 @@ export const RemoveDeletedListingsFromSavedItems: Sync = ({ deletedListings, lis
 });
 
 //-- Remove all deleted roommate postings from saved items after bulk delete --//
-export const RemoveDeletedRoommatePostingsFromSavedItems: Sync = ({ deletedPostings, poster, user, userObj, postingIdValue }) => ({
-  when: actions([RoommatePosting.deletePostingsByPoster, { poster }, { deletedPostings }]),
+export const RemoveDeletedRoommatePostingsFromSavedItems: Sync = (
+  { deletedPostings, poster, user, userObj, postingIdValue },
+) => ({
+  when: actions([RoommatePosting.deletePostingsByPoster, { poster }, {
+    deletedPostings,
+  }]),
   where: async (frames) => {
     // Extract the deletedPostings array from the frame
     if (frames.length === 0) {
       console.log("RemoveDeletedRoommatePostingsFromSavedItems: no frames");
       return [];
     }
-    const deletedPostingsData = frames[0][deletedPostings] as { postingId: any }[] | undefined;
+    const deletedPostingsData = frames[0][deletedPostings] as {
+      postingId: any;
+    }[] | undefined;
     if (!deletedPostingsData || deletedPostingsData.length === 0) {
       // No postings to clean up, return empty array
       return [];
@@ -317,15 +358,19 @@ export const RemoveDeletedRoommatePostingsFromSavedItems: Sync = ({ deletedPosti
     const allFrames: any[] = [];
     for (const deletedPosting of deletedPostingsData) {
       const postingIdVal = deletedPosting.postingId;
-      const usersFrames = await frames.query(SavedItems._getUsersTrackingItem, { item: postingIdVal }, { user: userObj });
+      const usersFrames = await frames.query(SavedItems._getUsersTrackingItem, {
+        item: postingIdVal,
+      }, { user: userObj });
 
       for (const frame of usersFrames) {
-        const userData = frame[userObj] as { user: any; tags: string[] } | undefined;
+        const userData = frame[userObj] as
+          | { user: any; tags: string[] }
+          | undefined;
         if (userData && userData.user) {
           allFrames.push({
             ...frame,
             [user]: userData.user,
-            [postingIdValue]: postingIdVal
+            [postingIdValue]: postingIdVal,
           });
         }
       }
@@ -357,12 +402,6 @@ export const DeleteAccountResponseError: Sync = ({ request, error }) => ({
   then: actions([Requesting.respond, { request, error }]),
 });
 
-
-
-
-
-
-
 //-- Change Password --//
 export const ChangePasswordRequest: Sync = (
   { request, username, currentPass, newPass },
@@ -378,12 +417,16 @@ export const ChangePasswordRequest: Sync = (
   ]),
 });
 
-
-export const CreatePasswordChangeEmailMessage: Sync = ({ user, username, emailAddress }) => ({
+export const CreatePasswordChangeEmailMessage: Sync = (
+  { user, username, emailAddress },
+) => ({
   when: actions([PasswordAuth.changePassword, { username }, {}]),
 
   where: async (frames) => {
-    console.log("📬 [CreatePasswordChangeEmailMessage] Triggered for username:", username);
+    console.log(
+      "📬 [CreatePasswordChangeEmailMessage] Triggered for username:",
+      username,
+    );
 
     // Step 1️⃣: find the user from username
     const userFrames = await frames.query(
@@ -416,7 +459,9 @@ export const CreatePasswordChangeEmailMessage: Sync = ({ user, username, emailAd
 });
 
 //-- Send email after password change message creation --//
-export const SendPasswordChangeEmailAfterMessage: Sync = ({ message, user }) => ({
+export const SendPasswordChangeEmailAfterMessage: Sync = (
+  { message, user },
+) => ({
   when: actions(
     [PasswordAuth.changePassword, {}, {}],
     [Notification.createMessageBody, {}, { message }],
