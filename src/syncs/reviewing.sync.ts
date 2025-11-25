@@ -6,7 +6,6 @@ import {
   Reviewing,
   Sessioning,
 } from "@concepts";
-import { ListingConcept } from "@concepts/Listing/ListingConcept.ts";
 
 export const CreateReviewRequest: Sync = ({
   request,

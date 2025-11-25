@@ -66,7 +66,7 @@ export const DeleteRoommatePostingResponse: Sync = ({ request, postingId }) => (
     [Requesting.request, { path: "/RoommatePosting/delete", postingId }, { request }],
     [RoommatePosting.delete, {}, {}],
   ),
-  then: actions([Requesting.respond, { request, status: "deleted", postingId }]),
+  then: actions([Requesting.respond, { request, status: "deleted", postingId }],),
 });
 
 //-- Remove RoommatePosting from Saved Items when Deleted --//
@@ -82,11 +82,11 @@ export const RemoveRoommatePostingFromSavedItems: Sync = ({ postingId, user, use
       console.warn("RemoveRoommatePostingFromSavedItems: postingId not found in frame", { frames });
       return frames;
     }
-    
+
     // Query for ALL users who have saved this posting
     // Returns { user: { user: User; tags: string[] } }[]
     const usersFrames = await frames.query(SavedItems._getUsersTrackingItem, { item: idValue }, { user: userObj });
-    
+
     // Extract the actual user ID from each result and bind it to the user symbol
     // Also preserve the postingId value for use in the then clause
     return usersFrames
@@ -105,4 +105,3 @@ export const RemoveRoommatePostingFromSavedItems: Sync = ({ postingId, user, use
   },
   then: actions([SavedItems.removeItem, { user, item: postingIdValue }]),
 });
-

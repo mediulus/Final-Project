@@ -26,8 +26,8 @@
 
 export const inclusions: Record<string, string> = {
   // Reviewing
-  "/api/Reviewing/_getReviewByItem": "can publicly get reviews for an item",
-  "/api/Reviewing/_getReviewFromUser": "can publicly get a user's reviews",
+  "/api/Reviewing/_getReviewsByItem": "can publicly get reviews for an item",
+  "/api/Reviewing/_getReviewsFromUser": "can publicly get a user's reviews",
 };
 
 /**
@@ -45,8 +45,6 @@ export const exclusions: Array<string> = [
   "/api/Sessioning/create",
   "/api/Sessioning/delete",
   "/api/Sessioning/_getUser",
-  "/api/PasswordAuth/hashPassword",
-  "/api/PasswordAuth/register",
 
   // PasswordAuth
   "/api/PasswordAuth/authenticate",
@@ -54,6 +52,8 @@ export const exclusions: Array<string> = [
   "/api/PasswordAuth/changePassword",
   "/api/PasswordAuth/_getUsers",
   "/api/PasswordAuth/_getUsername",
+  "/api/PasswordAuth/hashPassword",
+  "/api/PasswordAuth/register",
 
   // SavedItems
   "/api/SavedItems/addUserRecord",
@@ -67,7 +67,7 @@ export const exclusions: Array<string> = [
   // Reviewing
   "/api/Reviewing/create",
   "/api/Reviewing/deleteReview",
-  "/api/Reviewing/editRanking",
+  "/api/Reviewing/editRating",
   "/api/Reviewing/editBlurb",
 
   // UserInfo
@@ -85,7 +85,9 @@ export const exclusions: Array<string> = [
   // RoommatePosting
   "/api/RoommatePosting/create",
   "/api/RoommatePosting/delete",
-
-  // Auth
-  "/api/PasswordAuth/deleteAccount"
+  "/api/RoommatePosting/editCity",
+  "/api/RoommatePosting/editGender",
+  "/api/RoommatePosting/editAge",
+  "/api/RoommatePosting/editDescription",
+  "/api/RoommatePosting/deletePostingsByPoster",
 ];
