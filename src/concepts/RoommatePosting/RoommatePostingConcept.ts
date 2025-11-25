@@ -268,4 +268,20 @@ export default class RoommatePostingConcept {
     return postings.map((p) => ({ ...p }));
   }
 
+  /**
+   * deletePostingsByPoster (poster: ID): (deletedPostings: {postingId: ID}[])
+   * 
+   * **requires** true
+   * **effects** deletes all roommate postings for the given poster and returns the IDs of deleted postings
+   */
+  async deletePostingsByPoster({ poster }: { poster: ID }): Promise<{ deletedPostings: { postingId: ID }[] }> {
+    // Get all posting IDs before deleting
+    const postings = await this.postings.find({ poster }).toArray();
+    const postingIds = postings.map(p => ({ postingId: p._id }));
+    
+    // Delete all postings in one operation
+    await this.postings.deleteMany({ poster });
+    
+    return { deletedPostings: postingIds };
+  }
 }

@@ -67,4 +67,7 @@ export const exclusions: Array<string> = [
   // RoommatePosting
   "/api/RoommatePosting/create",
   "/api/RoommatePosting/delete",
+
+  // Auth
+  "/api/PasswordAuth/deleteAccount"
 ];

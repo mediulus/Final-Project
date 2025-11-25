@@ -531,4 +531,32 @@ export default class ListingConcept {
     const listings = await this.listings.find({}).toArray();
     return listings.map(l => ({ ...l }));
   }
+
+  /**
+   * _getListingsByLister (lister: ID): (listing: {listingId: ID})
+   * 
+   * **requires** at least one listing exists for the given lister
+   * **effects** returns all listing IDs for the given lister
+   */
+  async _getListingsByLister({ lister }: { lister: ID }): Promise<{ listing: { listingId: ID } }[]> {
+    const listings = await this.listings.find({ lister }).toArray();
+    return listings.map(l => ({ listing: { listingId: l._id } }));
+  }
+
+  /**
+   * deleteListingsByLister (lister: ID): (deletedListings: {listingId: ID}[])
+   * 
+   * **requires** true
+   * **effects** deletes all listings for the given lister and returns the IDs of deleted listings
+   */
+  async deleteListingsByLister({ lister }: { lister: ID }): Promise<{ deletedListings: { listingId: ID }[] }> {
+    // Get all listing IDs before deleting
+    const listings = await this.listings.find({ lister }).toArray();
+    const listingIds = listings.map(l => ({ listingId: l._id }));
+    
+    // Delete all listings in one operation
+    await this.listings.deleteMany({ lister });
+    
+    return { deletedListings: listingIds };
+  }
 }

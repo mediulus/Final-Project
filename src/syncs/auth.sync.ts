@@ -1,7 +1,9 @@
 import { actions, Sync } from "@engine";
 import {
+  Listing,
   PasswordAuth,
   Requesting,
+  RoommatePosting,
   SavedItems,
   Sessioning,
   UserInfo,
@@ -119,6 +121,95 @@ export const DeleteAccountRequest: Sync = (
 export const DeleteUserRecordAfterAccountDeletion: Sync = ({ user }) => ({
   when: actions([PasswordAuth.deleteAccount, {}, { user }]),
   then: actions([SavedItems.deleteUserRecord, { user }]),
+});
+
+//-- Delete all user's listings when account is deleted --//
+export const DeleteUserListingsAfterAccountDeletion: Sync = ({ user }) => ({
+  when: actions([PasswordAuth.deleteAccount, {}, { user }]),
+  then: actions([Listing.deleteListingsByLister, { lister: user }]),
+});
+
+//-- Delete all user's roommate postings when account is deleted --//
+export const DeleteUserRoommatePostingsAfterAccountDeletion: Sync = ({ user }) => ({
+  when: actions([PasswordAuth.deleteAccount, {}, { user }]),
+  then: actions([RoommatePosting.deletePostingsByPoster, { poster: user }]),
+});
+
+//-- Remove all deleted listings from saved items after bulk delete --//
+// This sync fans out over the deletedListings array and removes each from saved items
+export const RemoveDeletedListingsFromSavedItems: Sync = ({ deletedListings, lister, user, userObj, listingIdValue }) => ({
+  when: actions([Listing.deleteListingsByLister, { lister }, { deletedListings }]),
+  where: async (frames) => {
+    // Extract the deletedListings array from the frame
+    if (frames.length === 0) {
+      console.log("RemoveDeletedListingsFromSavedItems: no frames");
+      return [];
+    }
+    const deletedListingsData = frames[0][deletedListings] as { listingId: any }[] | undefined;
+    if (!deletedListingsData || deletedListingsData.length === 0) {
+      // No listings to clean up, return empty array
+      return [];
+    }
+    
+    // For each deleted listing, query for users who saved it and create frames
+    const allFrames: any[] = [];
+    for (const deletedListing of deletedListingsData) {
+      const listingIdVal = deletedListing.listingId;
+      const usersFrames = await frames.query(SavedItems._getUsersTrackingItem, { item: listingIdVal }, { user: userObj });
+      
+      for (const frame of usersFrames) {
+        const userData = frame[userObj] as { user: any; tags: string[] } | undefined;
+        if (userData && userData.user) {
+          allFrames.push({
+            ...frame,
+            [user]: userData.user,
+            [listingIdValue]: listingIdVal
+          });
+        }
+      }
+    }
+    
+    return allFrames;
+  },
+  then: actions([SavedItems.removeItem, { user, item: listingIdValue }]),
+});
+
+//-- Remove all deleted roommate postings from saved items after bulk delete --//
+export const RemoveDeletedRoommatePostingsFromSavedItems: Sync = ({ deletedPostings, poster, user, userObj, postingIdValue }) => ({
+  when: actions([RoommatePosting.deletePostingsByPoster, { poster }, { deletedPostings }]),
+  where: async (frames) => {
+    // Extract the deletedPostings array from the frame
+    if (frames.length === 0) {
+      console.log("RemoveDeletedRoommatePostingsFromSavedItems: no frames");
+      return [];
+    }
+    const deletedPostingsData = frames[0][deletedPostings] as { postingId: any }[] | undefined;
+    if (!deletedPostingsData || deletedPostingsData.length === 0) {
+      // No postings to clean up, return empty array
+      return [];
+    }
+    
+    // For each deleted posting, query for users who saved it and create frames
+    const allFrames: any[] = [];
+    for (const deletedPosting of deletedPostingsData) {
+      const postingIdVal = deletedPosting.postingId;
+      const usersFrames = await frames.query(SavedItems._getUsersTrackingItem, { item: postingIdVal }, { user: userObj });
+      
+      for (const frame of usersFrames) {
+        const userData = frame[userObj] as { user: any; tags: string[] } | undefined;
+        if (userData && userData.user) {
+          allFrames.push({
+            ...frame,
+            [user]: userData.user,
+            [postingIdValue]: postingIdVal
+          });
+        }
+      }
+    }
+    
+    return allFrames;
+  },
+  then: actions([SavedItems.removeItem, { user, item: postingIdValue }]),
 });
 
 export const DeleteUserInfoAfterAccountDeletion: Sync = ({ user }) => ({
