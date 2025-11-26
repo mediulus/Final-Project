@@ -20,7 +20,7 @@ Public Link: [https://damgoodhousing.onrender.com/login](https://damgoodhousing.
 | ~~SavedItems/StatusItemsConcept~~         |~~Christina~~| ~~11/21~~ |                                                                        |
 | ~~API Spec for Backend~~                  |~~Kailey~~| ~~11/22~~ |                                                                        |
 | ~~Frontend Skeleton~~                     |~~All~~| ~~11/22~~ |
-| ~~Sync Implementation~~                   |~~All~~| ~~11/28 ~~|                                                                        |
+| ~~Sync Implementation~~                   |~~All~~| ~~11/28~~|                                                                        |
 | ~~Render Static Site Hosting~~            |~~Christina~~| ~~12~~/1  |                                                                                                                                     |
 | **Checkpoint Alpha**                  |All| 11/25 | Have completed: Concept Specs, Sync Specs, Concept Implementations, Sync Implementations, Backend Completed, Frontend Skeleton |
 | ReviewingConcept Implementation                 |Kailey| 11/27 |               |
