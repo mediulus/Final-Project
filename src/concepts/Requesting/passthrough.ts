@@ -28,6 +28,43 @@ export const inclusions: Record<string, string> = {
   // Reviewing
   "/api/Reviewing/_getReviewsByItem": "can publicly get reviews for an item",
   "/api/Reviewing/_getReviewsFromUser": "can publicly get a user's reviews",
+
+  // Listing - edit and query methods
+  "/api/Listing/getListing": "internal helper method for passthrough",
+  "/api/Listing/isListingConflict": "internal helper method for passthrough",
+  "/api/Listing/deletePhoto": "can edit listing photos via passthrough",
+  "/api/Listing/addPhoto": "can edit listing photos via passthrough",
+  "/api/Listing/editTitle": "can edit listing title via passthrough",
+  "/api/Listing/editAddress": "can edit listing address via passthrough",
+  "/api/Listing/editStartDate": "can edit listing start date via passthrough",
+  "/api/Listing/editEndDate": "can edit listing end date via passthrough",
+  "/api/Listing/editPrice": "can edit listing price via passthrough",
+  "/api/Listing/addAmenity": "can add listing amenities via passthrough",
+  "/api/Listing/deleteAmenity": "can delete listing amenities via passthrough",
+  "/api/Listing/getListingById": "can query listing by ID via passthrough",
+  "/api/Listing/getAllListings": "can query all listings via passthrough",
+  "/api/Listing/_getListingsByLister":
+    "can query listings by lister via passthrough",
+  "/api/Listing/deleteListingsByLister":
+    "can delete listings by lister via passthrough",
+  "/api/Listing/_getListerByListingId":
+    "can query lister by listing ID via passthrough",
+
+  // RoommatePosting - query methods
+  "/api/RoommatePosting/getPostingByPoster":
+    "can query posting by poster via passthrough",
+  "/api/RoommatePosting/getPostingById":
+    "can query posting by ID via passthrough",
+  "/api/RoommatePosting/getPostingByPosterId":
+    "can query posting by poster ID via passthrough",
+  "/api/RoommatePosting/getAllPostings":
+    "can query all postings via passthrough",
+  "/api/RoommatePosting/getPostingsByCity":
+    "can query postings by city via passthrough",
+  "/api/RoommatePosting/getPostingsByAge":
+    "can query postings by age via passthrough",
+  "/api/RoommatePosting/_getPosterByPostingId":
+    "can query poster by posting ID via passthrough",
 };
 
 /**
