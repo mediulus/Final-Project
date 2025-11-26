@@ -3,25 +3,29 @@ import NotificationConcept from "./NotificationConcept.ts";
 
 const notifier = new NotificationConcept();
 
-Deno.test("createMessageBody replaces placeholders and sets fields", () => {
-  Deno.env.set("NOTIFICATION_ALLOWED_DOMAINS", "mit.edu");
-  Deno.env.set("GMAIL_SENDER", "dam.good.housing@gmail.com");
+Deno.test(
+  "createMessageBody replaces placeholders and sets fields",
+  async () => {
+    Deno.env.set("NOTIFICATION_ALLOWED_DOMAINS", "mit.edu");
+    Deno.env.set("GMAIL_SENDER", "dam.good.housing@gmail.com");
 
-  const template = "Hello {{name}}, your email is {{email}}.";
-  const msg = notifier.createMessageBody(
-    template,
-    "camilaepierce@gmail.com",
-    "Camila",
-  );
+    const template = "Hello {{name}}, your email is {{email}}.";
+    const result = await notifier.createMessageBody({
+      template,
+      email: "camilaepierce@gmail.com",
+      name: "Camila",
+    });
+    const msg = result.message;
 
-  assertEquals(msg.to, "camilaepierce@gmail.com");
-  assertEquals(msg.subject, "Notification for Camila");
-  assertEquals(
-    msg.body,
-    "Hello Camila, your email is camilaepierce@gmail.com.",
-  );
-  assertEquals(msg.from, "dam.good.housing@gmail.com");
-});
+    assertEquals(msg.to, "camilaepierce@gmail.com");
+    assertEquals(msg.subject, "Notification for Camila");
+    assertEquals(
+      msg.body,
+      "Hello Camila, your email is camilaepierce@gmail.com."
+    );
+    assertEquals(msg.from, "dam.good.housing@gmail.com");
+  }
+);
 
 Deno.test("sendEmail dry-run prints and returns success", async () => {
   // Ensure dry-run and allowed domain
@@ -29,15 +33,15 @@ Deno.test("sendEmail dry-run prints and returns success", async () => {
   Deno.env.set("NOTIFICATION_ALLOWED_DOMAINS", "mit.edu");
 
   const template = "Integration test for {{name}}";
-  const msg = notifier.createMessageBody(
+  const msgResult = await notifier.createMessageBody({
     template,
-    "camilaepierce@gmail.com",
-    "Camila",
-  );
+    email: "camilaepierce@gmail.com",
+    name: "Camila",
+  });
 
-  const res = await notifier.sendEmail(msg);
+  const res = await notifier.sendEmail({ message: msgResult.message });
 
-  // In dry-run mode our sendEmail returns an object indicating it printed
-  assertEquals(res && (res as Record<string, unknown>).dryRun, true);
-  assertEquals((res as Record<string, unknown>).printed, true);
+  // sendEmail returns { delivered: true } regardless of dry-run mode
+  // The dry-run behavior (printing to console) is handled by sendViaGmail internally
+  assertEquals(res && (res as Record<string, unknown>).delivered, true);
 });

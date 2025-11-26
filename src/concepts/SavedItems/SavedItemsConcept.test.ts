@@ -41,7 +41,7 @@ Deno.test("SavedItems Concept — requires and effects validation", async () => 
   assert(Array.isArray(itemsA));
   if (Array.isArray(itemsA)) {
     assertEquals(itemsA.length, 1);
-    assertEquals(itemsA[0].item.tags.sort(), ["fiction", "wishlist"]);
+    assertEquals(itemsA[0].savedItem.tags.sort(), ["fiction", "wishlist"]);
   }
 
   // 4. Remove one tag

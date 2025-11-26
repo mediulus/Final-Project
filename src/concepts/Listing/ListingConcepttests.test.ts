@@ -141,29 +141,29 @@ Deno.test("Listing Concept", async (t) => {
 
   Deno.test("2. edit attributes (Title, Price, Address)", async (t) => {
     await t.step("2.1. effects: should update title", async () => {
-      const result = await listingConcept.editTitle(
-        listing1._id,
-        "Alice's Cozy Room"
-      );
+      const result = await listingConcept.editTitle({
+        listingId: listing1._id,
+        newTitle: "Alice's Cozy Room"
+      });
       assertEquals("error" in result, false);
       assertEquals((result as Listing).title, "Alice's Cozy Room");
     });
 
     await t.step("2.2. effects: should update price", async () => {
-      const result = await listingConcept.editPrice(listing1._id, 450);
+      const result = await listingConcept.editPrice({ listingId: listing1._id, newPrice: 450 });
       assertEquals("error" in result, false);
       assertEquals((result as Listing).price, 450);
     });
 
     await t.step("2.3. requires: should fail to set negative price", async () => {
-      const result = await listingConcept.editPrice(listing1._id, -100);
+      const result = await listingConcept.editPrice({ listingId: listing1._id, newPrice: -100 });
       assertEquals("error" in result, true);
     });
 
     await t.step("2.4. requires: should fail to update address if it causes conflict", async () => {
       // Trying to move listing1 (Alice) to address2 (Bob's address)
       // Dates overlap (both are June-Aug), so this should fail
-      const result = await listingConcept.editAddress(listing1._id, address2);
+      const result = await listingConcept.editAddress({ listingId: listing1._id, newAddress: address2 });
       assertEquals("error" in result, true);
       assertEquals(
         (result as { error: string }).error.includes("overlaps"),
@@ -209,11 +209,11 @@ Deno.test("Listing Concept", async (t) => {
 
   Deno.test("4. Manage Amenities", async (t) => {
     await t.step("4.1. effects: should add an amenity", async () => {
-      const result = await listingConcept.addAmenity(
-        listing1._id,
-        "Wifi",
-        0
-      );
+      const result = await listingConcept.addAmenity({
+        listingId: listing1._id,
+        title: "Wifi",
+        distance: 0
+      });
       assertEquals("error" in result, false);
       const updated = result as Listing;
       assertEquals(updated.amenities.length, 1);
@@ -222,20 +222,20 @@ Deno.test("Listing Concept", async (t) => {
     });
 
     await t.step("4.2. requires: should fail to add duplicate amenity", async () => {
-      const result = await listingConcept.addAmenity(
-        listing1._id,
-        "Wifi",
-        0
-      );
+      const result = await listingConcept.addAmenity({
+        listingId: listing1._id,
+        title: "Wifi",
+        distance: 0
+      });
       assertEquals("error" in result, true);
     });
 
     await t.step("4.3. effects: should delete an amenity", async () => {
       const amenityId = listing1.amenities[0]._id;
-      const result = await listingConcept.deleteAmenity(
-        listing1._id,
-        amenityId
-      );
+      const result = await listingConcept.deleteAmenity({
+        listingId: listing1._id,
+        amenityId: amenityId
+      });
       assertEquals("error" in result, false);
       assertEquals((result as Listing).amenities.length, 0);
       listing1 = result as Listing;
@@ -248,19 +248,19 @@ Deno.test("Listing Concept", async (t) => {
     // Listing2 (Bob): Address2, June 1 - Aug 1 (Created in 1.4)
 
     await t.step("5.1. requires: editStartDate fails if new date >= endDate", async () => {
-      const result = await listingConcept.editStartDate(
-        listing1._id,
-        d("2025-08-05") // After current end date
-      );
+      const result = await listingConcept.editStartDate({
+        listingId: listing1._id,
+        newStartDate: d("2025-08-05") // After current end date
+      });
       assertEquals("error" in result, true);
     });
 
     await t.step("5.2. effects: editStartDate succeeds if no conflict", async () => {
       // Move start date later: July 1
-      const result = await listingConcept.editStartDate(
-        listing1._id,
-        d("2025-07-01")
-      );
+      const result = await listingConcept.editStartDate({
+        listingId: listing1._id,
+        newStartDate: d("2025-07-01")
+      });
       assertEquals("error" in result, false);
       listing1 = result as Listing;
       assertEquals(listing1.startDate, d("2025-07-01"));
@@ -283,10 +283,10 @@ Deno.test("Listing Concept", async (t) => {
     await t.step("5.3. requires: editStartDate fails if expanding into conflict", async () => {
       // Alice tries to move start date back to June 15
       // This overlaps with "Gap Filler" (June 1 - June 30)
-      const result = await listingConcept.editStartDate(
-        listing1._id,
-        d("2025-06-15")
-      );
+      const result = await listingConcept.editStartDate({
+        listingId: listing1._id,
+        newStartDate: d("2025-06-15")
+      });
       assertEquals("error" in result, true);
       assertEquals((result as {error:string}).error.includes("overlaps"), true);
     });
@@ -301,7 +301,7 @@ Deno.test("Listing Concept", async (t) => {
     });
 
     await t.step("6.2. requires: operations on deleted listing fail", async () => {
-      const result = await listingConcept.editPrice(listing1._id, 100);
+      const result = await listingConcept.editPrice({ listingId: listing1._id, newPrice: 100 });
       assertEquals("error" in result, true);
       assertEquals((result as {error:string}).error.includes("not found"), true);
     });
@@ -331,7 +331,7 @@ Deno.test("Listing Concept", async (t) => {
 
     // 2. User enriches listing with photos and amenities
     await t.step("7.2. User adds photos and amenities", async () => {
-      await listingConcept.addAmenity(traceListing._id, "Gym", 0.5);
+      await listingConcept.addAmenity({ listingId: traceListing._id, title: "Gym", distance: 0.5 });
       const photoRes = await listingConcept.addPhoto(traceListing._id, {
         url: "http://mit.edu/dorm.jpg"
       });
@@ -359,10 +359,10 @@ Deno.test("Listing Concept", async (t) => {
     // 4. First user shortens their listing dates
     await t.step("7.4. User changes dates (resolving potential future conflict)", async () => {
       // Change end date to July 1st
-      const result = await listingConcept.editEndDate(
-        traceListing._id,
-        d("2026-07-01")
-      );
+      const result = await listingConcept.editEndDate({
+        listingId: traceListing._id,
+        newEndDate: d("2026-07-01")
+      });
       assertEquals("error" in result, false);
     });
 

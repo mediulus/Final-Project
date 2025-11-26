@@ -22,16 +22,16 @@ Deno.test("RoommatePosting Concept", async (t) => {
     await t.step(
       "1.1. effects: should successfully create a posting with valid data",
       async () => {
-        const result = await roommatePostingConcept.create(
-          user1Id,
-          "Boston",
-          Gender.Female,
-          20,
-          "Looking for a quiet roommate for summer internship",
-        );
+        const result = await roommatePostingConcept.create({
+          poster: user1Id,
+          city: "Boston",
+          gender: Gender.Female,
+          age: 20,
+          description: "Looking for a quiet roommate for summer internship",
+        });
 
         assertEquals("error" in result, false, "Should return posting object");
-        posting1 = result as RoommatePosting;
+        posting1 = (result as { posting: RoommatePosting }).posting;
 
         // Verify properties
         assertObjectMatch(posting1, {
@@ -54,13 +54,13 @@ Deno.test("RoommatePosting Concept", async (t) => {
       "1.2. requires: should fail if user already has a posting",
       async () => {
         // Alice tries to create a second posting
-        const result = await roommatePostingConcept.create(
-          user1Id,
-          "Cambridge",
-          Gender.Female,
-          20,
-          "Another posting",
-        );
+        const result = await roommatePostingConcept.create({
+          poster: user1Id,
+          city: "Cambridge",
+          gender: Gender.Female,
+          age: 20,
+          description: "Another posting",
+        });
 
         assertEquals("error" in result, true);
         assertEquals(
@@ -74,15 +74,15 @@ Deno.test("RoommatePosting Concept", async (t) => {
     await t.step(
       "1.3. effects: should create a second posting for different user",
       async () => {
-        const result = await roommatePostingConcept.create(
-          user2Id,
-          "Cambridge",
-          Gender.Male,
-          21,
-          "MIT grad student looking for summer housing",
-        );
+        const result = await roommatePostingConcept.create({
+          poster: user2Id,
+          city: "Cambridge",
+          gender: Gender.Male,
+          age: 21,
+          description: "MIT grad student looking for summer housing",
+        });
         assertEquals("error" in result, false);
-        assertObjectMatch(result as RoommatePosting, {
+        assertObjectMatch((result as { posting: RoommatePosting }).posting, {
           poster: user2Id,
           city: "Cambridge",
         });
@@ -274,7 +274,7 @@ Deno.test("RoommatePosting Concept", async (t) => {
 
   await t.step("7. delete action", async (t) => {
     await t.step("7.1. effects: should delete the posting", async () => {
-      await roommatePostingConcept.delete(posting1._id);
+      await roommatePostingConcept.delete({ postingId: posting1._id });
 
       const check = await roommatePostingConcept.getPostingById(posting1._id);
       assertEquals(check, null);
@@ -284,15 +284,15 @@ Deno.test("RoommatePosting Concept", async (t) => {
       "7.2. effects: user can create new posting after deletion",
       async () => {
         // Alice should be able to create a new posting now
-        const result = await roommatePostingConcept.create(
-          user1Id,
-          "New York",
-          Gender.Female,
-          21,
-          "New posting after deletion",
-        );
+        const result = await roommatePostingConcept.create({
+          poster: user1Id,
+          city: "New York",
+          gender: Gender.Female,
+          age: 21,
+          description: "New posting after deletion",
+        });
         assertEquals("error" in result, false);
-        posting1 = result as RoommatePosting;
+        posting1 = (result as { posting: RoommatePosting }).posting;
       },
     );
 
@@ -300,7 +300,7 @@ Deno.test("RoommatePosting Concept", async (t) => {
       "7.3. requires: operations on deleted posting fail",
       async () => {
         // Delete the posting we just created
-        await roommatePostingConcept.delete(posting1._id);
+        await roommatePostingConcept.delete({ postingId: posting1._id });
 
         // Try to edit via poster ID (should fail because posting doesn't exist)
         const result = await roommatePostingConcept.editCity(user1Id, "Boston");
@@ -321,15 +321,15 @@ Deno.test("RoommatePosting Concept", async (t) => {
       let tracePosting: RoommatePosting;
 
       await t.step("8.1. Student posts initial roommate search", async () => {
-        const result = await roommatePostingConcept.create(
-          traceUser,
-          "Cambridge",
-          Gender.PreferNotToSay,
-          22,
-          "MIT PhD student, looking for summer sublet roommate",
-        );
+        const result = await roommatePostingConcept.create({
+          poster: traceUser,
+          city: "Cambridge",
+          gender: Gender.PreferNotToSay,
+          age: 22,
+          description: "MIT PhD student, looking for summer sublet roommate",
+        });
         assertEquals("error" in result, false);
-        tracePosting = result as RoommatePosting;
+        tracePosting = (result as { posting: RoommatePosting }).posting;
       });
 
       await t.step(
@@ -376,7 +376,7 @@ Deno.test("RoommatePosting Concept", async (t) => {
       await t.step(
         "8.4. Student finds roommate and removes posting",
         async () => {
-          await roommatePostingConcept.delete(tracePosting._id);
+          await roommatePostingConcept.delete({ postingId: tracePosting._id });
 
           const check = await roommatePostingConcept.getPostingById(
             tracePosting._id,
@@ -410,21 +410,21 @@ Deno.test("RoommatePosting Concept", async (t) => {
     const userB = "userB" as ID;
 
     await t.step("9.1. Multiple users with different cities", async () => {
-      await roommatePostingConcept.create(
-        userA,
-        "San Francisco",
-        Gender.Female,
-        23,
-        "Software engineer at startup",
-      );
+      await roommatePostingConcept.create({
+        poster: userA,
+        city: "San Francisco",
+        gender: Gender.Female,
+        age: 23,
+        description: "Software engineer at startup",
+      });
 
-      await roommatePostingConcept.create(
-        userB,
-        "Seattle",
-        Gender.Male,
-        24,
-        "Working at Amazon for summer",
-      );
+      await roommatePostingConcept.create({
+        poster: userB,
+        city: "Seattle",
+        gender: Gender.Male,
+        age: 24,
+        description: "Working at Amazon for summer",
+      });
 
       const sfPostings = await roommatePostingConcept.getPostingsByCity(
         "San Francisco",

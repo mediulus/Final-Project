@@ -325,10 +325,13 @@ export default class ListingConcept {
    * @returns The updated Listing.
    * @throws Error if the listing does not exist.
    */
-  async editTitle(
-    listingId: ID,
-    newTitle: string,
-  ): Promise<Listing | { error: string }> {
+  async editTitle({
+    listingId,
+    newTitle,
+  }: {
+    listingId: ID;
+    newTitle: string;
+  }): Promise<Listing | { error: string }> {
     const listingOrError = await this.getListing(listingId); // Requires: listing exists
 
     if ("error" in listingOrError) {
@@ -354,10 +357,13 @@ export default class ListingConcept {
    * @returns The updated Listing.
    * @throws Error if the listing does not exist or if the new address causes a conflict.
    */
-  async editAddress(
-    listingId: ID,
-    newAddress: string,
-  ): Promise<Listing | { error: string }> {
+  async editAddress({
+    listingId,
+    newAddress,
+  }: {
+    listingId: ID;
+    newAddress: string;
+  }): Promise<Listing | { error: string }> {
     const listingOrError = await this.getListing(listingId); // Requires: listing exists
 
     if ("error" in listingOrError) {
@@ -397,10 +403,16 @@ export default class ListingConcept {
    * @returns The updated Listing.
    * @throws Error if the listing does not exist or if the new start date causes a conflict or is invalid.
    */
-  async editStartDate(
-    listingId: ID,
-    newStartDate: Date,
-  ): Promise<Listing | { error: string }> {
+  async editStartDate({
+    listingId,
+    newStartDate,
+  }: {
+    listingId: ID;
+    newStartDate: Date | string;
+  }): Promise<Listing | { error: string }> {
+    // Convert string date to Date if needed
+    const startDate = typeof newStartDate === 'string' ? new Date(newStartDate) : newStartDate;
+    
     const listingOrError = await this.getListing(listingId); // Requires: listing exists
 
     if ("error" in listingOrError) {
@@ -410,7 +422,7 @@ export default class ListingConcept {
     const listing = listingOrError;
 
     // Requires: startDate < endDate
-    if (newStartDate >= listing.endDate) {
+    if (startDate >= listing.endDate) {
       return {
         error:
           "Edit start date failed: New start date must be strictly before the current end date.",
@@ -418,7 +430,7 @@ export default class ListingConcept {
     }
 
     // Requires: another listing with the same address and EndDate does not exist with this startDate
-    const modifiedListing = { ...listing, startDate: newStartDate };
+    const modifiedListing = { ...listing, startDate };
     const conflict = await this.isListingConflict(modifiedListing);
 
     if (conflict) {
@@ -428,9 +440,9 @@ export default class ListingConcept {
       };
     }
 
-    listing.startDate = newStartDate;
+    listing.startDate = startDate;
     await this.listings.updateOne({ _id: listingId }, {
-      $set: { startDate: newStartDate },
+      $set: { startDate },
     });
     return { ...listing };
   }
@@ -448,10 +460,16 @@ export default class ListingConcept {
    * @returns The updated Listing.
    * @throws Error if the listing does not exist or if the new end date causes a conflict or is invalid.
    */
-  async editEndDate(
-    listingId: ID,
-    newEndDate: Date,
-  ): Promise<Listing | { error: string }> {
+  async editEndDate({
+    listingId,
+    newEndDate,
+  }: {
+    listingId: ID;
+    newEndDate: Date | string;
+  }): Promise<Listing | { error: string }> {
+    // Convert string date to Date if needed
+    const endDate = typeof newEndDate === 'string' ? new Date(newEndDate) : newEndDate;
+    
     const listingOrError = await this.getListing(listingId); // Requires: listing exists
 
     if ("error" in listingOrError) {
@@ -461,7 +479,7 @@ export default class ListingConcept {
     const listing = listingOrError;
 
     // Requires: startDate < endDate
-    if (listing.startDate >= newEndDate) {
+    if (listing.startDate >= endDate) {
       return {
         error:
           "Edit end date failed: Current start date must be strictly before the new end date.",
@@ -469,7 +487,7 @@ export default class ListingConcept {
     }
 
     // Requires: another listing with the same address and StartDate does not exist with this endDate
-    const modifiedListing = { ...listing, endDate: newEndDate };
+    const modifiedListing = { ...listing, endDate };
     const conflict = await this.isListingConflict(modifiedListing);
 
     if (conflict) {
@@ -479,9 +497,9 @@ export default class ListingConcept {
       };
     }
 
-    listing.endDate = newEndDate;
+    listing.endDate = endDate;
     await this.listings.updateOne({ _id: listingId }, {
-      $set: { endDate: newEndDate },
+      $set: { endDate },
     });
     return { ...listing };
   }
@@ -497,10 +515,13 @@ export default class ListingConcept {
    * @returns The updated Listing.
    * @throws Error if the listing does not exist or if the price is invalid (e.g., negative).
    */
-  async editPrice(
-    listingId: ID,
-    newPrice: number,
-  ): Promise<Listing | { error: string }> {
+  async editPrice({
+    listingId,
+    newPrice,
+  }: {
+    listingId: ID;
+    newPrice: number;
+  }): Promise<Listing | { error: string }> {
     const listingOrError = await this.getListing(listingId); // Requires: listing exists
 
     if ("error" in listingOrError) {
@@ -531,11 +552,15 @@ export default class ListingConcept {
    * @returns The updated Listing.
    * @throws Error if the listing does not exist or an identical amenity already exists in the listing.
    */
-  async addAmenity(
-    listingId: ID,
-    title: string,
-    distance: number,
-  ): Promise<Listing | { error: string }> {
+  async addAmenity({
+    listingId,
+    title,
+    distance,
+  }: {
+    listingId: ID;
+    title: string;
+    distance: number;
+  }): Promise<Listing | { error: string }> {
     const listingOrError = await this.getListing(listingId); // Requires: listing exists
 
     if ("error" in listingOrError) {
@@ -579,10 +604,13 @@ export default class ListingConcept {
    * @returns The updated Listing.
    * @throws Error if the listing does not exist or the amenity is not part of the listing.
    */
-  async deleteAmenity(
-    listingId: ID,
-    amenityId: ID,
-  ): Promise<Listing | { error: string }> {
+  async deleteAmenity({
+    listingId,
+    amenityId,
+  }: {
+    listingId: ID;
+    amenityId: ID;
+  }): Promise<Listing | { error: string }> {
     const listingOrError = await this.getListing(listingId); // Requires: listing exists
 
     if ("error" in listingOrError) {
