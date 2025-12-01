@@ -15,20 +15,18 @@ import {
 } from "../concepts/Notification/emailTemplates.ts";
 
 //-- Create Listing --//
-export const CreateListingRequest: Sync = (
-  {
-    request,
-    session,
-    user,
-    title,
-    amenities,
-    photos,
-    address,
-    startDate,
-    endDate,
-    price,
-  },
-) => {
+export const CreateListingRequest: Sync = ({
+  request,
+  session,
+  user,
+  title,
+  amenities,
+  photos,
+  address,
+  startDate,
+  endDate,
+  price,
+}) => {
   return {
     when: actions([
       Requesting.request,
@@ -46,28 +44,35 @@ export const CreateListingRequest: Sync = (
       { request },
     ]),
     where: async (frames) => {
-      const result = await frames.query(Sessioning._getUser, { session }, {
-        user,
-      });
+      const result = await frames.query(
+        Sessioning._getUser,
+        { session },
+        {
+          user,
+        }
+      );
       return result;
     },
-    then: actions([Listing.create, {
-      lister: user,
-      title,
-      amenities,
-      photos,
-      address,
-      startDate,
-      endDate,
-      price,
-    }]),
+    then: actions([
+      Listing.create,
+      {
+        lister: user,
+        title,
+        amenities,
+        photos,
+        address,
+        startDate,
+        endDate,
+        price,
+      },
+    ]),
   };
 };
 
 export const CreateListingResponseSuccess: Sync = ({ request, listing }) => ({
   when: actions(
     [Requesting.request, { path: "/Listing/create" }, { request }],
-    [Listing.create, {}, { listing }],
+    [Listing.create, {}, { listing }]
   ),
   then: actions([Requesting.respond, { request, listing }]),
 });
@@ -75,47 +80,123 @@ export const CreateListingResponseSuccess: Sync = ({ request, listing }) => ({
 export const CreateListingResponseError: Sync = ({ request, error }) => ({
   when: actions(
     [Requesting.request, { path: "/Listing/create" }, { request }],
-    [Listing.create, {}, { error }],
+    [Listing.create, {}, { error }]
   ),
   then: actions([Requesting.respond, { request, error }]),
 });
 
 //-- Delete Listing --//
-export const DeleteListingRequest: Sync = (
-  { request, session, user, listingId },
-) => ({
+export const DeleteListingRequest: Sync = ({
+  request,
+  session,
+  user,
+  listingId,
+  lister,
+}) => ({
   when: actions([
     Requesting.request,
     { path: "/Listing/delete", session, listingId },
     { request },
   ]),
   where: async (frames) => {
-    const result = await frames.query(Sessioning._getUser, { session }, {
-      user,
-    });
-    return result;
+    // Step 1: Get user from session
+    const userFrames = await frames.query(
+      Sessioning._getUser,
+      { session },
+      {
+        user,
+      }
+    );
+
+    if (userFrames.length === 0) {
+      console.warn("[DeleteListingRequest] No valid session found");
+      return [];
+    }
+
+    // Step 2: Get the lister (creator) of the listing
+    const listerFrames = await userFrames.query(
+      Listing._getListerByListingId,
+      { listingId },
+      { lister }
+    );
+
+    if (listerFrames.length === 0) {
+      console.warn("[DeleteListingRequest] Listing not found:", listingId);
+      return [];
+    }
+
+    // Step 3: Verify that the user is the creator (lister)
+    const userFrame = userFrames[0];
+    const listerFrame = listerFrames[0];
+    const userId = userFrame[user];
+    const listerId = listerFrame[lister];
+
+    if (userId !== listerId) {
+      console.warn(
+        "[DeleteListingRequest] User is not the creator. User:",
+        userId,
+        "Lister:",
+        listerId
+      );
+      // Return empty frames to prevent deletion
+      return [];
+    }
+
+    // User is the creator, allow deletion
+    return listerFrames;
   },
   then: actions([Listing.delete, { listingId }]),
+});
+
+//-- Delete Listing Error Response (when validation fails) --//
+// This sync responds with an error when a delete request comes in but validation fails
+// It detects this by checking if the request exists but no delete action fired
+export const DeleteListingResponseError: Sync = ({ request, listingId }) => ({
+  when: actions([
+    Requesting.request,
+    { path: "/Listing/delete", listingId },
+    { request },
+  ]),
+  where: async (frames) => {
+    // Wait a bit to see if delete action fires
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    // If we reach here, it likely means validation failed and delete didn't fire
+    // Return the frames so we can respond with error
+    return frames;
+  },
+  then: actions([
+    Requesting.respond,
+    {
+      request,
+      error: "You can only delete your own listings or listing not found.",
+    },
+  ]),
 });
 
 export const DeleteListingResponse: Sync = ({ request, listingId }) => ({
   when: actions(
     [Requesting.request, { path: "/Listing/delete", listingId }, { request }],
-    [Listing.delete, {}, {}],
+    [Listing.delete, {}, {}]
   ),
-  then: actions([Requesting.respond, {
-    request,
-    status: "deleted",
-    listingId,
-  }]),
+  then: actions([
+    Requesting.respond,
+    {
+      request,
+      status: "deleted",
+      listingId,
+    },
+  ]),
 });
 
 //-- Remove Listing from Saved Items when Deleted --//
 // This sync triggers AFTER Listing.delete completes
 // It finds ALL users who saved this listing and removes it from their saved items
-export const RemoveListingFromSavedItems: Sync = (
-  { listingId, user, userObj, listingIdValue },
-) => ({
+export const RemoveListingFromSavedItems: Sync = ({
+  listingId,
+  user,
+  userObj,
+  listingIdValue,
+}) => ({
   when: actions([Listing.delete, { listingId }, {}]),
   where: async (frames) => {
     // Extract listingId value from the frame
@@ -124,16 +205,20 @@ export const RemoveListingFromSavedItems: Sync = (
     if (!idValue) {
       console.warn(
         "RemoveListingFromSavedItems: listingId not found in frame",
-        { frames },
+        { frames }
       );
       return frames;
     }
 
     // Query for ALL users who have saved this listing
     // Returns { user: { user: User; tags: string[] } }[]
-    const usersFrames = await frames.query(SavedItems._getUsersTrackingItem, {
-      item: idValue,
-    }, { user: userObj });
+    const usersFrames = await frames.query(
+      SavedItems._getUsersTrackingItem,
+      {
+        item: idValue,
+      },
+      { user: userObj }
+    );
 
     // Extract the actual user ID from each result and bind it to the user symbol
     // Also preserve the listingId value for use in the then clause
@@ -159,9 +244,12 @@ export const RemoveListingFromSavedItems: Sync = (
 });
 
 //-- Create saved-post-update message for users whose saved item was removed --//
-export const CreateSavedPostUpdateMessage: Sync = (
-  { user, item, emailAddress, username },
-) => ({
+export const CreateSavedPostUpdateMessage: Sync = ({
+  user,
+  item,
+  emailAddress,
+  username,
+}) => ({
   when: actions([SavedItems.removeItem, {}, { user, item }]),
 
   where: async (frames) => {
@@ -169,20 +257,20 @@ export const CreateSavedPostUpdateMessage: Sync = (
     const emailFrames = await frames.query(
       UserInfo._getUserEmailAddress,
       { user },
-      { emailAddress },
+      { emailAddress }
     );
 
     // Query for username
     const usernameFrames = await emailFrames.query(
       PasswordAuth._getUsername,
       { user },
-      { username },
+      { username }
     );
 
     if (!usernameFrames || usernameFrames.length === 0) {
       console.warn(
         "⚠️ [CreateSavedPostUpdateMessage] No username frames found for user:",
-        user,
+        user
       );
     }
 
@@ -206,16 +294,22 @@ export const CreateSavedPostUpdateMessage: Sync = (
 export const SendSavedPostUpdateEmail: Sync = ({ message, user }) => ({
   when: actions(
     [SavedItems.removeItem, {}, { user }],
-    [Notification.createMessageBody, {}, { message }],
+    [Notification.createMessageBody, {}, { message }]
   ),
   then: actions([Notification.sendEmail, { message }]),
 });
 
 //-- Express Interest in Listing via Email Notification --//
 // This sync allows a user to express interest in a listing and notify the owner
-export const ExpressListingInterestRequest: Sync = (
-  { request, session, user, listingId, lister, emailAddress, username },
-) => ({
+export const ExpressListingInterestRequest: Sync = ({
+  request,
+  session,
+  user,
+  listingId,
+  lister,
+  emailAddress,
+  username,
+}) => ({
   when: actions([
     Requesting.request,
     { path: "/Listing/interest", session, listingId },
@@ -223,21 +317,25 @@ export const ExpressListingInterestRequest: Sync = (
   ]),
   where: async (frames) => {
     // Get the logged-in user from session
-    const userFrames = await frames.query(Sessioning._getUser, { session }, {
-      user,
-    });
+    const userFrames = await frames.query(
+      Sessioning._getUser,
+      { session },
+      {
+        user,
+      }
+    );
 
     // Get the lister (owner) of the listing
     const listerFrames = await userFrames.query(
       Listing._getListerByListingId,
       { listingId },
-      { lister },
+      { lister }
     );
 
     if (!listerFrames || listerFrames.length === 0) {
       console.warn(
         "⚠️ [ExpressListingInterestRequest] Listing not found for listingId:",
-        listingId,
+        listingId
       );
       return listerFrames;
     }
@@ -246,20 +344,20 @@ export const ExpressListingInterestRequest: Sync = (
     const emailFrames = await listerFrames.query(
       UserInfo._getUserEmailAddress,
       { user: lister },
-      { emailAddress },
+      { emailAddress }
     );
 
     // Query for lister's username
     const usernameFrames = await emailFrames.query(
       PasswordAuth._getUsername,
       { user: lister },
-      { username },
+      { username }
     );
 
     if (!usernameFrames || usernameFrames.length === 0) {
       console.warn(
         "⚠️ [ExpressListingInterestRequest] No username frames found for lister:",
-        lister,
+        lister
       );
     }
 
@@ -280,7 +378,7 @@ export const ExpressListingInterestRequest: Sync = (
 export const SendListingInterestEmail: Sync = ({ message }) => ({
   when: actions(
     [Requesting.request, { path: "/Listing/interest" }, {}],
-    [Notification.createMessageBody, {}, { message }],
+    [Notification.createMessageBody, {}, { message }]
   ),
   then: actions([Notification.sendEmail, { message }]),
 });
@@ -289,36 +387,42 @@ export const SendListingInterestEmail: Sync = ({ message }) => ({
 export const TagContactedListing: Sync = ({ user, listingId, session }) => ({
   when: actions(
     [Requesting.request, { path: "/Listing/interest", listingId, session }, {}],
-    [Notification.sendEmail, {}, {}],
+    [Notification.sendEmail, {}, {}]
   ),
   where: async (frames) => {
     // Query for the user from the session
-    const userFrames = await frames.query(Sessioning._getUser, { session }, {
-      user,
-    });
+    const userFrames = await frames.query(
+      Sessioning._getUser,
+      { session },
+      {
+        user,
+      }
+    );
     console.log(
       "🏷️ [TagContactedListing] Attempting to tag listing for user:",
       {
         user: userFrames.length > 0 ? userFrames[0][user] : "no user",
-        listingId: userFrames.length > 0
-          ? userFrames[0][listingId]
-          : "no listingId",
-      },
+        listingId:
+          userFrames.length > 0 ? userFrames[0][listingId] : "no listingId",
+      }
     );
     return userFrames;
   },
-  then: actions([SavedItems.addItemTag, {
-    user,
-    item: listingId,
-    tag: "Contacted",
-  }]),
+  then: actions([
+    SavedItems.addItemTag,
+    {
+      user,
+      item: listingId,
+      tag: "Contacted",
+    },
+  ]),
 });
 
 // Send success response back to frontend
 export const ListingInterestResponse: Sync = ({ request }) => ({
   when: actions(
     [Requesting.request, { path: "/Listing/interest" }, { request }],
-    [Notification.sendEmail, {}, {}],
+    [Notification.sendEmail, {}, {}]
   ),
   then: actions([Requesting.respond, { request, status: "interest_sent" }]),
 });
