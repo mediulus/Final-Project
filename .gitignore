@@ -7,3 +7,6 @@ ctx.exe
 src/concepts/concepts.ts
 src/concepts/test_concepts.ts
 src/syncs/syncs.ts
+node_modules/
+.deno/
+npm-packages/
