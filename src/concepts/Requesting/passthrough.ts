@@ -66,10 +66,14 @@ export const inclusions: Record<string, string> = {
   "/api/RoommatePosting/_getPosterByPostingId":
     "can query poster by posting ID via passthrough",
 
-
   // notification
   "/api/Notification/isValidEmail": "can check if valid email - no risk",
-  "/api/Notification/isAllowedDomain": "can see if any email is an allowed domain, doesn't reveal any info except for that one",
+  "/api/Notification/isAllowedDomain":
+    "can see if any email is an allowed domain, doesn't reveal any info except for that one",
+
+  // config
+  "/api/config/mapsKey":
+    "returns Google Maps API key to authenticated users for map display",
 };
 
 /**
@@ -149,5 +153,5 @@ export const exclusions: Array<string> = [
   // notification
 
   "/api/Notification/createMessageBody",
-  "/api/Notification/sendEmail"
+  "/api/Notification/sendEmail",
 ];
