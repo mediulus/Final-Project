@@ -2,7 +2,7 @@ import { assertEquals, assertObjectMatch } from "jsr:@std/assert";
 import { testDb } from "@utils/database.ts";
 import RoommatePostingConcept, {
   Gender,
-  RoommatePosting
+  RoommatePosting,
 } from "./RoommatePostingConcept.ts";
 import { ID } from "@utils/types.ts";
 
@@ -31,9 +31,11 @@ Deno.test("RoommatePosting Concept", async (t) => {
           startDate: new Date("2025-06-01"),
           endDate: new Date("2025-08-31"),
           dailyRhythm: "Morning-oriented (up early, asleep early)",
-          cleanlinessPreference: "Very tidy (clean daily / everything in its place)",
+          cleanlinessPreference:
+            "Very tidy (clean daily / everything in its place)",
           homeEnvironment: "Quiet (minimal noise, low visitors)",
           guestsVisitors: "Prefer few or no guests",
+          numberOfRoommates: 1,
         });
 
         assertEquals("error" in result, false, "Should return posting object");
@@ -50,10 +52,10 @@ Deno.test("RoommatePosting Concept", async (t) => {
 
         // Verify persistence
         const fetched = await roommatePostingConcept.getPostingById(
-          posting1._id,
+          posting1._id
         );
         assertObjectMatch(fetched!, { _id: posting1._id });
-      },
+      }
     );
 
     await t.step(
@@ -69,18 +71,20 @@ Deno.test("RoommatePosting Concept", async (t) => {
           startDate: new Date("2025-06-01"),
           endDate: new Date("2025-08-31"),
           dailyRhythm: "Balanced / flexible schedule",
-          cleanlinessPreference: "Moderately tidy (clean weekly; some clutter okay)",
+          cleanlinessPreference:
+            "Moderately tidy (clean weekly; some clutter okay)",
           homeEnvironment: "Moderate (some noise, occasional visitors)",
           guestsVisitors: "Occasional guests okay",
+          numberOfRoommates: 2,
         });
 
         assertEquals("error" in result, true);
         assertEquals(
           (result as { error: string }).error.includes("already has"),
           true,
-          "Should detect duplicate poster",
+          "Should detect duplicate poster"
         );
-      },
+      }
     );
 
     await t.step(
@@ -95,16 +99,18 @@ Deno.test("RoommatePosting Concept", async (t) => {
           startDate: new Date("2025-06-01"),
           endDate: new Date("2025-08-31"),
           dailyRhythm: "Night owl (up late, active later)",
-          cleanlinessPreference: "Relaxed (don't mind clutter but clean occasionally)",
+          cleanlinessPreference:
+            "Relaxed (don't mind clutter but clean occasionally)",
           homeEnvironment: "Social / lively (friends over often)",
           guestsVisitors: "Comfortable with frequent guests",
+          numberOfRoommates: 3,
         });
         assertEquals("error" in result, false);
         assertObjectMatch((result as { posting: RoommatePosting }).posting, {
           poster: user2Id,
           city: "Cambridge",
         });
-      },
+      }
     );
   });
 
@@ -117,14 +123,17 @@ Deno.test("RoommatePosting Concept", async (t) => {
           newCity: "San Francisco",
         });
         assertEquals("error" in result, false);
-        assertEquals((result as { posting: RoommatePosting }).posting.city, "San Francisco");
+        assertEquals(
+          (result as { posting: RoommatePosting }).posting.city,
+          "San Francisco"
+        );
 
         // Verify persistence
         const fetched = await roommatePostingConcept.getPostingByPosterId(
-          user1Id,
+          user1Id
         );
         assertEquals(fetched?.city, "San Francisco");
-      },
+      }
     );
 
     await t.step(
@@ -137,9 +146,9 @@ Deno.test("RoommatePosting Concept", async (t) => {
         assertEquals("error" in result, true);
         assertEquals(
           (result as { error: string }).error.includes("No posting found"),
-          true,
+          true
         );
-      },
+      }
     );
   });
 
@@ -152,14 +161,17 @@ Deno.test("RoommatePosting Concept", async (t) => {
           newGender: Gender.NonBinary,
         });
         assertEquals("error" in result, false);
-        assertEquals((result as { posting: RoommatePosting }).posting.gender, Gender.NonBinary);
+        assertEquals(
+          (result as { posting: RoommatePosting }).posting.gender,
+          Gender.NonBinary
+        );
 
         // Verify persistence
         const fetched = await roommatePostingConcept.getPostingByPosterId(
-          user1Id,
+          user1Id
         );
         assertEquals(fetched?.gender, Gender.NonBinary);
-      },
+      }
     );
 
     await t.step(
@@ -172,9 +184,9 @@ Deno.test("RoommatePosting Concept", async (t) => {
         assertEquals("error" in result, true);
         assertEquals(
           (result as { error: string }).error.includes("No posting found"),
-          true,
+          true
         );
-      },
+      }
     );
   });
 
@@ -191,10 +203,10 @@ Deno.test("RoommatePosting Concept", async (t) => {
 
         // Verify persistence
         const fetched = await roommatePostingConcept.getPostingByPosterId(
-          user1Id,
+          user1Id
         );
         assertEquals(fetched?.age, 21);
-      },
+      }
     );
 
     await t.step(
@@ -207,9 +219,9 @@ Deno.test("RoommatePosting Concept", async (t) => {
         assertEquals("error" in result, true);
         assertEquals(
           (result as { error: string }).error.includes("No posting found"),
-          true,
+          true
         );
-      },
+      }
     );
   });
 
@@ -224,14 +236,17 @@ Deno.test("RoommatePosting Concept", async (t) => {
           newDescription: newDescription,
         });
         assertEquals("error" in result, false);
-        assertEquals((result as { posting: RoommatePosting }).posting.description, newDescription);
+        assertEquals(
+          (result as { posting: RoommatePosting }).posting.description,
+          newDescription
+        );
 
         // Verify persistence
         const fetched = await roommatePostingConcept.getPostingByPosterId(
-          user1Id,
+          user1Id
         );
         assertEquals(fetched?.description, newDescription);
-      },
+      }
     );
 
     await t.step(
@@ -244,9 +259,9 @@ Deno.test("RoommatePosting Concept", async (t) => {
         assertEquals("error" in result, true);
         assertEquals(
           (result as { error: string }).error.includes("No posting found"),
-          true,
+          true
         );
-      },
+      }
     );
   });
 
@@ -261,21 +276,21 @@ Deno.test("RoommatePosting Concept", async (t) => {
       "6.2. getPostingById should return null for non-existent ID",
       async () => {
         const result = await roommatePostingConcept.getPostingById(
-          "fake_id" as ID,
+          "fake_id" as ID
         );
         assertEquals(result, null);
-      },
+      }
     );
 
     await t.step(
       "6.3. getPostingByPosterId should return posting",
       async () => {
         const result = await roommatePostingConcept.getPostingByPosterId(
-          user1Id,
+          user1Id
         );
         assertEquals(result !== null, true);
         assertEquals(result?.poster, user1Id);
-      },
+      }
     );
 
     await t.step("6.4. getAllPostings should return all postings", async () => {
@@ -285,13 +300,13 @@ Deno.test("RoommatePosting Concept", async (t) => {
 
     await t.step("6.5. getPostingsByCity should filter by city", async () => {
       const result = await roommatePostingConcept.getPostingsByCity(
-        "Cambridge",
+        "Cambridge"
       );
       // Bob's posting is in Cambridge
       assertEquals(result.length >= 1, true);
       assertEquals(
         result.some((p) => p.poster === user2Id),
-        true,
+        true
       );
     });
   });
@@ -317,13 +332,15 @@ Deno.test("RoommatePosting Concept", async (t) => {
           startDate: new Date("2025-06-01"),
           endDate: new Date("2025-08-31"),
           dailyRhythm: "Balanced / flexible schedule",
-          cleanlinessPreference: "Moderately tidy (clean weekly; some clutter okay)",
+          cleanlinessPreference:
+            "Moderately tidy (clean weekly; some clutter okay)",
           homeEnvironment: "Moderate (some noise, occasional visitors)",
           guestsVisitors: "Occasional guests okay",
+          numberOfRoommates: 2,
         });
         assertEquals("error" in result, false);
         posting1 = (result as { posting: RoommatePosting }).posting;
-      },
+      }
     );
 
     await t.step(
@@ -340,9 +357,9 @@ Deno.test("RoommatePosting Concept", async (t) => {
         assertEquals("error" in result, true);
         assertEquals(
           (result as { error: string }).error.includes("No posting found"),
-          true,
+          true
         );
-      },
+      }
     );
   });
 
@@ -363,9 +380,11 @@ Deno.test("RoommatePosting Concept", async (t) => {
           startDate: new Date("2025-06-01"),
           endDate: new Date("2025-08-31"),
           dailyRhythm: "Varies a lot week-to-week",
-          cleanlinessPreference: "Relaxed (don't mind clutter but clean occasionally)",
+          cleanlinessPreference:
+            "Relaxed (don't mind clutter but clean occasionally)",
           homeEnvironment: "Flexible / depends on schedule",
           guestsVisitors: "Comfortable with overnight guests",
+          numberOfRoommates: 1,
         });
         assertEquals("error" in result, false);
         tracePosting = (result as { posting: RoommatePosting }).posting;
@@ -386,31 +405,28 @@ Deno.test("RoommatePosting Concept", async (t) => {
           result = await roommatePostingConcept.editDescription({
             poster: traceUser,
             newDescription:
-            "MIT PhD student, looking for summer sublet roommate. Clean, quiet, non-smoking.",
-          );
+              "MIT PhD student, looking for summer sublet roommate. Clean, quiet, non-smoking.",
+          });
           assertEquals("error" in result, false);
           tracePosting = (result as { posting: RoommatePosting }).posting;
 
           assertEquals(tracePosting.city, "Boston");
-          assertEquals(
-            tracePosting.description.includes("non-smoking"),
-            true,
-          );
-        },
+          assertEquals(tracePosting.description.includes("non-smoking"), true);
+        }
       );
 
       await t.step(
         "8.3. Other students can browse postings by city",
         async () => {
           const bostonPostings = await roommatePostingConcept.getPostingsByCity(
-            "Boston",
+            "Boston"
           );
           assertEquals(
             bostonPostings.some((p) => p.poster === traceUser),
             true,
-            "Trace posting should appear in Boston listings",
+            "Trace posting should appear in Boston listings"
           );
-        },
+        }
       );
 
       await t.step(
@@ -419,30 +435,30 @@ Deno.test("RoommatePosting Concept", async (t) => {
           await roommatePostingConcept.delete({ postingId: tracePosting._id });
 
           const check = await roommatePostingConcept.getPostingById(
-            tracePosting._id,
+            tracePosting._id
           );
           assertEquals(
             check,
             null,
-            "Posting should be deleted after finding match",
+            "Posting should be deleted after finding match"
           );
-        },
+        }
       );
 
       await t.step(
         "8.5. Posting no longer appears in city searches",
         async () => {
           const bostonPostings = await roommatePostingConcept.getPostingsByCity(
-            "Boston",
+            "Boston"
           );
           assertEquals(
             bostonPostings.some((p) => p.poster === traceUser),
             false,
-            "Deleted posting should not appear in search results",
+            "Deleted posting should not appear in search results"
           );
-        },
+        }
       );
-    },
+    }
   );
 
   await t.step("9. Edge Cases and Multiple Users", async (t) => {
@@ -459,9 +475,11 @@ Deno.test("RoommatePosting Concept", async (t) => {
         startDate: new Date("2025-06-01"),
         endDate: new Date("2025-08-31"),
         dailyRhythm: "Balanced / flexible schedule",
-        cleanlinessPreference: "Very tidy (clean daily / everything in its place)",
+        cleanlinessPreference:
+          "Very tidy (clean daily / everything in its place)",
         homeEnvironment: "Quiet (minimal noise, low visitors)",
         guestsVisitors: "Prefer few or no guests",
+        numberOfRoommates: 2,
       });
 
       await roommatePostingConcept.create({
@@ -476,22 +494,23 @@ Deno.test("RoommatePosting Concept", async (t) => {
         cleanlinessPreference: "Messy (minimal cleaning unless necessary)",
         homeEnvironment: "Social / lively (friends over often)",
         guestsVisitors: "Comfortable with frequent guests",
+        numberOfRoommates: 1,
       });
 
       const sfPostings = await roommatePostingConcept.getPostingsByCity(
-        "San Francisco",
+        "San Francisco"
       );
       const seattlePostings = await roommatePostingConcept.getPostingsByCity(
-        "Seattle",
+        "Seattle"
       );
 
       assertEquals(
         sfPostings.some((p) => p.poster === userA),
-        true,
+        true
       );
       assertEquals(
         seattlePostings.some((p) => p.poster === userB),
-        true,
+        true
       );
     });
 
@@ -508,9 +527,8 @@ Deno.test("RoommatePosting Concept", async (t) => {
       await roommatePostingConcept.editAge({ poster: userA, newAge: 24 });
       await roommatePostingConcept.editDescription({
         poster: userA,
-        newDescription:
-        "Updated description",
-      );
+        newDescription: "Updated description",
+      });
 
       const updated = await roommatePostingConcept.getPostingByPosterId(userA);
       assertObjectMatch(updated!, {
@@ -535,9 +553,11 @@ Deno.test("RoommatePosting Concept", async (t) => {
       startDate: new Date("2025-06-01"),
       endDate: new Date("2025-08-31"),
       dailyRhythm: "Morning-oriented (up early, asleep early)",
-      cleanlinessPreference: "Very tidy (clean daily / everything in its place)",
+      cleanlinessPreference:
+        "Very tidy (clean daily / everything in its place)",
       homeEnvironment: "Quiet (minimal noise, low visitors)",
       guestsVisitors: "Prefer few or no guests",
+      numberOfRoommates: 2,
     });
     const testPosting = (createResult as { posting: RoommatePosting }).posting;
 
@@ -552,18 +572,15 @@ Deno.test("RoommatePosting Concept", async (t) => {
         assertEquals("error" in result, false);
         assertEquals(
           (result as { posting: RoommatePosting }).posting.startDate.getTime(),
-          newStartDate.getTime(),
+          newStartDate.getTime()
         );
 
         // Verify persistence
         const fetched = await roommatePostingConcept.getPostingByPosterId(
-          testUser,
+          testUser
         );
-        assertEquals(
-          fetched?.startDate.getTime(),
-          newStartDate.getTime(),
-        );
-      },
+        assertEquals(fetched?.startDate.getTime(), newStartDate.getTime());
+      }
     );
 
     await t.step(
@@ -577,10 +594,12 @@ Deno.test("RoommatePosting Concept", async (t) => {
         });
         assertEquals("error" in result, true);
         assertEquals(
-          (result as { error: string }).error.includes("Start date must be strictly before end date"),
-          true,
+          (result as { error: string }).error.includes(
+            "Start date must be strictly before end date"
+          ),
+          true
         );
-      },
+      }
     );
 
     await t.step(
@@ -594,18 +613,15 @@ Deno.test("RoommatePosting Concept", async (t) => {
         assertEquals("error" in result, false);
         assertEquals(
           (result as { posting: RoommatePosting }).posting.endDate.getTime(),
-          newEndDate.getTime(),
+          newEndDate.getTime()
         );
 
         // Verify persistence
         const fetched = await roommatePostingConcept.getPostingByPosterId(
-          testUser,
+          testUser
         );
-        assertEquals(
-          fetched?.endDate.getTime(),
-          newEndDate.getTime(),
-        );
-      },
+        assertEquals(fetched?.endDate.getTime(), newEndDate.getTime());
+      }
     );
 
     await t.step(
@@ -619,10 +635,12 @@ Deno.test("RoommatePosting Concept", async (t) => {
         });
         assertEquals("error" in result, true);
         assertEquals(
-          (result as { error: string }).error.includes("End date must be strictly after start date"),
-          true,
+          (result as { error: string }).error.includes(
+            "End date must be strictly after start date"
+          ),
+          true
         );
-      },
+      }
     );
 
     await t.step(
@@ -635,9 +653,9 @@ Deno.test("RoommatePosting Concept", async (t) => {
         assertEquals("error" in result, true);
         assertEquals(
           (result as { error: string }).error.includes("No posting found"),
-          true,
+          true
         );
-      },
+      }
     );
   });
 
@@ -656,16 +674,20 @@ Deno.test("RoommatePosting Concept", async (t) => {
           startDate: new Date("2025-08-31"),
           endDate: new Date("2025-06-01"), // endDate before startDate
           dailyRhythm: "Balanced / flexible schedule",
-          cleanlinessPreference: "Moderately tidy (clean weekly; some clutter okay)",
+          cleanlinessPreference:
+            "Moderately tidy (clean weekly; some clutter okay)",
           homeEnvironment: "Moderate (some noise, occasional visitors)",
           guestsVisitors: "Occasional guests okay",
+          numberOfRoommates: 2,
         });
         assertEquals("error" in result, true);
         assertEquals(
-          (result as { error: string }).error.includes("Start date must be strictly before end date"),
-          true,
+          (result as { error: string }).error.includes(
+            "Start date must be strictly before end date"
+          ),
+          true
         );
-      },
+      }
     );
   });
 

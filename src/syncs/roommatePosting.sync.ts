@@ -25,6 +25,7 @@ export const CreateRoommatePostingRequest: Sync = ({
   cleanlinessPreference,
   homeEnvironment,
   guestsVisitors,
+  numberOfRoommates,
 }) => {
   return {
     when: actions([
@@ -42,6 +43,7 @@ export const CreateRoommatePostingRequest: Sync = ({
         cleanlinessPreference,
         homeEnvironment,
         guestsVisitors,
+        numberOfRoommates,
       },
       { request },
     ]),
@@ -90,6 +92,7 @@ export const CreateRoommatePostingRequest: Sync = ({
         cleanlinessPreference,
         homeEnvironment,
         guestsVisitors,
+        numberOfRoommates,
       },
     ]),
   };
@@ -1339,6 +1342,75 @@ export const EditRoommatePostingGuestsVisitorsResponseError: Sync = ({
       { request },
     ],
     [RoommatePosting.editGuestsVisitors, {}, { error }]
+  ),
+  then: actions([Requesting.respond, { request, error }]),
+});
+
+//-- Edit RoommatePosting Number of Roommates --//
+export const EditRoommatePostingNumberOfRoommatesRequest: Sync = ({
+  request,
+  session,
+  user,
+  poster,
+  newValue,
+}) => {
+  return {
+    when: actions([
+      Requesting.request,
+      {
+        path: "/RoommatePosting/editNumberOfRoommates",
+        session,
+        poster,
+        newValue,
+      },
+      { request },
+    ]),
+    where: async (frames) => {
+      const result = await frames.query(
+        Sessioning._getUser,
+        { session },
+        {
+          user,
+        }
+      );
+      return result;
+    },
+    then: actions([
+      RoommatePosting.editNumberOfRoommates,
+      {
+        poster: user,
+        newValue,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingNumberOfRoommatesResponse: Sync = ({
+  request,
+  posting,
+}) => ({
+  when: actions(
+    [
+      Requesting.request,
+      { path: "/RoommatePosting/editNumberOfRoommates" },
+      { request },
+    ],
+    [RoommatePosting.editNumberOfRoommates, {}, { posting }]
+  ),
+  then: actions([Requesting.respond, { request, posting }]),
+});
+
+export const EditRoommatePostingNumberOfRoommatesResponseError: Sync = ({
+  request,
+  error,
+}) => ({
+  when: actions(
+    [
+      Requesting.request,
+      { path: "/RoommatePosting/editNumberOfRoommates" },
+      { request },
+    ],
+    [RoommatePosting.editNumberOfRoommates, {}, { error }]
   ),
   then: actions([Requesting.respond, { request, error }]),
 });

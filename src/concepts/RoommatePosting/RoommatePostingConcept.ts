@@ -30,6 +30,7 @@ export interface RoommatePosting {
   cleanlinessPreference: string;
   homeEnvironment: string;
   guestsVisitors: string;
+  numberOfRoommates: number;
 }
 
 /**
@@ -57,7 +58,7 @@ export default class RoommatePostingConcept {
    *
    * @requires a roommatePosting with this poster does not already exist in set of roommatePostings
    * @requires startDate < endDate
-   * @effects creates and returns new posting with the given poster, city, gender, age, description, startDate, endDate, dailyRhythm, cleanlinessPreference, homeEnvironment, and guestsVisitors
+   * @effects creates and returns new posting with the given poster, city, gender, age, description, startDate, endDate, dailyRhythm, cleanlinessPreference, homeEnvironment, guestsVisitors, and numberOfRoommates
    *
    * @param poster The user creating the posting
    * @param city The city where they're looking for housing
@@ -70,6 +71,7 @@ export default class RoommatePostingConcept {
    * @param cleanlinessPreference The poster's cleanliness preference
    * @param homeEnvironment The poster's home environment preference
    * @param guestsVisitors The poster's guests and visitors preference
+   * @param numberOfRoommates The number of roommates the poster is looking for
    * @returns The newly created RoommatePosting or error if requirements not met
    */
   async create({
@@ -84,6 +86,7 @@ export default class RoommatePostingConcept {
     cleanlinessPreference,
     homeEnvironment,
     guestsVisitors,
+    numberOfRoommates,
   }: {
     poster: ID;
     city: string;
@@ -96,6 +99,7 @@ export default class RoommatePostingConcept {
     cleanlinessPreference: string;
     homeEnvironment: string;
     guestsVisitors: string;
+    numberOfRoommates: number;
   }): Promise<{ posting: RoommatePosting } | { error: string }> {
     // Check if poster already has a posting
     const existingPosting = await this.getPostingByPoster(poster);
@@ -129,6 +133,7 @@ export default class RoommatePostingConcept {
       cleanlinessPreference,
       homeEnvironment,
       guestsVisitors,
+      numberOfRoommates,
     };
 
     await this.postings.insertOne(newPosting);
@@ -499,6 +504,41 @@ export default class RoommatePostingConcept {
       { _id: existingPosting._id },
       {
         $set: { guestsVisitors: newValue },
+      }
+    );
+    return { posting: { ...existingPosting } };
+  }
+
+  /**
+   * Updates the number of roommates field of a roommate posting
+   *
+   * @requires a roommatePosting with this poster exists in set of roommatePostings
+   * @effects updates the posting's numberOfRoommates to the given value and returns the posting
+   *
+   * @param poster The user who owns the posting
+   * @param newValue The new number of roommates value
+   * @returns The updated RoommatePosting or error
+   */
+  async editNumberOfRoommates({
+    poster,
+    newValue,
+  }: {
+    poster: ID;
+    newValue: number;
+  }): Promise<{ posting: RoommatePosting } | { error: string }> {
+    const existingPosting = await this.getPostingByPoster(poster);
+
+    if (!existingPosting) {
+      return {
+        error: `Edit number of roommates failed: No posting found for user '${poster}'.`,
+      };
+    }
+
+    existingPosting.numberOfRoommates = newValue;
+    await this.postings.updateOne(
+      { _id: existingPosting._id },
+      {
+        $set: { numberOfRoommates: newValue },
       }
     );
     return { posting: { ...existingPosting } };

@@ -134,6 +134,7 @@ export const exclusions: Array<string> = [
   "/api/RoommatePosting/editCleanlinessPreference",
   "/api/RoommatePosting/editHomeEnvironment",
   "/api/RoommatePosting/editGuestsVisitors",
+  "/api/RoommatePosting/editNumberOfRoommates",
   "/api/RoommatePosting/deletePostingsByPoster",
   "/api/RoommatePosting/contact",
 ];
