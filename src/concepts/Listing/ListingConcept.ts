@@ -409,15 +409,21 @@ export default class ListingConcept {
    *
    * @param listingId The ID of the listing to modify.
    * @param newAddress The new address for the listing.
+   * @param latitude Optional latitude coordinate for the new address.
+   * @param longitude Optional longitude coordinate for the new address.
    * @returns The updated Listing.
    * @throws Error if the listing does not exist or if the new address causes a conflict.
    */
   async editAddress({
     listingId,
     newAddress,
+    latitude,
+    longitude,
   }: {
     listingId: ID;
     newAddress: string;
+    latitude?: number;
+    longitude?: number;
   }): Promise<Listing | { error: string }> {
     const listingOrError = await this.getListing(listingId); // Requires: listing exists
 
@@ -439,10 +445,29 @@ export default class ListingConcept {
     }
 
     listing.address = newAddress;
+    if (latitude !== undefined) {
+      listing.latitude = latitude;
+    }
+    if (longitude !== undefined) {
+      listing.longitude = longitude;
+    }
+
+    const updateFields: {
+      address: string;
+      latitude?: number;
+      longitude?: number;
+    } = { address: newAddress };
+    if (latitude !== undefined) {
+      updateFields.latitude = latitude;
+    }
+    if (longitude !== undefined) {
+      updateFields.longitude = longitude;
+    }
+
     await this.listings.updateOne(
       { _id: listingId },
       {
-        $set: { address: newAddress },
+        $set: updateFields,
       },
     );
     return { ...listing };
