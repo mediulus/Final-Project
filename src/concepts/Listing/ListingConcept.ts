@@ -54,6 +54,8 @@ export interface Listing {
   amenities: Amenity[];
   photos: Image[];
   address: string;
+  latitude?: number; // optional: latitude coordinate from geocoding
+  longitude?: number; // optional: longitude coordinate from geocoding
   startDate: Date;
   endDate: Date;
   price: number; // price per week
@@ -78,7 +80,7 @@ export default class ListingConcept {
    * @returns The found Listing object or error if listing does not exist
    */
   private async getListing(
-    listingId: ID
+    listingId: ID,
   ): Promise<Listing | { error: string }> {
     const listing = await this.listings.findOne({ _id: listingId });
 
@@ -98,7 +100,7 @@ export default class ListingConcept {
    * @returns True if a conflict exists, false otherwise.
    */
   private async isListingConflict(
-    listing: Listing
+    listing: Listing,
   ): Promise<boolean | { error: string }> {
     // Query for all listings with the same address
     const existingListings = await this.listings
@@ -111,8 +113,7 @@ export default class ListingConcept {
     // Check if any existing listing has overlapping dates
     for (const existingListing of existingListings) {
       // Two date ranges overlap if: start1 < end2 AND start2 < end1
-      const datesOverlap =
-        listing.startDate < existingListing.endDate &&
+      const datesOverlap = listing.startDate < existingListing.endDate &&
         existingListing.startDate < listing.endDate;
 
       if (datesOverlap) {
@@ -146,6 +147,8 @@ export default class ListingConcept {
     amenities,
     photos,
     address,
+    latitude,
+    longitude,
     startDate,
     endDate,
     price,
@@ -157,6 +160,8 @@ export default class ListingConcept {
     amenities: Amenity[];
     photos: NewPhoto[];
     address: string;
+    latitude?: number;
+    longitude?: number;
     startDate: Date | string;
     endDate: Date | string;
     price: number;
@@ -168,7 +173,7 @@ export default class ListingConcept {
       "Received description:",
       description,
       "Type:",
-      typeof description
+      typeof description,
     );
     // Convert string dates to Date objects if needed
     const start = startDate instanceof Date ? startDate : new Date(startDate);
@@ -181,8 +186,9 @@ export default class ListingConcept {
     }
 
     // Validate and normalize type
-    const normalizedType: ListingType =
-      type === "sublet" || type === "renting" ? type : "sublet";
+    const normalizedType: ListingType = type === "sublet" || type === "renting"
+      ? type
+      : "sublet";
 
     // Ensure description is always a string
     // Handle null, undefined, or empty string - always convert to string
@@ -212,6 +218,8 @@ export default class ListingConcept {
       amenities,
       photos: normalizedPhotos,
       address,
+      latitude,
+      longitude,
       startDate: start,
       endDate: end,
       price,
@@ -223,13 +231,14 @@ export default class ListingConcept {
       "Created listing with description:",
       newListing.description,
       "Type:",
-      typeof newListing.description
+      typeof newListing.description,
     );
 
     const conflict = await this.isListingConflict(newListing);
     if (conflict) {
       return {
-        error: `Create listing failed: Another listing with address '${address}' overlaps with the specified dates.`,
+        error:
+          `Create listing failed: Another listing with address '${address}' overlaps with the specified dates.`,
       };
     }
 
@@ -265,7 +274,7 @@ export default class ListingConcept {
    */
   async deletePhoto(
     listingId: ID,
-    photoId: ID
+    photoId: ID,
   ): Promise<Listing | { error: string }> {
     const listingOrError = await this.getListing(listingId);
     if ("error" in listingOrError) return listingOrError;
@@ -276,7 +285,8 @@ export default class ListingConcept {
 
     if (listing.photos.length === before) {
       return {
-        error: `Delete photo failed: Photo '${photoId}' not found in listing '${listingId}'.`,
+        error:
+          `Delete photo failed: Photo '${photoId}' not found in listing '${listingId}'.`,
       };
     }
 
@@ -287,7 +297,7 @@ export default class ListingConcept {
 
     await this.listings.updateOne(
       { _id: listingId },
-      { $set: { photos: listing.photos } }
+      { $set: { photos: listing.photos } },
     );
 
     return { ...listing };
@@ -307,7 +317,7 @@ export default class ListingConcept {
    */
   async addPhoto(
     listingId: ID,
-    photo: NewPhoto
+    photo: NewPhoto,
   ): Promise<Listing | { error: string }> {
     const listingOrError = await this.getListing(listingId);
     if ("error" in listingOrError) return listingOrError;
@@ -316,14 +326,14 @@ export default class ListingConcept {
     // uniqueness by url (or storageKey if you prefer)
     if (listing.photos.some((p) => p.url === photo.url)) {
       return {
-        error: `Add photo failed: URL '${photo.url}' already exists in listing '${listingId}'.`,
+        error:
+          `Add photo failed: URL '${photo.url}' already exists in listing '${listingId}'.`,
       };
     }
 
-    const nextOrder =
-      listing.photos.length === 0
-        ? 0
-        : Math.max(...listing.photos.map((p) => p.order ?? 0)) + 1;
+    const nextOrder = listing.photos.length === 0
+      ? 0
+      : Math.max(...listing.photos.map((p) => p.order ?? 0)) + 1;
 
     const newImage: Image = {
       _id: freshID(),
@@ -343,7 +353,7 @@ export default class ListingConcept {
 
     await this.listings.updateOne(
       { _id: listingId },
-      { $set: { photos: listing.photos } }
+      { $set: { photos: listing.photos } },
     );
 
     return { ...listing };
@@ -379,7 +389,7 @@ export default class ListingConcept {
       { _id: listingId },
       {
         $set: { title: newTitle },
-      }
+      },
     );
     return { ...listing };
   }
@@ -416,7 +426,8 @@ export default class ListingConcept {
 
     if (conflict) {
       return {
-        error: `Edit address failed: Another listing with address '${newAddress}' overlaps with the current listing's dates.`,
+        error:
+          `Edit address failed: Another listing with address '${newAddress}' overlaps with the current listing's dates.`,
       };
     }
 
@@ -425,7 +436,7 @@ export default class ListingConcept {
       { _id: listingId },
       {
         $set: { address: newAddress },
-      }
+      },
     );
     return { ...listing };
   }
@@ -451,8 +462,9 @@ export default class ListingConcept {
     newStartDate: Date | string;
   }): Promise<Listing | { error: string }> {
     // Convert string date to Date if needed
-    const startDate =
-      typeof newStartDate === "string" ? new Date(newStartDate) : newStartDate;
+    const startDate = typeof newStartDate === "string"
+      ? new Date(newStartDate)
+      : newStartDate;
 
     const listingOrError = await this.getListing(listingId); // Requires: listing exists
 
@@ -476,7 +488,8 @@ export default class ListingConcept {
 
     if (conflict) {
       return {
-        error: `Edit start date failed: Another listing with the same address overlaps with the new start date and current end date.`,
+        error:
+          `Edit start date failed: Another listing with the same address overlaps with the new start date and current end date.`,
       };
     }
 
@@ -485,7 +498,7 @@ export default class ListingConcept {
       { _id: listingId },
       {
         $set: { startDate },
-      }
+      },
     );
     return { ...listing };
   }
@@ -511,8 +524,9 @@ export default class ListingConcept {
     newEndDate: Date | string;
   }): Promise<Listing | { error: string }> {
     // Convert string date to Date if needed
-    const endDate =
-      typeof newEndDate === "string" ? new Date(newEndDate) : newEndDate;
+    const endDate = typeof newEndDate === "string"
+      ? new Date(newEndDate)
+      : newEndDate;
 
     const listingOrError = await this.getListing(listingId); // Requires: listing exists
 
@@ -536,7 +550,8 @@ export default class ListingConcept {
 
     if (conflict) {
       return {
-        error: `Edit end date failed: Another listing with the same address overlaps with the current start date and new end date.`,
+        error:
+          `Edit end date failed: Another listing with the same address overlaps with the current start date and new end date.`,
       };
     }
 
@@ -545,7 +560,7 @@ export default class ListingConcept {
       { _id: listingId },
       {
         $set: { endDate },
-      }
+      },
     );
     return { ...listing };
   }
@@ -583,7 +598,7 @@ export default class ListingConcept {
       { _id: listingId },
       {
         $set: { price: newPrice },
-      }
+      },
     );
     return { ...listing };
   }
@@ -621,7 +636,7 @@ export default class ListingConcept {
       { _id: listingId },
       {
         $set: { type: newType },
-      }
+      },
     );
     return { ...listing };
   }
@@ -655,7 +670,7 @@ export default class ListingConcept {
       { _id: listingId },
       {
         $set: { description: newDescription },
-      }
+      },
     );
     return { ...listing };
   }
@@ -693,11 +708,12 @@ export default class ListingConcept {
     // Requires: amenity is not already in amenities (check by title and distance)
     if (
       listing.amenities.some(
-        (a: Amenity) => a.title === title && a.distance === distance
+        (a: Amenity) => a.title === title && a.distance === distance,
       )
     ) {
       return {
-        error: `Add amenity failed: Amenity '${title}' with distance '${distance}' already exists in listing '${listingId}'.`,
+        error:
+          `Add amenity failed: Amenity '${title}' with distance '${distance}' already exists in listing '${listingId}'.`,
       };
     }
 
@@ -711,7 +727,7 @@ export default class ListingConcept {
       { _id: listingId },
       {
         $set: { amenities: listing.amenities },
-      }
+      },
     );
     return { ...listing };
   }
@@ -744,13 +760,14 @@ export default class ListingConcept {
 
     const initialAmenityCount = listing.amenities.length;
     listing.amenities = listing.amenities.filter(
-      (a: Amenity) => a._id !== amenityId
+      (a: Amenity) => a._id !== amenityId,
     );
 
     // Requires: amenity is part of the listing
     if (listing.amenities.length === initialAmenityCount) {
       return {
-        error: `Delete amenity failed: Amenity with ID '${amenityId}' not found in listing '${listingId}'.`,
+        error:
+          `Delete amenity failed: Amenity with ID '${amenityId}' not found in listing '${listingId}'.`,
       };
     }
 
@@ -758,7 +775,7 @@ export default class ListingConcept {
       { _id: listingId },
       {
         $set: { amenities: listing.amenities },
-      }
+      },
     );
     return { ...listing };
   }
