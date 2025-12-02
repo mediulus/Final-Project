@@ -130,6 +130,10 @@ export const exclusions: Array<string> = [
   "/api/RoommatePosting/editDescription",
   "/api/RoommatePosting/editStartDate",
   "/api/RoommatePosting/editEndDate",
+  "/api/RoommatePosting/editDailyRhythm",
+  "/api/RoommatePosting/editCleanlinessPreference",
+  "/api/RoommatePosting/editHomeEnvironment",
+  "/api/RoommatePosting/editGuestsVisitors",
   "/api/RoommatePosting/deletePostingsByPoster",
   "/api/RoommatePosting/contact",
 ];

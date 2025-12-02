@@ -21,6 +21,10 @@ export const CreateRoommatePostingRequest: Sync = ({
   description,
   startDate,
   endDate,
+  dailyRhythm,
+  cleanlinessPreference,
+  homeEnvironment,
+  guestsVisitors,
 }) => {
   return {
     when: actions([
@@ -34,6 +38,10 @@ export const CreateRoommatePostingRequest: Sync = ({
         description,
         startDate,
         endDate,
+        dailyRhythm,
+        cleanlinessPreference,
+        homeEnvironment,
+        guestsVisitors,
       },
       { request },
     ]),
@@ -78,6 +86,10 @@ export const CreateRoommatePostingRequest: Sync = ({
         description,
         startDate,
         endDate,
+        dailyRhythm,
+        cleanlinessPreference,
+        homeEnvironment,
+        guestsVisitors,
       },
     ]),
   };
@@ -1051,6 +1063,282 @@ export const EditRoommatePostingEndDateResponseError: Sync = ({
   when: actions(
     [Requesting.request, { path: "/RoommatePosting/editEndDate" }, { request }],
     [RoommatePosting.editEndDate, {}, { error }]
+  ),
+  then: actions([Requesting.respond, { request, error }]),
+});
+
+//-- Edit RoommatePosting Daily Rhythm --//
+export const EditRoommatePostingDailyRhythmRequest: Sync = ({
+  request,
+  session,
+  user,
+  poster,
+  newValue,
+}) => {
+  return {
+    when: actions([
+      Requesting.request,
+      {
+        path: "/RoommatePosting/editDailyRhythm",
+        session,
+        poster,
+        newValue,
+      },
+      { request },
+    ]),
+    where: async (frames) => {
+      const result = await frames.query(
+        Sessioning._getUser,
+        { session },
+        {
+          user,
+        }
+      );
+      return result;
+    },
+    then: actions([
+      RoommatePosting.editDailyRhythm,
+      {
+        poster: user,
+        newValue,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingDailyRhythmResponse: Sync = ({
+  request,
+  posting,
+}) => ({
+  when: actions(
+    [
+      Requesting.request,
+      { path: "/RoommatePosting/editDailyRhythm" },
+      { request },
+    ],
+    [RoommatePosting.editDailyRhythm, {}, { posting }]
+  ),
+  then: actions([Requesting.respond, { request, posting }]),
+});
+
+export const EditRoommatePostingDailyRhythmResponseError: Sync = ({
+  request,
+  error,
+}) => ({
+  when: actions(
+    [
+      Requesting.request,
+      { path: "/RoommatePosting/editDailyRhythm" },
+      { request },
+    ],
+    [RoommatePosting.editDailyRhythm, {}, { error }]
+  ),
+  then: actions([Requesting.respond, { request, error }]),
+});
+
+//-- Edit RoommatePosting Cleanliness Preference --//
+export const EditRoommatePostingCleanlinessPreferenceRequest: Sync = ({
+  request,
+  session,
+  user,
+  poster,
+  newValue,
+}) => {
+  return {
+    when: actions([
+      Requesting.request,
+      {
+        path: "/RoommatePosting/editCleanlinessPreference",
+        session,
+        poster,
+        newValue,
+      },
+      { request },
+    ]),
+    where: async (frames) => {
+      const result = await frames.query(
+        Sessioning._getUser,
+        { session },
+        {
+          user,
+        }
+      );
+      return result;
+    },
+    then: actions([
+      RoommatePosting.editCleanlinessPreference,
+      {
+        poster: user,
+        newValue,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingCleanlinessPreferenceResponse: Sync = ({
+  request,
+  posting,
+}) => ({
+  when: actions(
+    [
+      Requesting.request,
+      { path: "/RoommatePosting/editCleanlinessPreference" },
+      { request },
+    ],
+    [RoommatePosting.editCleanlinessPreference, {}, { posting }]
+  ),
+  then: actions([Requesting.respond, { request, posting }]),
+});
+
+export const EditRoommatePostingCleanlinessPreferenceResponseError: Sync = ({
+  request,
+  error,
+}) => ({
+  when: actions(
+    [
+      Requesting.request,
+      { path: "/RoommatePosting/editCleanlinessPreference" },
+      { request },
+    ],
+    [RoommatePosting.editCleanlinessPreference, {}, { error }]
+  ),
+  then: actions([Requesting.respond, { request, error }]),
+});
+
+//-- Edit RoommatePosting Home Environment --//
+export const EditRoommatePostingHomeEnvironmentRequest: Sync = ({
+  request,
+  session,
+  user,
+  poster,
+  newValue,
+}) => {
+  return {
+    when: actions([
+      Requesting.request,
+      {
+        path: "/RoommatePosting/editHomeEnvironment",
+        session,
+        poster,
+        newValue,
+      },
+      { request },
+    ]),
+    where: async (frames) => {
+      const result = await frames.query(
+        Sessioning._getUser,
+        { session },
+        {
+          user,
+        }
+      );
+      return result;
+    },
+    then: actions([
+      RoommatePosting.editHomeEnvironment,
+      {
+        poster: user,
+        newValue,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingHomeEnvironmentResponse: Sync = ({
+  request,
+  posting,
+}) => ({
+  when: actions(
+    [
+      Requesting.request,
+      { path: "/RoommatePosting/editHomeEnvironment" },
+      { request },
+    ],
+    [RoommatePosting.editHomeEnvironment, {}, { posting }]
+  ),
+  then: actions([Requesting.respond, { request, posting }]),
+});
+
+export const EditRoommatePostingHomeEnvironmentResponseError: Sync = ({
+  request,
+  error,
+}) => ({
+  when: actions(
+    [
+      Requesting.request,
+      { path: "/RoommatePosting/editHomeEnvironment" },
+      { request },
+    ],
+    [RoommatePosting.editHomeEnvironment, {}, { error }]
+  ),
+  then: actions([Requesting.respond, { request, error }]),
+});
+
+//-- Edit RoommatePosting Guests & Visitors --//
+export const EditRoommatePostingGuestsVisitorsRequest: Sync = ({
+  request,
+  session,
+  user,
+  poster,
+  newValue,
+}) => {
+  return {
+    when: actions([
+      Requesting.request,
+      {
+        path: "/RoommatePosting/editGuestsVisitors",
+        session,
+        poster,
+        newValue,
+      },
+      { request },
+    ]),
+    where: async (frames) => {
+      const result = await frames.query(
+        Sessioning._getUser,
+        { session },
+        {
+          user,
+        }
+      );
+      return result;
+    },
+    then: actions([
+      RoommatePosting.editGuestsVisitors,
+      {
+        poster: user,
+        newValue,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingGuestsVisitorsResponse: Sync = ({
+  request,
+  posting,
+}) => ({
+  when: actions(
+    [
+      Requesting.request,
+      { path: "/RoommatePosting/editGuestsVisitors" },
+      { request },
+    ],
+    [RoommatePosting.editGuestsVisitors, {}, { posting }]
+  ),
+  then: actions([Requesting.respond, { request, posting }]),
+});
+
+export const EditRoommatePostingGuestsVisitorsResponseError: Sync = ({
+  request,
+  error,
+}) => ({
+  when: actions(
+    [
+      Requesting.request,
+      { path: "/RoommatePosting/editGuestsVisitors" },
+      { request },
+    ],
+    [RoommatePosting.editGuestsVisitors, {}, { error }]
   ),
   then: actions([Requesting.respond, { request, error }]),
 });

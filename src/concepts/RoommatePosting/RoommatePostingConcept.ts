@@ -26,6 +26,10 @@ export interface RoommatePosting {
   description: string;
   startDate: Date;
   endDate: Date;
+  dailyRhythm: string;
+  cleanlinessPreference: string;
+  homeEnvironment: string;
+  guestsVisitors: string;
 }
 
 /**
@@ -53,7 +57,7 @@ export default class RoommatePostingConcept {
    *
    * @requires a roommatePosting with this poster does not already exist in set of roommatePostings
    * @requires startDate < endDate
-   * @effects creates and returns new posting with the given poster, city, gender, age, description, startDate, and endDate
+   * @effects creates and returns new posting with the given poster, city, gender, age, description, startDate, endDate, dailyRhythm, cleanlinessPreference, homeEnvironment, and guestsVisitors
    *
    * @param poster The user creating the posting
    * @param city The city where they're looking for housing
@@ -62,6 +66,10 @@ export default class RoommatePostingConcept {
    * @param description Details about preferences and plans
    * @param startDate The start date of the housing period
    * @param endDate The end date of the housing period
+   * @param dailyRhythm The poster's daily rhythm preference
+   * @param cleanlinessPreference The poster's cleanliness preference
+   * @param homeEnvironment The poster's home environment preference
+   * @param guestsVisitors The poster's guests and visitors preference
    * @returns The newly created RoommatePosting or error if requirements not met
    */
   async create({
@@ -72,6 +80,10 @@ export default class RoommatePostingConcept {
     description,
     startDate,
     endDate,
+    dailyRhythm,
+    cleanlinessPreference,
+    homeEnvironment,
+    guestsVisitors,
   }: {
     poster: ID;
     city: string;
@@ -80,6 +92,10 @@ export default class RoommatePostingConcept {
     description: string;
     startDate: Date | string;
     endDate: Date | string;
+    dailyRhythm: string;
+    cleanlinessPreference: string;
+    homeEnvironment: string;
+    guestsVisitors: string;
   }): Promise<{ posting: RoommatePosting } | { error: string }> {
     // Check if poster already has a posting
     const existingPosting = await this.getPostingByPoster(poster);
@@ -109,6 +125,10 @@ export default class RoommatePostingConcept {
       description,
       startDate: start,
       endDate: end,
+      dailyRhythm,
+      cleanlinessPreference,
+      homeEnvironment,
+      guestsVisitors,
     };
 
     await this.postings.insertOne(newPosting);
@@ -339,6 +359,146 @@ export default class RoommatePostingConcept {
       { _id: existingPosting._id },
       {
         $set: { endDate: end },
+      }
+    );
+    return { posting: { ...existingPosting } };
+  }
+
+  /**
+   * Updates the daily rhythm field of a roommate posting
+   *
+   * @requires a roommatePosting with this poster exists in set of roommatePostings
+   * @effects updates the posting's dailyRhythm to the given value and returns the posting
+   *
+   * @param poster The user who owns the posting
+   * @param newValue The new daily rhythm value
+   * @returns The updated RoommatePosting or error
+   */
+  async editDailyRhythm({
+    poster,
+    newValue,
+  }: {
+    poster: ID;
+    newValue: string;
+  }): Promise<{ posting: RoommatePosting } | { error: string }> {
+    const existingPosting = await this.getPostingByPoster(poster);
+
+    if (!existingPosting) {
+      return {
+        error: `Edit daily rhythm failed: No posting found for user '${poster}'.`,
+      };
+    }
+
+    existingPosting.dailyRhythm = newValue;
+    await this.postings.updateOne(
+      { _id: existingPosting._id },
+      {
+        $set: { dailyRhythm: newValue },
+      }
+    );
+    return { posting: { ...existingPosting } };
+  }
+
+  /**
+   * Updates the cleanliness preference field of a roommate posting
+   *
+   * @requires a roommatePosting with this poster exists in set of roommatePostings
+   * @effects updates the posting's cleanlinessPreference to the given value and returns the posting
+   *
+   * @param poster The user who owns the posting
+   * @param newValue The new cleanliness preference value
+   * @returns The updated RoommatePosting or error
+   */
+  async editCleanlinessPreference({
+    poster,
+    newValue,
+  }: {
+    poster: ID;
+    newValue: string;
+  }): Promise<{ posting: RoommatePosting } | { error: string }> {
+    const existingPosting = await this.getPostingByPoster(poster);
+
+    if (!existingPosting) {
+      return {
+        error: `Edit cleanliness preference failed: No posting found for user '${poster}'.`,
+      };
+    }
+
+    existingPosting.cleanlinessPreference = newValue;
+    await this.postings.updateOne(
+      { _id: existingPosting._id },
+      {
+        $set: { cleanlinessPreference: newValue },
+      }
+    );
+    return { posting: { ...existingPosting } };
+  }
+
+  /**
+   * Updates the home environment field of a roommate posting
+   *
+   * @requires a roommatePosting with this poster exists in set of roommatePostings
+   * @effects updates the posting's homeEnvironment to the given value and returns the posting
+   *
+   * @param poster The user who owns the posting
+   * @param newValue The new home environment value
+   * @returns The updated RoommatePosting or error
+   */
+  async editHomeEnvironment({
+    poster,
+    newValue,
+  }: {
+    poster: ID;
+    newValue: string;
+  }): Promise<{ posting: RoommatePosting } | { error: string }> {
+    const existingPosting = await this.getPostingByPoster(poster);
+
+    if (!existingPosting) {
+      return {
+        error: `Edit home environment failed: No posting found for user '${poster}'.`,
+      };
+    }
+
+    existingPosting.homeEnvironment = newValue;
+    await this.postings.updateOne(
+      { _id: existingPosting._id },
+      {
+        $set: { homeEnvironment: newValue },
+      }
+    );
+    return { posting: { ...existingPosting } };
+  }
+
+  /**
+   * Updates the guests and visitors field of a roommate posting
+   *
+   * @requires a roommatePosting with this poster exists in set of roommatePostings
+   * @effects updates the posting's guestsVisitors to the given value and returns the posting
+   *
+   * @param poster The user who owns the posting
+   * @param newValue The new guests and visitors value
+   * @returns The updated RoommatePosting or error
+   */
+  async editGuestsVisitors({
+    poster,
+    newValue,
+  }: {
+    poster: ID;
+    newValue: string;
+  }): Promise<{ posting: RoommatePosting } | { error: string }> {
+    const existingPosting = await this.getPostingByPoster(poster);
+
+    if (!existingPosting) {
+      return {
+        error: `Edit guests and visitors failed: No posting found for user '${poster}'.`,
+      };
+    }
+
+    existingPosting.guestsVisitors = newValue;
+    await this.postings.updateOne(
+      { _id: existingPosting._id },
+      {
+        $set: { guestsVisitors: newValue },
       }
     );
     return { posting: { ...existingPosting } };

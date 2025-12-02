@@ -30,6 +30,10 @@ Deno.test("RoommatePosting Concept", async (t) => {
           description: "Looking for a quiet roommate for summer internship",
           startDate: new Date("2025-06-01"),
           endDate: new Date("2025-08-31"),
+          dailyRhythm: "Morning-oriented (up early, asleep early)",
+          cleanlinessPreference: "Very tidy (clean daily / everything in its place)",
+          homeEnvironment: "Quiet (minimal noise, low visitors)",
+          guestsVisitors: "Prefer few or no guests",
         });
 
         assertEquals("error" in result, false, "Should return posting object");
@@ -64,6 +68,10 @@ Deno.test("RoommatePosting Concept", async (t) => {
           description: "Another posting",
           startDate: new Date("2025-06-01"),
           endDate: new Date("2025-08-31"),
+          dailyRhythm: "Balanced / flexible schedule",
+          cleanlinessPreference: "Moderately tidy (clean weekly; some clutter okay)",
+          homeEnvironment: "Moderate (some noise, occasional visitors)",
+          guestsVisitors: "Occasional guests okay",
         });
 
         assertEquals("error" in result, true);
@@ -86,6 +94,10 @@ Deno.test("RoommatePosting Concept", async (t) => {
           description: "MIT grad student looking for summer housing",
           startDate: new Date("2025-06-01"),
           endDate: new Date("2025-08-31"),
+          dailyRhythm: "Night owl (up late, active later)",
+          cleanlinessPreference: "Relaxed (don't mind clutter but clean occasionally)",
+          homeEnvironment: "Social / lively (friends over often)",
+          guestsVisitors: "Comfortable with frequent guests",
         });
         assertEquals("error" in result, false);
         assertObjectMatch((result as { posting: RoommatePosting }).posting, {
@@ -304,6 +316,10 @@ Deno.test("RoommatePosting Concept", async (t) => {
           description: "New posting after deletion",
           startDate: new Date("2025-06-01"),
           endDate: new Date("2025-08-31"),
+          dailyRhythm: "Balanced / flexible schedule",
+          cleanlinessPreference: "Moderately tidy (clean weekly; some clutter okay)",
+          homeEnvironment: "Moderate (some noise, occasional visitors)",
+          guestsVisitors: "Occasional guests okay",
         });
         assertEquals("error" in result, false);
         posting1 = (result as { posting: RoommatePosting }).posting;
@@ -346,6 +362,10 @@ Deno.test("RoommatePosting Concept", async (t) => {
           description: "MIT PhD student, looking for summer sublet roommate",
           startDate: new Date("2025-06-01"),
           endDate: new Date("2025-08-31"),
+          dailyRhythm: "Varies a lot week-to-week",
+          cleanlinessPreference: "Relaxed (don't mind clutter but clean occasionally)",
+          homeEnvironment: "Flexible / depends on schedule",
+          guestsVisitors: "Comfortable with overnight guests",
         });
         assertEquals("error" in result, false);
         tracePosting = (result as { posting: RoommatePosting }).posting;
@@ -438,6 +458,10 @@ Deno.test("RoommatePosting Concept", async (t) => {
         description: "Software engineer at startup",
         startDate: new Date("2025-06-01"),
         endDate: new Date("2025-08-31"),
+        dailyRhythm: "Balanced / flexible schedule",
+        cleanlinessPreference: "Very tidy (clean daily / everything in its place)",
+        homeEnvironment: "Quiet (minimal noise, low visitors)",
+        guestsVisitors: "Prefer few or no guests",
       });
 
       await roommatePostingConcept.create({
@@ -448,6 +472,10 @@ Deno.test("RoommatePosting Concept", async (t) => {
         description: "Working at Amazon for summer",
         startDate: new Date("2025-06-01"),
         endDate: new Date("2025-08-31"),
+        dailyRhythm: "Night owl (up late, active later)",
+        cleanlinessPreference: "Messy (minimal cleaning unless necessary)",
+        homeEnvironment: "Social / lively (friends over often)",
+        guestsVisitors: "Comfortable with frequent guests",
       });
 
       const sfPostings = await roommatePostingConcept.getPostingsByCity(
@@ -506,6 +534,10 @@ Deno.test("RoommatePosting Concept", async (t) => {
       description: "Test posting for date edits",
       startDate: new Date("2025-06-01"),
       endDate: new Date("2025-08-31"),
+      dailyRhythm: "Morning-oriented (up early, asleep early)",
+      cleanlinessPreference: "Very tidy (clean daily / everything in its place)",
+      homeEnvironment: "Quiet (minimal noise, low visitors)",
+      guestsVisitors: "Prefer few or no guests",
     });
     const testPosting = (createResult as { posting: RoommatePosting }).posting;
 
@@ -623,6 +655,10 @@ Deno.test("RoommatePosting Concept", async (t) => {
           description: "Invalid dates",
           startDate: new Date("2025-08-31"),
           endDate: new Date("2025-06-01"), // endDate before startDate
+          dailyRhythm: "Balanced / flexible schedule",
+          cleanlinessPreference: "Moderately tidy (clean weekly; some clutter okay)",
+          homeEnvironment: "Moderate (some noise, occasional visitors)",
+          guestsVisitors: "Occasional guests okay",
         });
         assertEquals("error" in result, true);
         assertEquals(
