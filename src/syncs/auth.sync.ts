@@ -259,7 +259,7 @@ export const DeleteAccountRequest: Sync = (
 //-- Send the deletion email after message creation --//
 export const SendAccountDeletionEmail: Sync = ({ message, user }) => ({
   when: actions(
-    [PasswordAuth.deleteAccount, {}, { user }],
+    [PasswordAuth.deleteAccount, {}, { user }], // only send if success
     [Notification.createMessageBody, {}, { message }],
   ),
   then: actions([Notification.sendEmail, { message }]),
