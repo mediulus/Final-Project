@@ -65,6 +65,11 @@ export const inclusions: Record<string, string> = {
     "can query postings by age via passthrough",
   "/api/RoommatePosting/_getPosterByPostingId":
     "can query poster by posting ID via passthrough",
+
+
+  // notification
+  "/api/Notification/isValidEmail": "can check if valid email - no risk",
+  "/api/Notification/isAllowedDomain": "can see if any email is an allowed domain, doesn't reveal any info except for that one",
 };
 
 /**
@@ -85,6 +90,8 @@ export const exclusions: Array<string> = [
   "/api/logout",
 
   // PasswordAuth
+  "/api/PasswordAuth/hashPassword",
+  "/api/PasswordAuth/register",
   "/api/PasswordAuth/authenticate",
   "/api/PasswordAuth/deleteAccount",
   "/api/PasswordAuth/changePassword",
@@ -115,6 +122,7 @@ export const exclusions: Array<string> = [
   "/api/UserInfo/updateGender",
   "/api/UserInfo/updateEmailAddress",
   "/api/UserInfo/_getUserInfo",
+  "/api/UserInfo/_getUserEmailAddress",
 
   // Listing
   "/api/Listing/create",
@@ -137,4 +145,9 @@ export const exclusions: Array<string> = [
   "/api/RoommatePosting/editNumberOfRoommates",
   "/api/RoommatePosting/deletePostingsByPoster",
   "/api/RoommatePosting/contact",
+
+  // notification
+
+  "/api/Notification/createMessageBody",
+  "/api/Notification/sendEmail"
 ];
