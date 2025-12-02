@@ -19,6 +19,8 @@ export const CreateRoommatePostingRequest: Sync = ({
   gender,
   age,
   description,
+  startDate,
+  endDate,
 }) => {
   return {
     when: actions([
@@ -30,6 +32,8 @@ export const CreateRoommatePostingRequest: Sync = ({
         gender,
         age,
         description,
+        startDate,
+        endDate,
       },
       { request },
     ]),
@@ -72,6 +76,8 @@ export const CreateRoommatePostingRequest: Sync = ({
         gender,
         age,
         description,
+        startDate,
+        endDate,
       },
     ]),
   };
@@ -412,4 +418,639 @@ export const ContactRoommateResponse: Sync = ({ request }) => ({
     [Notification.sendEmail, {}, {}]
   ),
   then: actions([Requesting.respond, { request, status: "contact_sent" }]),
+});
+
+//-- Edit RoommatePosting City --//
+export const EditRoommatePostingCityRequest: Sync = ({
+  request,
+  session,
+  user,
+  poster,
+  newCity,
+}) => {
+  console.log("[EditRoommatePostingCityRequest] Creating sync with:", {
+    path: "/RoommatePosting/editCity",
+    poster,
+    newCity,
+  });
+  return {
+    when: actions([
+      Requesting.request,
+      {
+        path: "/RoommatePosting/editCity",
+        session,
+        poster,
+        newCity,
+      },
+      { request },
+    ]),
+    where: async (frames) => {
+      console.log(
+        "[EditRoommatePostingCityRequest] where clause - starting, frames count:",
+        frames.length
+      );
+      const result = await frames.query(
+        Sessioning._getUser,
+        { session },
+        {
+          user,
+        }
+      );
+      console.log(
+        "[EditRoommatePostingCityRequest] where clause - frames after query:",
+        result.length,
+        "user bound:",
+        result.length > 0 ? result[0][user] : "no frames"
+      );
+      return result;
+    },
+    then: actions([
+      RoommatePosting.editCity,
+      {
+        poster: user,
+        newCity,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingCityResponse: Sync = ({ request, posting }) => {
+  console.log(
+    "[EditRoommatePostingCityResponse] Creating sync, waiting for:",
+    request,
+    posting
+  );
+  return {
+    when: actions(
+      [Requesting.request, { path: "/RoommatePosting/editCity" }, { request }],
+      [RoommatePosting.editCity, {}, { posting }]
+    ),
+    where: async (frames) => {
+      console.log(
+        "[EditRoommatePostingCityResponse] where clause - frames count:",
+        frames.length
+      );
+      if (frames.length > 0) {
+        console.log(
+          "[EditRoommatePostingCityResponse] Frame data:",
+          "request:",
+          frames[0][request],
+          "posting:",
+          frames[0][posting]
+        );
+      }
+      return frames;
+    },
+    then: actions([
+      Requesting.respond,
+      {
+        request,
+        posting,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingCityResponseError: Sync = ({
+  request,
+  error,
+}) => ({
+  when: actions(
+    [Requesting.request, { path: "/RoommatePosting/editCity" }, { request }],
+    [RoommatePosting.editCity, {}, { error }]
+  ),
+  then: actions([Requesting.respond, { request, error }]),
+});
+
+//-- Edit RoommatePosting Gender --//
+export const EditRoommatePostingGenderRequest: Sync = ({
+  request,
+  session,
+  user,
+  poster,
+  newGender,
+}) => {
+  console.log("[EditRoommatePostingGenderRequest] Creating sync with:", {
+    path: "/RoommatePosting/editGender",
+    poster,
+    newGender,
+  });
+  return {
+    when: actions([
+      Requesting.request,
+      {
+        path: "/RoommatePosting/editGender",
+        session,
+        poster,
+        newGender,
+      },
+      { request },
+    ]),
+    where: async (frames) => {
+      console.log(
+        "[EditRoommatePostingGenderRequest] where clause - starting, frames count:",
+        frames.length
+      );
+      const result = await frames.query(
+        Sessioning._getUser,
+        { session },
+        {
+          user,
+        }
+      );
+      console.log(
+        "[EditRoommatePostingGenderRequest] where clause - frames after query:",
+        result.length,
+        "user bound:",
+        result.length > 0 ? result[0][user] : "no frames"
+      );
+      return result;
+    },
+    then: actions([
+      RoommatePosting.editGender,
+      {
+        poster: user,
+        newGender,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingGenderResponse: Sync = ({
+  request,
+  posting,
+}) => {
+  console.log(
+    "[EditRoommatePostingGenderResponse] Creating sync, waiting for:",
+    request,
+    posting
+  );
+  return {
+    when: actions(
+      [
+        Requesting.request,
+        { path: "/RoommatePosting/editGender" },
+        { request },
+      ],
+      [RoommatePosting.editGender, {}, { posting }]
+    ),
+    then: actions([
+      Requesting.respond,
+      {
+        request,
+        posting,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingGenderResponseError: Sync = ({
+  request,
+  error,
+}) => ({
+  when: actions(
+    [Requesting.request, { path: "/RoommatePosting/editGender" }, { request }],
+    [RoommatePosting.editGender, {}, { error }]
+  ),
+  then: actions([Requesting.respond, { request, error }]),
+});
+
+//-- Edit RoommatePosting Age --//
+export const EditRoommatePostingAgeRequest: Sync = ({
+  request,
+  session,
+  user,
+  poster,
+  newAge,
+}) => {
+  console.log("[EditRoommatePostingAgeRequest] Creating sync with:", {
+    path: "/RoommatePosting/editAge",
+    poster,
+    newAge,
+  });
+  return {
+    when: actions([
+      Requesting.request,
+      {
+        path: "/RoommatePosting/editAge",
+        session,
+        poster,
+        newAge,
+      },
+      { request },
+    ]),
+    where: async (frames) => {
+      console.log(
+        "[EditRoommatePostingAgeRequest] where clause - starting, frames count:",
+        frames.length
+      );
+      const result = await frames.query(
+        Sessioning._getUser,
+        { session },
+        {
+          user,
+        }
+      );
+      console.log(
+        "[EditRoommatePostingAgeRequest] where clause - frames after query:",
+        result.length,
+        "user bound:",
+        result.length > 0 ? result[0][user] : "no frames"
+      );
+      return result;
+    },
+    then: actions([
+      RoommatePosting.editAge,
+      {
+        poster: user,
+        newAge,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingAgeResponse: Sync = ({ request, posting }) => {
+  console.log(
+    "[EditRoommatePostingAgeResponse] Creating sync, waiting for:",
+    request,
+    posting
+  );
+  return {
+    when: actions(
+      [Requesting.request, { path: "/RoommatePosting/editAge" }, { request }],
+      [RoommatePosting.editAge, {}, { posting }]
+    ),
+    where: async (frames) => {
+      console.log(
+        "[EditRoommatePostingAgeResponse] where clause - frames count:",
+        frames.length
+      );
+      if (frames.length > 0) {
+        console.log(
+          "[EditRoommatePostingAgeResponse] Frame data:",
+          "request:",
+          frames[0][request],
+          "posting:",
+          frames[0][posting]
+        );
+      }
+      return frames;
+    },
+    then: actions([
+      Requesting.respond,
+      {
+        request,
+        posting,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingAgeResponseError: Sync = ({
+  request,
+  error,
+}) => ({
+  when: actions(
+    [Requesting.request, { path: "/RoommatePosting/editAge" }, { request }],
+    [RoommatePosting.editAge, {}, { error }]
+  ),
+  then: actions([Requesting.respond, { request, error }]),
+});
+
+//-- Edit RoommatePosting Description --//
+export const EditRoommatePostingDescriptionRequest: Sync = ({
+  request,
+  session,
+  user,
+  poster,
+  newDescription,
+}) => {
+  console.log("[EditRoommatePostingDescriptionRequest] Creating sync with:", {
+    path: "/RoommatePosting/editDescription",
+    poster,
+    newDescription:
+      typeof newDescription === "string"
+        ? newDescription.substring(0, 50) + "..."
+        : newDescription,
+  });
+  return {
+    when: actions([
+      Requesting.request,
+      {
+        path: "/RoommatePosting/editDescription",
+        session,
+        poster,
+        newDescription,
+      },
+      { request },
+    ]),
+    where: async (frames) => {
+      console.log(
+        "[EditRoommatePostingDescriptionRequest] where clause - starting, frames count:",
+        frames.length
+      );
+      const result = await frames.query(
+        Sessioning._getUser,
+        { session },
+        {
+          user,
+        }
+      );
+      console.log(
+        "[EditRoommatePostingDescriptionRequest] where clause - frames after query:",
+        result.length,
+        "user bound:",
+        result.length > 0 ? result[0][user] : "no frames"
+      );
+      return result;
+    },
+    then: actions([
+      RoommatePosting.editDescription,
+      {
+        poster: user,
+        newDescription,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingDescriptionResponse: Sync = ({
+  request,
+  posting,
+}) => {
+  console.log(
+    "[EditRoommatePostingDescriptionResponse] Creating sync, waiting for:",
+    request,
+    posting
+  );
+  return {
+    when: actions(
+      [
+        Requesting.request,
+        { path: "/RoommatePosting/editDescription" },
+        { request },
+      ],
+      [RoommatePosting.editDescription, {}, { posting }]
+    ),
+    where: async (frames) => {
+      console.log(
+        "[EditRoommatePostingDescriptionResponse] where clause - frames count:",
+        frames.length
+      );
+      if (frames.length > 0) {
+        console.log(
+          "[EditRoommatePostingDescriptionResponse] Frame data:",
+          "request:",
+          frames[0][request],
+          "posting:",
+          frames[0][posting]
+        );
+      }
+      return frames;
+    },
+    then: actions([
+      Requesting.respond,
+      {
+        request,
+        posting,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingDescriptionResponseError: Sync = ({
+  request,
+  error,
+}) => ({
+  when: actions(
+    [
+      Requesting.request,
+      { path: "/RoommatePosting/editDescription" },
+      { request },
+    ],
+    [RoommatePosting.editDescription, {}, { error }]
+  ),
+  then: actions([Requesting.respond, { request, error }]),
+});
+
+//-- Edit RoommatePosting StartDate --//
+export const EditRoommatePostingStartDateRequest: Sync = ({
+  request,
+  session,
+  user,
+  poster,
+  newStartDate,
+}) => {
+  console.log("[EditRoommatePostingStartDateRequest] Creating sync with:", {
+    path: "/RoommatePosting/editStartDate",
+    poster,
+    newStartDate,
+  });
+  return {
+    when: actions([
+      Requesting.request,
+      {
+        path: "/RoommatePosting/editStartDate",
+        session,
+        poster,
+        newStartDate,
+      },
+      { request },
+    ]),
+    where: async (frames) => {
+      console.log(
+        "[EditRoommatePostingStartDateRequest] where clause - starting, frames count:",
+        frames.length
+      );
+      const result = await frames.query(
+        Sessioning._getUser,
+        { session },
+        {
+          user,
+        }
+      );
+      console.log(
+        "[EditRoommatePostingStartDateRequest] where clause - frames after query:",
+        result.length,
+        "user bound:",
+        result.length > 0 ? result[0][user] : "no frames"
+      );
+      return result;
+    },
+    then: actions([
+      RoommatePosting.editStartDate,
+      {
+        poster: user,
+        newStartDate,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingStartDateResponse: Sync = ({
+  request,
+  posting,
+}) => {
+  console.log(
+    "[EditRoommatePostingStartDateResponse] Creating sync, waiting for:",
+    request,
+    posting
+  );
+  return {
+    when: actions(
+      [
+        Requesting.request,
+        { path: "/RoommatePosting/editStartDate" },
+        { request },
+      ],
+      [RoommatePosting.editStartDate, {}, { posting }]
+    ),
+    where: async (frames) => {
+      console.log(
+        "[EditRoommatePostingStartDateResponse] where clause - frames count:",
+        frames.length
+      );
+      if (frames.length > 0) {
+        console.log(
+          "[EditRoommatePostingStartDateResponse] Frame data:",
+          "request:",
+          frames[0][request],
+          "posting:",
+          frames[0][posting]
+        );
+      }
+      return frames;
+    },
+    then: actions([
+      Requesting.respond,
+      {
+        request,
+        posting,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingStartDateResponseError: Sync = ({
+  request,
+  error,
+}) => ({
+  when: actions(
+    [
+      Requesting.request,
+      { path: "/RoommatePosting/editStartDate" },
+      { request },
+    ],
+    [RoommatePosting.editStartDate, {}, { error }]
+  ),
+  then: actions([Requesting.respond, { request, error }]),
+});
+
+//-- Edit RoommatePosting EndDate --//
+export const EditRoommatePostingEndDateRequest: Sync = ({
+  request,
+  session,
+  user,
+  poster,
+  newEndDate,
+}) => {
+  console.log("[EditRoommatePostingEndDateRequest] Creating sync with:", {
+    path: "/RoommatePosting/editEndDate",
+    poster,
+    newEndDate,
+  });
+  return {
+    when: actions([
+      Requesting.request,
+      {
+        path: "/RoommatePosting/editEndDate",
+        session,
+        poster,
+        newEndDate,
+      },
+      { request },
+    ]),
+    where: async (frames) => {
+      console.log(
+        "[EditRoommatePostingEndDateRequest] where clause - starting, frames count:",
+        frames.length
+      );
+      const result = await frames.query(
+        Sessioning._getUser,
+        { session },
+        {
+          user,
+        }
+      );
+      console.log(
+        "[EditRoommatePostingEndDateRequest] where clause - frames after query:",
+        result.length,
+        "user bound:",
+        result.length > 0 ? result[0][user] : "no frames"
+      );
+      return result;
+    },
+    then: actions([
+      RoommatePosting.editEndDate,
+      {
+        poster: user,
+        newEndDate,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingEndDateResponse: Sync = ({
+  request,
+  posting,
+}) => {
+  console.log(
+    "[EditRoommatePostingEndDateResponse] Creating sync, waiting for:",
+    request,
+    posting
+  );
+  return {
+    when: actions(
+      [
+        Requesting.request,
+        { path: "/RoommatePosting/editEndDate" },
+        { request },
+      ],
+      [RoommatePosting.editEndDate, {}, { posting }]
+    ),
+    where: async (frames) => {
+      console.log(
+        "[EditRoommatePostingEndDateResponse] where clause - frames count:",
+        frames.length
+      );
+      if (frames.length > 0) {
+        console.log(
+          "[EditRoommatePostingEndDateResponse] Frame data:",
+          "request:",
+          frames[0][request],
+          "posting:",
+          frames[0][posting]
+        );
+      }
+      return frames;
+    },
+    then: actions([
+      Requesting.respond,
+      {
+        request,
+        posting,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingEndDateResponseError: Sync = ({
+  request,
+  error,
+}) => ({
+  when: actions(
+    [Requesting.request, { path: "/RoommatePosting/editEndDate" }, { request }],
+    [RoommatePosting.editEndDate, {}, { error }]
+  ),
+  then: actions([Requesting.respond, { request, error }]),
 });

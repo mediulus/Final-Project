@@ -125,10 +125,13 @@ export default class RoommatePostingConcept {
    * @param city The new city value
    * @returns The updated RoommatePosting or error
    */
-  async editCity(
-    poster: ID,
-    city: string
-  ): Promise<RoommatePosting | { error: string }> {
+  async editCity({
+    poster,
+    newCity,
+  }: {
+    poster: ID;
+    newCity: string;
+  }): Promise<{ posting: RoommatePosting } | { error: string }> {
     const existingPosting = await this.getPostingByPoster(poster);
 
     if (!existingPosting) {
@@ -137,14 +140,14 @@ export default class RoommatePostingConcept {
       };
     }
 
-    existingPosting.city = city;
+    existingPosting.city = newCity;
     await this.postings.updateOne(
       { _id: existingPosting._id },
       {
-        $set: { city },
+        $set: { city: newCity },
       }
     );
-    return { ...existingPosting };
+    return { posting: { ...existingPosting } };
   }
 
   /**
@@ -157,10 +160,13 @@ export default class RoommatePostingConcept {
    * @param gender The new gender value
    * @returns The updated RoommatePosting or error
    */
-  async editGender(
-    poster: ID,
-    gender: Gender
-  ): Promise<RoommatePosting | { error: string }> {
+  async editGender({
+    poster,
+    newGender,
+  }: {
+    poster: ID;
+    newGender: Gender;
+  }): Promise<{ posting: RoommatePosting } | { error: string }> {
     const existingPosting = await this.getPostingByPoster(poster);
 
     if (!existingPosting) {
@@ -169,14 +175,14 @@ export default class RoommatePostingConcept {
       };
     }
 
-    existingPosting.gender = gender;
+    existingPosting.gender = newGender;
     await this.postings.updateOne(
       { _id: existingPosting._id },
       {
-        $set: { gender },
+        $set: { gender: newGender },
       }
     );
-    return { ...existingPosting };
+    return { posting: { ...existingPosting } };
   }
 
   /**
@@ -189,10 +195,13 @@ export default class RoommatePostingConcept {
    * @param age The new age value
    * @returns The updated RoommatePosting or error
    */
-  async editAge(
-    poster: ID,
-    age: number
-  ): Promise<RoommatePosting | { error: string }> {
+  async editAge({
+    poster,
+    newAge,
+  }: {
+    poster: ID;
+    newAge: number;
+  }): Promise<{ posting: RoommatePosting } | { error: string }> {
     const existingPosting = await this.getPostingByPoster(poster);
 
     if (!existingPosting) {
@@ -201,14 +210,14 @@ export default class RoommatePostingConcept {
       };
     }
 
-    existingPosting.age = age;
+    existingPosting.age = newAge;
     await this.postings.updateOne(
       { _id: existingPosting._id },
       {
-        $set: { age },
+        $set: { age: newAge },
       }
     );
-    return { ...existingPosting };
+    return { posting: { ...existingPosting } };
   }
 
   /**
@@ -221,10 +230,13 @@ export default class RoommatePostingConcept {
    * @param description The new description value
    * @returns The updated RoommatePosting or error
    */
-  async editDescription(
-    poster: ID,
-    description: string
-  ): Promise<RoommatePosting | { error: string }> {
+  async editDescription({
+    poster,
+    newDescription,
+  }: {
+    poster: ID;
+    newDescription: string;
+  }): Promise<{ posting: RoommatePosting } | { error: string }> {
     const existingPosting = await this.getPostingByPoster(poster);
 
     if (!existingPosting) {
@@ -233,14 +245,14 @@ export default class RoommatePostingConcept {
       };
     }
 
-    existingPosting.description = description;
+    existingPosting.description = newDescription;
     await this.postings.updateOne(
       { _id: existingPosting._id },
       {
-        $set: { description },
+        $set: { description: newDescription },
       }
     );
-    return { ...existingPosting };
+    return { posting: { ...existingPosting } };
   }
 
   /**
@@ -254,10 +266,13 @@ export default class RoommatePostingConcept {
    * @param startDate The new start date value
    * @returns The updated RoommatePosting or error
    */
-  async editStartDate(
-    poster: ID,
-    startDate: Date | string
-  ): Promise<RoommatePosting | { error: string }> {
+  async editStartDate({
+    poster,
+    newStartDate,
+  }: {
+    poster: ID;
+    newStartDate: Date | string;
+  }): Promise<{ posting: RoommatePosting } | { error: string }> {
     const existingPosting = await this.getPostingByPoster(poster);
 
     if (!existingPosting) {
@@ -266,7 +281,8 @@ export default class RoommatePostingConcept {
       };
     }
 
-    const start = startDate instanceof Date ? startDate : new Date(startDate);
+    const start =
+      newStartDate instanceof Date ? newStartDate : new Date(newStartDate);
     if (start >= existingPosting.endDate) {
       return {
         error:
@@ -281,7 +297,7 @@ export default class RoommatePostingConcept {
         $set: { startDate: start },
       }
     );
-    return { ...existingPosting };
+    return { posting: { ...existingPosting } };
   }
 
   /**
@@ -295,10 +311,13 @@ export default class RoommatePostingConcept {
    * @param endDate The new end date value
    * @returns The updated RoommatePosting or error
    */
-  async editEndDate(
-    poster: ID,
-    endDate: Date | string
-  ): Promise<RoommatePosting | { error: string }> {
+  async editEndDate({
+    poster,
+    newEndDate,
+  }: {
+    poster: ID;
+    newEndDate: Date | string;
+  }): Promise<{ posting: RoommatePosting } | { error: string }> {
     const existingPosting = await this.getPostingByPoster(poster);
 
     if (!existingPosting) {
@@ -307,7 +326,7 @@ export default class RoommatePostingConcept {
       };
     }
 
-    const end = endDate instanceof Date ? endDate : new Date(endDate);
+    const end = newEndDate instanceof Date ? newEndDate : new Date(newEndDate);
     if (existingPosting.startDate >= end) {
       return {
         error:
@@ -322,7 +341,7 @@ export default class RoommatePostingConcept {
         $set: { endDate: end },
       }
     );
-    return { ...existingPosting };
+    return { posting: { ...existingPosting } };
   }
 
   /**

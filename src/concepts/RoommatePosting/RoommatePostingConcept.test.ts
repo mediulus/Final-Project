@@ -100,12 +100,12 @@ Deno.test("RoommatePosting Concept", async (t) => {
     await t.step(
       "2.1. effects: should update city for existing poster",
       async () => {
-        const result = await roommatePostingConcept.editCity(
-          user1Id,
-          "San Francisco",
-        );
+        const result = await roommatePostingConcept.editCity({
+          poster: user1Id,
+          newCity: "San Francisco",
+        });
         assertEquals("error" in result, false);
-        assertEquals((result as RoommatePosting).city, "San Francisco");
+        assertEquals((result as { posting: RoommatePosting }).posting.city, "San Francisco");
 
         // Verify persistence
         const fetched = await roommatePostingConcept.getPostingByPosterId(
@@ -118,10 +118,10 @@ Deno.test("RoommatePosting Concept", async (t) => {
     await t.step(
       "2.2. requires: should fail if poster has no posting",
       async () => {
-        const result = await roommatePostingConcept.editCity(
-          user3Id, // User with no posting
-          "New York",
-        );
+        const result = await roommatePostingConcept.editCity({
+          poster: user3Id, // User with no posting
+          newCity: "New York",
+        });
         assertEquals("error" in result, true);
         assertEquals(
           (result as { error: string }).error.includes("No posting found"),
@@ -135,12 +135,12 @@ Deno.test("RoommatePosting Concept", async (t) => {
     await t.step(
       "3.1. effects: should update gender for existing poster",
       async () => {
-        const result = await roommatePostingConcept.editGender(
-          user1Id,
-          Gender.NonBinary,
-        );
+        const result = await roommatePostingConcept.editGender({
+          poster: user1Id,
+          newGender: Gender.NonBinary,
+        });
         assertEquals("error" in result, false);
-        assertEquals((result as RoommatePosting).gender, Gender.NonBinary);
+        assertEquals((result as { posting: RoommatePosting }).posting.gender, Gender.NonBinary);
 
         // Verify persistence
         const fetched = await roommatePostingConcept.getPostingByPosterId(
@@ -153,10 +153,10 @@ Deno.test("RoommatePosting Concept", async (t) => {
     await t.step(
       "3.2. requires: should fail if poster has no posting",
       async () => {
-        const result = await roommatePostingConcept.editGender(
-          user3Id,
-          Gender.Male,
-        );
+        const result = await roommatePostingConcept.editGender({
+          poster: user3Id,
+          newGender: Gender.Male,
+        });
         assertEquals("error" in result, true);
         assertEquals(
           (result as { error: string }).error.includes("No posting found"),
@@ -170,9 +170,12 @@ Deno.test("RoommatePosting Concept", async (t) => {
     await t.step(
       "4.1. effects: should update age for existing poster",
       async () => {
-        const result = await roommatePostingConcept.editAge(user1Id, 21);
+        const result = await roommatePostingConcept.editAge({
+          poster: user1Id,
+          newAge: 21,
+        });
         assertEquals("error" in result, false);
-        assertEquals((result as RoommatePosting).age, 21);
+        assertEquals((result as { posting: RoommatePosting }).posting.age, 21);
 
         // Verify persistence
         const fetched = await roommatePostingConcept.getPostingByPosterId(
@@ -185,7 +188,10 @@ Deno.test("RoommatePosting Concept", async (t) => {
     await t.step(
       "4.2. requires: should fail if poster has no posting",
       async () => {
-        const result = await roommatePostingConcept.editAge(user3Id, 25);
+        const result = await roommatePostingConcept.editAge({
+          poster: user3Id,
+          newAge: 25,
+        });
         assertEquals("error" in result, true);
         assertEquals(
           (result as { error: string }).error.includes("No posting found"),
@@ -201,12 +207,12 @@ Deno.test("RoommatePosting Concept", async (t) => {
       async () => {
         const newDescription =
           "Updated: Looking for clean, respectful roommate";
-        const result = await roommatePostingConcept.editDescription(
-          user1Id,
-          newDescription,
-        );
+        const result = await roommatePostingConcept.editDescription({
+          poster: user1Id,
+          newDescription: newDescription,
+        });
         assertEquals("error" in result, false);
-        assertEquals((result as RoommatePosting).description, newDescription);
+        assertEquals((result as { posting: RoommatePosting }).posting.description, newDescription);
 
         // Verify persistence
         const fetched = await roommatePostingConcept.getPostingByPosterId(
@@ -219,10 +225,10 @@ Deno.test("RoommatePosting Concept", async (t) => {
     await t.step(
       "5.2. requires: should fail if poster has no posting",
       async () => {
-        const result = await roommatePostingConcept.editDescription(
-          user3Id,
-          "Some description",
-        );
+        const result = await roommatePostingConcept.editDescription({
+          poster: user3Id,
+          newDescription: "Some description",
+        });
         assertEquals("error" in result, true);
         assertEquals(
           (result as { error: string }).error.includes("No posting found"),
@@ -311,7 +317,10 @@ Deno.test("RoommatePosting Concept", async (t) => {
         await roommatePostingConcept.delete({ postingId: posting1._id });
 
         // Try to edit via poster ID (should fail because posting doesn't exist)
-        const result = await roommatePostingConcept.editCity(user1Id, "Boston");
+        const result = await roommatePostingConcept.editCity({
+          poster: user1Id,
+          newCity: "Boston",
+        });
         assertEquals("error" in result, true);
         assertEquals(
           (result as { error: string }).error.includes("No posting found"),
@@ -346,20 +355,21 @@ Deno.test("RoommatePosting Concept", async (t) => {
         "8.2. Student updates preferences as plans change",
         async () => {
           // City changed from Cambridge to Boston
-          let result = await roommatePostingConcept.editCity(
-            traceUser,
-            "Boston",
-          );
+          let result = await roommatePostingConcept.editCity({
+            poster: traceUser,
+            newCity: "Boston",
+          });
           assertEquals("error" in result, false);
-          tracePosting = result as RoommatePosting;
+          tracePosting = (result as { posting: RoommatePosting }).posting;
 
           // Description updated with more details
-          result = await roommatePostingConcept.editDescription(
-            traceUser,
+          result = await roommatePostingConcept.editDescription({
+            poster: traceUser,
+            newDescription:
             "MIT PhD student, looking for summer sublet roommate. Clean, quiet, non-smoking.",
           );
           assertEquals("error" in result, false);
-          tracePosting = result as RoommatePosting;
+          tracePosting = (result as { posting: RoommatePosting }).posting;
 
           assertEquals(tracePosting.city, "Boston");
           assertEquals(
@@ -459,11 +469,18 @@ Deno.test("RoommatePosting Concept", async (t) => {
 
     await t.step("9.2. Users can update all fields independently", async () => {
       // Update all fields for userA
-      await roommatePostingConcept.editCity(userA, "Los Angeles");
-      await roommatePostingConcept.editGender(userA, Gender.NonBinary);
-      await roommatePostingConcept.editAge(userA, 24);
-      await roommatePostingConcept.editDescription(
-        userA,
+      await roommatePostingConcept.editCity({
+        poster: userA,
+        newCity: "Los Angeles",
+      });
+      await roommatePostingConcept.editGender({
+        poster: userA,
+        newGender: Gender.NonBinary,
+      });
+      await roommatePostingConcept.editAge({ poster: userA, newAge: 24 });
+      await roommatePostingConcept.editDescription({
+        poster: userA,
+        newDescription:
         "Updated description",
       );
 
@@ -496,13 +513,13 @@ Deno.test("RoommatePosting Concept", async (t) => {
       "10.1. effects: should update startDate for existing poster",
       async () => {
         const newStartDate = new Date("2025-05-15");
-        const result = await roommatePostingConcept.editStartDate(
-          testUser,
-          newStartDate,
-        );
+        const result = await roommatePostingConcept.editStartDate({
+          poster: testUser,
+          newStartDate: newStartDate,
+        });
         assertEquals("error" in result, false);
         assertEquals(
-          (result as RoommatePosting).startDate.getTime(),
+          (result as { posting: RoommatePosting }).posting.startDate.getTime(),
           newStartDate.getTime(),
         );
 
@@ -522,10 +539,10 @@ Deno.test("RoommatePosting Concept", async (t) => {
       async () => {
         // Try to set startDate to be after endDate
         const invalidStartDate = new Date("2025-09-01");
-        const result = await roommatePostingConcept.editStartDate(
-          testUser,
-          invalidStartDate,
-        );
+        const result = await roommatePostingConcept.editStartDate({
+          poster: testUser,
+          newStartDate: invalidStartDate,
+        });
         assertEquals("error" in result, true);
         assertEquals(
           (result as { error: string }).error.includes("Start date must be strictly before end date"),
@@ -538,13 +555,13 @@ Deno.test("RoommatePosting Concept", async (t) => {
       "10.3. effects: should update endDate for existing poster",
       async () => {
         const newEndDate = new Date("2025-09-15");
-        const result = await roommatePostingConcept.editEndDate(
-          testUser,
-          newEndDate,
-        );
+        const result = await roommatePostingConcept.editEndDate({
+          poster: testUser,
+          newEndDate: newEndDate,
+        });
         assertEquals("error" in result, false);
         assertEquals(
-          (result as RoommatePosting).endDate.getTime(),
+          (result as { posting: RoommatePosting }).posting.endDate.getTime(),
           newEndDate.getTime(),
         );
 
@@ -564,10 +581,10 @@ Deno.test("RoommatePosting Concept", async (t) => {
       async () => {
         // Try to set endDate to be before startDate
         const invalidEndDate = new Date("2025-04-01");
-        const result = await roommatePostingConcept.editEndDate(
-          testUser,
-          invalidEndDate,
-        );
+        const result = await roommatePostingConcept.editEndDate({
+          poster: testUser,
+          newEndDate: invalidEndDate,
+        });
         assertEquals("error" in result, true);
         assertEquals(
           (result as { error: string }).error.includes("End date must be strictly after start date"),
@@ -579,10 +596,10 @@ Deno.test("RoommatePosting Concept", async (t) => {
     await t.step(
       "10.5. requires: should fail if poster has no posting",
       async () => {
-        const result = await roommatePostingConcept.editStartDate(
-          user3Id,
-          new Date("2025-06-01"),
-        );
+        const result = await roommatePostingConcept.editStartDate({
+          poster: user3Id,
+          newStartDate: new Date("2025-06-01"),
+        });
         assertEquals("error" in result, true);
         assertEquals(
           (result as { error: string }).error.includes("No posting found"),
