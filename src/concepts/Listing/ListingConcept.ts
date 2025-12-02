@@ -263,10 +263,13 @@ export default class ListingConcept {
    * @returns The updated Listing.
    * @throws Error if the listing or photo does not exist within the listing.
    */
-  async deletePhoto(
-    listingId: ID,
-    photoId: ID
-  ): Promise<Listing | { error: string }> {
+  async deletePhoto({
+    listingId,
+    photoId,
+  }: {
+    listingId: ID;
+    photoId: ID;
+  }): Promise<Listing | { error: string }> {
     const listingOrError = await this.getListing(listingId);
     if ("error" in listingOrError) return listingOrError;
     const listing = listingOrError;
@@ -305,10 +308,14 @@ export default class ListingConcept {
    * @returns The updated Listing.
    * @throws Error if the listing does not exist or the photo is already present.
    */
-  async addPhoto(
-    listingId: ID,
-    photo: NewPhoto
-  ): Promise<Listing | { error: string }> {
+  async addPhoto({
+    listingId,
+    photo,
+  }: {
+    listingId: ID;
+    photo: NewPhoto;
+  }): Promise<Listing | { error: string }> {
+    console.log("listingId typeof", typeof listingId, listingId);
     const listingOrError = await this.getListing(listingId);
     if ("error" in listingOrError) return listingOrError;
     const listing = listingOrError;
