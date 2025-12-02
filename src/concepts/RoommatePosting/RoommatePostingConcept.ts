@@ -24,6 +24,8 @@ export interface RoommatePosting {
   gender: Gender;
   age: number;
   description: string;
+  startDate: Date;
+  endDate: Date;
 }
 
 /**
@@ -41,9 +43,7 @@ export default class RoommatePostingConcept {
    * @param posterId The ID of the poster
    * @returns The found RoommatePosting object or null if not found
    */
-  async getPostingByPoster(
-    posterId: ID,
-  ): Promise<RoommatePosting | null> {
+  async getPostingByPoster(posterId: ID): Promise<RoommatePosting | null> {
     const posting = await this.postings.findOne({ poster: posterId });
     return posting;
   }
@@ -52,30 +52,51 @@ export default class RoommatePostingConcept {
    * Creates a new roommate posting
    *
    * @requires a roommatePosting with this poster does not already exist in set of roommatePostings
-   * @effects creates and returns new posting with the given poster, city, gender, age, and description
+   * @requires startDate < endDate
+   * @effects creates and returns new posting with the given poster, city, gender, age, description, startDate, and endDate
    *
    * @param poster The user creating the posting
    * @param city The city where they're looking for housing
    * @param gender The poster's gender
    * @param age The poster's age
    * @param description Details about preferences and plans
+   * @param startDate The start date of the housing period
+   * @param endDate The end date of the housing period
    * @returns The newly created RoommatePosting or error if requirements not met
    */
-  async create(
-    { poster, city, gender, age, description }: {
-      poster: ID;
-      city: string;
-      gender: Gender;
-      age: number;
-      description: string;
-    },
-  ): Promise<{ posting: RoommatePosting } | { error: string }> {
+  async create({
+    poster,
+    city,
+    gender,
+    age,
+    description,
+    startDate,
+    endDate,
+  }: {
+    poster: ID;
+    city: string;
+    gender: Gender;
+    age: number;
+    description: string;
+    startDate: Date | string;
+    endDate: Date | string;
+  }): Promise<{ posting: RoommatePosting } | { error: string }> {
     // Check if poster already has a posting
     const existingPosting = await this.getPostingByPoster(poster);
     if (existingPosting) {
       return {
+        error: `Create posting failed: User '${poster}' already has a roommate posting.`,
+      };
+    }
+
+    // Convert string dates to Date objects if needed
+    const start = startDate instanceof Date ? startDate : new Date(startDate);
+    const end = endDate instanceof Date ? endDate : new Date(endDate);
+
+    if (start >= end) {
+      return {
         error:
-          `Create posting failed: User '${poster}' already has a roommate posting.`,
+          "Create posting failed: Start date must be strictly before end date.",
       };
     }
 
@@ -86,6 +107,8 @@ export default class RoommatePostingConcept {
       gender,
       age,
       description,
+      startDate: start,
+      endDate: end,
     };
 
     await this.postings.insertOne(newPosting);
@@ -104,7 +127,7 @@ export default class RoommatePostingConcept {
    */
   async editCity(
     poster: ID,
-    city: string,
+    city: string
   ): Promise<RoommatePosting | { error: string }> {
     const existingPosting = await this.getPostingByPoster(poster);
 
@@ -115,9 +138,12 @@ export default class RoommatePostingConcept {
     }
 
     existingPosting.city = city;
-    await this.postings.updateOne({ _id: existingPosting._id }, {
-      $set: { city },
-    });
+    await this.postings.updateOne(
+      { _id: existingPosting._id },
+      {
+        $set: { city },
+      }
+    );
     return { ...existingPosting };
   }
 
@@ -133,7 +159,7 @@ export default class RoommatePostingConcept {
    */
   async editGender(
     poster: ID,
-    gender: Gender,
+    gender: Gender
   ): Promise<RoommatePosting | { error: string }> {
     const existingPosting = await this.getPostingByPoster(poster);
 
@@ -144,9 +170,12 @@ export default class RoommatePostingConcept {
     }
 
     existingPosting.gender = gender;
-    await this.postings.updateOne({ _id: existingPosting._id }, {
-      $set: { gender },
-    });
+    await this.postings.updateOne(
+      { _id: existingPosting._id },
+      {
+        $set: { gender },
+      }
+    );
     return { ...existingPosting };
   }
 
@@ -162,7 +191,7 @@ export default class RoommatePostingConcept {
    */
   async editAge(
     poster: ID,
-    age: number,
+    age: number
   ): Promise<RoommatePosting | { error: string }> {
     const existingPosting = await this.getPostingByPoster(poster);
 
@@ -173,9 +202,12 @@ export default class RoommatePostingConcept {
     }
 
     existingPosting.age = age;
-    await this.postings.updateOne({ _id: existingPosting._id }, {
-      $set: { age },
-    });
+    await this.postings.updateOne(
+      { _id: existingPosting._id },
+      {
+        $set: { age },
+      }
+    );
     return { ...existingPosting };
   }
 
@@ -191,21 +223,105 @@ export default class RoommatePostingConcept {
    */
   async editDescription(
     poster: ID,
-    description: string,
+    description: string
   ): Promise<RoommatePosting | { error: string }> {
     const existingPosting = await this.getPostingByPoster(poster);
 
     if (!existingPosting) {
       return {
-        error:
-          `Edit description failed: No posting found for user '${poster}'.`,
+        error: `Edit description failed: No posting found for user '${poster}'.`,
       };
     }
 
     existingPosting.description = description;
-    await this.postings.updateOne({ _id: existingPosting._id }, {
-      $set: { description },
-    });
+    await this.postings.updateOne(
+      { _id: existingPosting._id },
+      {
+        $set: { description },
+      }
+    );
+    return { ...existingPosting };
+  }
+
+  /**
+   * Updates the start date field of a roommate posting
+   *
+   * @requires a roommatePosting with this poster exists in set of roommatePostings
+   * @requires new startDate < existing endDate
+   * @effects updates the posting's startDate to the given startDate and returns the posting
+   *
+   * @param poster The user who owns the posting
+   * @param startDate The new start date value
+   * @returns The updated RoommatePosting or error
+   */
+  async editStartDate(
+    poster: ID,
+    startDate: Date | string
+  ): Promise<RoommatePosting | { error: string }> {
+    const existingPosting = await this.getPostingByPoster(poster);
+
+    if (!existingPosting) {
+      return {
+        error: `Edit start date failed: No posting found for user '${poster}'.`,
+      };
+    }
+
+    const start = startDate instanceof Date ? startDate : new Date(startDate);
+    if (start >= existingPosting.endDate) {
+      return {
+        error:
+          "Edit start date failed: Start date must be strictly before end date.",
+      };
+    }
+
+    existingPosting.startDate = start;
+    await this.postings.updateOne(
+      { _id: existingPosting._id },
+      {
+        $set: { startDate: start },
+      }
+    );
+    return { ...existingPosting };
+  }
+
+  /**
+   * Updates the end date field of a roommate posting
+   *
+   * @requires a roommatePosting with this poster exists in set of roommatePostings
+   * @requires existing startDate < new endDate
+   * @effects updates the posting's endDate to the given endDate and returns the posting
+   *
+   * @param poster The user who owns the posting
+   * @param endDate The new end date value
+   * @returns The updated RoommatePosting or error
+   */
+  async editEndDate(
+    poster: ID,
+    endDate: Date | string
+  ): Promise<RoommatePosting | { error: string }> {
+    const existingPosting = await this.getPostingByPoster(poster);
+
+    if (!existingPosting) {
+      return {
+        error: `Edit end date failed: No posting found for user '${poster}'.`,
+      };
+    }
+
+    const end = endDate instanceof Date ? endDate : new Date(endDate);
+    if (existingPosting.startDate >= end) {
+      return {
+        error:
+          "Edit end date failed: End date must be strictly after start date.",
+      };
+    }
+
+    existingPosting.endDate = end;
+    await this.postings.updateOne(
+      { _id: existingPosting._id },
+      {
+        $set: { endDate: end },
+      }
+    );
     return { ...existingPosting };
   }
 
@@ -296,9 +412,11 @@ export default class RoommatePostingConcept {
    * @returns The IDs of the deleted postings.
    * @throws Error if the poster does not exist or if there are no postings for the given poster.
    */
-  async deletePostingsByPoster(
-    { poster }: { poster: ID },
-  ): Promise<{ deletedPostings: { postingId: ID }[] }> {
+  async deletePostingsByPoster({
+    poster,
+  }: {
+    poster: ID;
+  }): Promise<{ deletedPostings: { postingId: ID }[] }> {
     // Get all posting IDs before deleting
     const postings = await this.postings.find({ poster }).toArray();
     const postingIds = postings.map((p) => ({ postingId: p._id }));
@@ -318,9 +436,11 @@ export default class RoommatePostingConcept {
    * @param postingId The ID of the posting
    * @returns Array with poster ID or empty array if posting not found
    */
-  async _getPosterByPostingId(
-    { postingId }: { postingId: ID },
-  ): Promise<{ poster: ID }[]> {
+  async _getPosterByPostingId({
+    postingId,
+  }: {
+    postingId: ID;
+  }): Promise<{ poster: ID }[]> {
     const posting = await this.postings.findOne({ _id: postingId });
     if (!posting) {
       return [];

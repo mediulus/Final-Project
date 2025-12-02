@@ -28,6 +28,8 @@ Deno.test("RoommatePosting Concept", async (t) => {
           gender: Gender.Female,
           age: 20,
           description: "Looking for a quiet roommate for summer internship",
+          startDate: new Date("2025-06-01"),
+          endDate: new Date("2025-08-31"),
         });
 
         assertEquals("error" in result, false, "Should return posting object");
@@ -60,6 +62,8 @@ Deno.test("RoommatePosting Concept", async (t) => {
           gender: Gender.Female,
           age: 20,
           description: "Another posting",
+          startDate: new Date("2025-06-01"),
+          endDate: new Date("2025-08-31"),
         });
 
         assertEquals("error" in result, true);
@@ -80,6 +84,8 @@ Deno.test("RoommatePosting Concept", async (t) => {
           gender: Gender.Male,
           age: 21,
           description: "MIT grad student looking for summer housing",
+          startDate: new Date("2025-06-01"),
+          endDate: new Date("2025-08-31"),
         });
         assertEquals("error" in result, false);
         assertObjectMatch((result as { posting: RoommatePosting }).posting, {
@@ -290,6 +296,8 @@ Deno.test("RoommatePosting Concept", async (t) => {
           gender: Gender.Female,
           age: 21,
           description: "New posting after deletion",
+          startDate: new Date("2025-06-01"),
+          endDate: new Date("2025-08-31"),
         });
         assertEquals("error" in result, false);
         posting1 = (result as { posting: RoommatePosting }).posting;
@@ -327,6 +335,8 @@ Deno.test("RoommatePosting Concept", async (t) => {
           gender: Gender.PreferNotToSay,
           age: 22,
           description: "MIT PhD student, looking for summer sublet roommate",
+          startDate: new Date("2025-06-01"),
+          endDate: new Date("2025-08-31"),
         });
         assertEquals("error" in result, false);
         tracePosting = (result as { posting: RoommatePosting }).posting;
@@ -416,6 +426,8 @@ Deno.test("RoommatePosting Concept", async (t) => {
         gender: Gender.Female,
         age: 23,
         description: "Software engineer at startup",
+        startDate: new Date("2025-06-01"),
+        endDate: new Date("2025-08-31"),
       });
 
       await roommatePostingConcept.create({
@@ -424,6 +436,8 @@ Deno.test("RoommatePosting Concept", async (t) => {
         gender: Gender.Male,
         age: 24,
         description: "Working at Amazon for summer",
+        startDate: new Date("2025-06-01"),
+        endDate: new Date("2025-08-31"),
       });
 
       const sfPostings = await roommatePostingConcept.getPostingsByCity(
@@ -462,6 +476,144 @@ Deno.test("RoommatePosting Concept", async (t) => {
         description: "Updated description",
       });
     });
+  });
+
+  await t.step("10. editStartDate and editEndDate actions", async (t) => {
+    // Create a new posting for testing date edits
+    const testUser = "testUser" as ID;
+    const createResult = await roommatePostingConcept.create({
+      poster: testUser,
+      city: "Boston",
+      gender: Gender.Female,
+      age: 25,
+      description: "Test posting for date edits",
+      startDate: new Date("2025-06-01"),
+      endDate: new Date("2025-08-31"),
+    });
+    const testPosting = (createResult as { posting: RoommatePosting }).posting;
+
+    await t.step(
+      "10.1. effects: should update startDate for existing poster",
+      async () => {
+        const newStartDate = new Date("2025-05-15");
+        const result = await roommatePostingConcept.editStartDate(
+          testUser,
+          newStartDate,
+        );
+        assertEquals("error" in result, false);
+        assertEquals(
+          (result as RoommatePosting).startDate.getTime(),
+          newStartDate.getTime(),
+        );
+
+        // Verify persistence
+        const fetched = await roommatePostingConcept.getPostingByPosterId(
+          testUser,
+        );
+        assertEquals(
+          fetched?.startDate.getTime(),
+          newStartDate.getTime(),
+        );
+      },
+    );
+
+    await t.step(
+      "10.2. requires: should fail if startDate >= endDate",
+      async () => {
+        // Try to set startDate to be after endDate
+        const invalidStartDate = new Date("2025-09-01");
+        const result = await roommatePostingConcept.editStartDate(
+          testUser,
+          invalidStartDate,
+        );
+        assertEquals("error" in result, true);
+        assertEquals(
+          (result as { error: string }).error.includes("Start date must be strictly before end date"),
+          true,
+        );
+      },
+    );
+
+    await t.step(
+      "10.3. effects: should update endDate for existing poster",
+      async () => {
+        const newEndDate = new Date("2025-09-15");
+        const result = await roommatePostingConcept.editEndDate(
+          testUser,
+          newEndDate,
+        );
+        assertEquals("error" in result, false);
+        assertEquals(
+          (result as RoommatePosting).endDate.getTime(),
+          newEndDate.getTime(),
+        );
+
+        // Verify persistence
+        const fetched = await roommatePostingConcept.getPostingByPosterId(
+          testUser,
+        );
+        assertEquals(
+          fetched?.endDate.getTime(),
+          newEndDate.getTime(),
+        );
+      },
+    );
+
+    await t.step(
+      "10.4. requires: should fail if endDate <= startDate",
+      async () => {
+        // Try to set endDate to be before startDate
+        const invalidEndDate = new Date("2025-04-01");
+        const result = await roommatePostingConcept.editEndDate(
+          testUser,
+          invalidEndDate,
+        );
+        assertEquals("error" in result, true);
+        assertEquals(
+          (result as { error: string }).error.includes("End date must be strictly after start date"),
+          true,
+        );
+      },
+    );
+
+    await t.step(
+      "10.5. requires: should fail if poster has no posting",
+      async () => {
+        const result = await roommatePostingConcept.editStartDate(
+          user3Id,
+          new Date("2025-06-01"),
+        );
+        assertEquals("error" in result, true);
+        assertEquals(
+          (result as { error: string }).error.includes("No posting found"),
+          true,
+        );
+      },
+    );
+  });
+
+  await t.step("11. create action date validation", async (t) => {
+    const invalidUser = "invalidUser" as ID;
+
+    await t.step(
+      "11.1. requires: should fail if startDate >= endDate",
+      async () => {
+        const result = await roommatePostingConcept.create({
+          poster: invalidUser,
+          city: "Boston",
+          gender: Gender.Female,
+          age: 25,
+          description: "Invalid dates",
+          startDate: new Date("2025-08-31"),
+          endDate: new Date("2025-06-01"), // endDate before startDate
+        });
+        assertEquals("error" in result, true);
+        assertEquals(
+          (result as { error: string }).error.includes("Start date must be strictly before end date"),
+          true,
+        );
+      },
+    );
   });
 
   // Teardown
