@@ -39,6 +39,9 @@ export const inclusions: Record<string, string> = {
   "/api/Listing/editStartDate": "can edit listing start date via passthrough",
   "/api/Listing/editEndDate": "can edit listing end date via passthrough",
   "/api/Listing/editPrice": "can edit listing price via passthrough",
+  "/api/Listing/editType": "can edit listing type via passthrough",
+  "/api/Listing/editDescription":
+    "can edit listing description via passthrough",
   "/api/Listing/addAmenity": "can add listing amenities via passthrough",
   "/api/Listing/deleteAmenity": "can delete listing amenities via passthrough",
   "/api/Listing/getListingById": "can query listing by ID via passthrough",

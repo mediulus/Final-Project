@@ -45,6 +45,8 @@ interface Amenity {
 /**
  * Represents a summer-housing listing.
  */
+export type ListingType = "sublet" | "renting";
+
 export interface Listing {
   _id: ID;
   title: string;
@@ -55,6 +57,8 @@ export interface Listing {
   startDate: Date;
   endDate: Date;
   price: number; // price per week
+  type: ListingType; // "sublet" or "renting"
+  description: string; // description of the listing
 }
 
 /**
@@ -74,7 +78,7 @@ export default class ListingConcept {
    * @returns The found Listing object or error if listing does not exist
    */
   private async getListing(
-    listingId: ID,
+    listingId: ID
   ): Promise<Listing | { error: string }> {
     const listing = await this.listings.findOne({ _id: listingId });
 
@@ -94,18 +98,21 @@ export default class ListingConcept {
    * @returns True if a conflict exists, false otherwise.
    */
   private async isListingConflict(
-    listing: Listing,
+    listing: Listing
   ): Promise<boolean | { error: string }> {
     // Query for all listings with the same address
-    const existingListings = await this.listings.find({
-      address: listing.address,
-      _id: { $ne: listing._id }, // Exclude the current listing itself
-    }).toArray();
+    const existingListings = await this.listings
+      .find({
+        address: listing.address,
+        _id: { $ne: listing._id }, // Exclude the current listing itself
+      })
+      .toArray();
 
     // Check if any existing listing has overlapping dates
     for (const existingListing of existingListings) {
       // Two date ranges overlap if: start1 < end2 AND start2 < end1
-      const datesOverlap = listing.startDate < existingListing.endDate &&
+      const datesOverlap =
+        listing.startDate < existingListing.endDate &&
         existingListing.startDate < listing.endDate;
 
       if (datesOverlap) {
@@ -142,6 +149,8 @@ export default class ListingConcept {
     startDate,
     endDate,
     price,
+    type,
+    description,
   }: {
     lister: ID;
     title: string;
@@ -151,8 +160,16 @@ export default class ListingConcept {
     startDate: Date | string;
     endDate: Date | string;
     price: number;
+    type: ListingType;
+    description: string;
   }): Promise<{ listing: Listing } | { error: string }> {
     console.log("Creating listing with lister:", lister);
+    console.log(
+      "Received description:",
+      description,
+      "Type:",
+      typeof description
+    );
     // Convert string dates to Date objects if needed
     const start = startDate instanceof Date ? startDate : new Date(startDate);
     const end = endDate instanceof Date ? endDate : new Date(endDate);
@@ -162,6 +179,17 @@ export default class ListingConcept {
           "Create listing failed: Start date must be strictly before end date.",
       };
     }
+
+    // Validate and normalize type
+    const normalizedType: ListingType =
+      type === "sublet" || type === "renting" ? type : "sublet";
+
+    // Ensure description is always a string
+    // Handle null, undefined, or empty string - always convert to string
+    const normalizedDescription: string =
+      description !== null && description !== undefined
+        ? String(description)
+        : "";
 
     const normalizedPhotos: Image[] = photos.map((p, i) => ({
       _id: freshID(),
@@ -187,13 +215,21 @@ export default class ListingConcept {
       startDate: start,
       endDate: end,
       price,
+      type: normalizedType,
+      description: normalizedDescription,
     };
+
+    console.log(
+      "Created listing with description:",
+      newListing.description,
+      "Type:",
+      typeof newListing.description
+    );
 
     const conflict = await this.isListingConflict(newListing);
     if (conflict) {
       return {
-        error:
-          `Create listing failed: Another listing with address '${address}' overlaps with the specified dates.`,
+        error: `Create listing failed: Another listing with address '${address}' overlaps with the specified dates.`,
       };
     }
 
@@ -229,7 +265,7 @@ export default class ListingConcept {
    */
   async deletePhoto(
     listingId: ID,
-    photoId: ID,
+    photoId: ID
   ): Promise<Listing | { error: string }> {
     const listingOrError = await this.getListing(listingId);
     if ("error" in listingOrError) return listingOrError;
@@ -240,8 +276,7 @@ export default class ListingConcept {
 
     if (listing.photos.length === before) {
       return {
-        error:
-          `Delete photo failed: Photo '${photoId}' not found in listing '${listingId}'.`,
+        error: `Delete photo failed: Photo '${photoId}' not found in listing '${listingId}'.`,
       };
     }
 
@@ -252,7 +287,7 @@ export default class ListingConcept {
 
     await this.listings.updateOne(
       { _id: listingId },
-      { $set: { photos: listing.photos } },
+      { $set: { photos: listing.photos } }
     );
 
     return { ...listing };
@@ -272,7 +307,7 @@ export default class ListingConcept {
    */
   async addPhoto(
     listingId: ID,
-    photo: NewPhoto,
+    photo: NewPhoto
   ): Promise<Listing | { error: string }> {
     const listingOrError = await this.getListing(listingId);
     if ("error" in listingOrError) return listingOrError;
@@ -281,14 +316,14 @@ export default class ListingConcept {
     // uniqueness by url (or storageKey if you prefer)
     if (listing.photos.some((p) => p.url === photo.url)) {
       return {
-        error:
-          `Add photo failed: URL '${photo.url}' already exists in listing '${listingId}'.`,
+        error: `Add photo failed: URL '${photo.url}' already exists in listing '${listingId}'.`,
       };
     }
 
-    const nextOrder = listing.photos.length === 0
-      ? 0
-      : Math.max(...listing.photos.map((p) => p.order ?? 0)) + 1;
+    const nextOrder =
+      listing.photos.length === 0
+        ? 0
+        : Math.max(...listing.photos.map((p) => p.order ?? 0)) + 1;
 
     const newImage: Image = {
       _id: freshID(),
@@ -308,7 +343,7 @@ export default class ListingConcept {
 
     await this.listings.updateOne(
       { _id: listingId },
-      { $set: { photos: listing.photos } },
+      { $set: { photos: listing.photos } }
     );
 
     return { ...listing };
@@ -340,9 +375,12 @@ export default class ListingConcept {
 
     const listing = listingOrError;
     listing.title = newTitle;
-    await this.listings.updateOne({ _id: listingId }, {
-      $set: { title: newTitle },
-    });
+    await this.listings.updateOne(
+      { _id: listingId },
+      {
+        $set: { title: newTitle },
+      }
+    );
     return { ...listing };
   }
 
@@ -378,15 +416,17 @@ export default class ListingConcept {
 
     if (conflict) {
       return {
-        error:
-          `Edit address failed: Another listing with address '${newAddress}' overlaps with the current listing's dates.`,
+        error: `Edit address failed: Another listing with address '${newAddress}' overlaps with the current listing's dates.`,
       };
     }
 
     listing.address = newAddress;
-    await this.listings.updateOne({ _id: listingId }, {
-      $set: { address: newAddress },
-    });
+    await this.listings.updateOne(
+      { _id: listingId },
+      {
+        $set: { address: newAddress },
+      }
+    );
     return { ...listing };
   }
 
@@ -411,8 +451,9 @@ export default class ListingConcept {
     newStartDate: Date | string;
   }): Promise<Listing | { error: string }> {
     // Convert string date to Date if needed
-    const startDate = typeof newStartDate === 'string' ? new Date(newStartDate) : newStartDate;
-    
+    const startDate =
+      typeof newStartDate === "string" ? new Date(newStartDate) : newStartDate;
+
     const listingOrError = await this.getListing(listingId); // Requires: listing exists
 
     if ("error" in listingOrError) {
@@ -435,15 +476,17 @@ export default class ListingConcept {
 
     if (conflict) {
       return {
-        error:
-          `Edit start date failed: Another listing with the same address overlaps with the new start date and current end date.`,
+        error: `Edit start date failed: Another listing with the same address overlaps with the new start date and current end date.`,
       };
     }
 
     listing.startDate = startDate;
-    await this.listings.updateOne({ _id: listingId }, {
-      $set: { startDate },
-    });
+    await this.listings.updateOne(
+      { _id: listingId },
+      {
+        $set: { startDate },
+      }
+    );
     return { ...listing };
   }
 
@@ -468,8 +511,9 @@ export default class ListingConcept {
     newEndDate: Date | string;
   }): Promise<Listing | { error: string }> {
     // Convert string date to Date if needed
-    const endDate = typeof newEndDate === 'string' ? new Date(newEndDate) : newEndDate;
-    
+    const endDate =
+      typeof newEndDate === "string" ? new Date(newEndDate) : newEndDate;
+
     const listingOrError = await this.getListing(listingId); // Requires: listing exists
 
     if ("error" in listingOrError) {
@@ -492,15 +536,17 @@ export default class ListingConcept {
 
     if (conflict) {
       return {
-        error:
-          `Edit end date failed: Another listing with the same address overlaps with the current start date and new end date.`,
+        error: `Edit end date failed: Another listing with the same address overlaps with the current start date and new end date.`,
       };
     }
 
     listing.endDate = endDate;
-    await this.listings.updateOne({ _id: listingId }, {
-      $set: { endDate },
-    });
+    await this.listings.updateOne(
+      { _id: listingId },
+      {
+        $set: { endDate },
+      }
+    );
     return { ...listing };
   }
 
@@ -533,9 +579,84 @@ export default class ListingConcept {
       return { error: "Edit price failed: Price cannot be negative." };
     }
     listing.price = newPrice;
-    await this.listings.updateOne({ _id: listingId }, {
-      $set: { price: newPrice },
-    });
+    await this.listings.updateOne(
+      { _id: listingId },
+      {
+        $set: { price: newPrice },
+      }
+    );
+    return { ...listing };
+  }
+
+  /**
+   * Changes the type of a listing (sublet or renting).
+   * @requires listing exists
+   * @effects changes the type to newType and returns listing
+   *
+   * @param listingId The ID of the listing to modify.
+   * @param newType The new type for the listing ("sublet" or "renting").
+   * @returns The updated Listing.
+   * @throws Error if the listing does not exist or if the type is invalid.
+   */
+  async editType({
+    listingId,
+    newType,
+  }: {
+    listingId: ID;
+    newType: ListingType;
+  }): Promise<Listing | { error: string }> {
+    const listingOrError = await this.getListing(listingId); // Requires: listing exists
+
+    if ("error" in listingOrError) {
+      return listingOrError;
+    }
+
+    if (newType !== "sublet" && newType !== "renting") {
+      return { error: "Edit type failed: Type must be 'sublet' or 'renting'." };
+    }
+
+    const listing = listingOrError;
+    listing.type = newType;
+    await this.listings.updateOne(
+      { _id: listingId },
+      {
+        $set: { type: newType },
+      }
+    );
+    return { ...listing };
+  }
+
+  /**
+   * Changes the description of a listing.
+   * @requires listing exists
+   * @effects changes the description to newDescription and returns listing
+   *
+   * @param listingId The ID of the listing to modify.
+   * @param newDescription The new description for the listing.
+   * @returns The updated Listing.
+   * @throws Error if the listing does not exist.
+   */
+  async editDescription({
+    listingId,
+    newDescription,
+  }: {
+    listingId: ID;
+    newDescription: string;
+  }): Promise<Listing | { error: string }> {
+    const listingOrError = await this.getListing(listingId); // Requires: listing exists
+
+    if ("error" in listingOrError) {
+      return listingOrError;
+    }
+
+    const listing = listingOrError;
+    listing.description = newDescription;
+    await this.listings.updateOne(
+      { _id: listingId },
+      {
+        $set: { description: newDescription },
+      }
+    );
     return { ...listing };
   }
 
@@ -571,13 +692,12 @@ export default class ListingConcept {
 
     // Requires: amenity is not already in amenities (check by title and distance)
     if (
-      listing.amenities.some((a: Amenity) =>
-        a.title === title && a.distance === distance
+      listing.amenities.some(
+        (a: Amenity) => a.title === title && a.distance === distance
       )
     ) {
       return {
-        error:
-          `Add amenity failed: Amenity '${title}' with distance '${distance}' already exists in listing '${listingId}'.`,
+        error: `Add amenity failed: Amenity '${title}' with distance '${distance}' already exists in listing '${listingId}'.`,
       };
     }
 
@@ -587,9 +707,12 @@ export default class ListingConcept {
       distance,
     };
     listing.amenities.push(newAmenity);
-    await this.listings.updateOne({ _id: listingId }, {
-      $set: { amenities: listing.amenities },
-    });
+    await this.listings.updateOne(
+      { _id: listingId },
+      {
+        $set: { amenities: listing.amenities },
+      }
+    );
     return { ...listing };
   }
 
@@ -620,21 +743,23 @@ export default class ListingConcept {
     const listing = listingOrError;
 
     const initialAmenityCount = listing.amenities.length;
-    listing.amenities = listing.amenities.filter((a: Amenity) =>
-      a._id !== amenityId
+    listing.amenities = listing.amenities.filter(
+      (a: Amenity) => a._id !== amenityId
     );
 
     // Requires: amenity is part of the listing
     if (listing.amenities.length === initialAmenityCount) {
       return {
-        error:
-          `Delete amenity failed: Amenity with ID '${amenityId}' not found in listing '${listingId}'.`,
+        error: `Delete amenity failed: Amenity with ID '${amenityId}' not found in listing '${listingId}'.`,
       };
     }
 
-    await this.listings.updateOne({ _id: listingId }, {
-      $set: { amenities: listing.amenities },
-    });
+    await this.listings.updateOne(
+      { _id: listingId },
+      {
+        $set: { amenities: listing.amenities },
+      }
+    );
     return { ...listing };
   }
 
@@ -667,9 +792,11 @@ export default class ListingConcept {
    * @returns The listing IDs for the given lister.
    * @throws Error if the lister does not exist or if there are no listings for the given lister.
    */
-  async _getListingsByLister(
-    { lister }: { lister: ID },
-  ): Promise<{ listing: { listingId: ID } }[]> {
+  async _getListingsByLister({
+    lister,
+  }: {
+    lister: ID;
+  }): Promise<{ listing: { listingId: ID } }[]> {
     const listings = await this.listings.find({ lister }).toArray();
     return listings.map((l) => ({ listing: { listingId: l._id } }));
   }
@@ -684,9 +811,11 @@ export default class ListingConcept {
    * @returns The IDs of the deleted listings.
    * @throws Error if the lister does not exist or if there are no listings for the given lister.
    */
-  async deleteListingsByLister(
-    { lister }: { lister: ID },
-  ): Promise<{ deletedListings: { listingId: ID }[] }> {
+  async deleteListingsByLister({
+    lister,
+  }: {
+    lister: ID;
+  }): Promise<{ deletedListings: { listingId: ID }[] }> {
     // Get all listing IDs before deleting
     const listings = await this.listings.find({ lister }).toArray();
     const listingIds = listings.map((l) => ({ listingId: l._id }));
@@ -706,9 +835,11 @@ export default class ListingConcept {
    * @param listingId The ID of the listing
    * @returns Array with lister ID or empty array if listing not found
    */
-  async _getListerByListingId(
-    { listingId }: { listingId: ID },
-  ): Promise<{ lister: ID }[]> {
+  async _getListerByListingId({
+    listingId,
+  }: {
+    listingId: ID;
+  }): Promise<{ lister: ID }[]> {
     const listing = await this.listings.findOne({ _id: listingId });
     if (!listing) {
       return [];

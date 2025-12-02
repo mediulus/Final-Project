@@ -26,6 +26,8 @@ export const CreateListingRequest: Sync = ({
   startDate,
   endDate,
   price,
+  type,
+  description,
 }) => {
   return {
     when: actions([
@@ -40,6 +42,8 @@ export const CreateListingRequest: Sync = ({
         startDate,
         endDate,
         price,
+        type,
+        description,
       },
       { request },
     ]),
@@ -64,6 +68,8 @@ export const CreateListingRequest: Sync = ({
         startDate,
         endDate,
         price,
+        type,
+        description,
       },
     ]),
   };
