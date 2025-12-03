@@ -57,9 +57,12 @@ Other users can now view your profile and reach out if they’re a good match.
 export const HOUSING_CONTACT_NOTIFICATION_TEMPLATE = `
 Hi {{name}},
 
-Someone is interested in your housing listing! 📨
+Someone is interested in your housing listing!
 
-Check your Dam Good Housing inbox or email for their message to follow up.
+They reached out with the email: {{contactEmail}}.
+If your place is still available, feel free to contact them to continue the conversation.
+
+If your listing is no longer available or you'd like to stop receiving messages, please delete your post.
 
 — The DGH Team
 `;
@@ -67,9 +70,11 @@ Check your Dam Good Housing inbox or email for their message to follow up.
 export const ROOMMATE_CONTACT_NOTIFICATION_TEMPLATE = `
 Hi {{name}},
 
-Someone wants to connect about your roommate posting! 👋
+Someone wants to connect about your roommate posting!
 
-You can view their message in your inbox and decide whether to connect.
+You can reach out to them at: {{contactEmail}} if you're still looking or interested in connecting.
+
+If your posting is already resolved or you'd like to stop receiving messages, please delete your post.
 
 — The DGH Team
 `;

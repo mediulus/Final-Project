@@ -321,6 +321,7 @@ export const ExpressListingInterestRequest: Sync = ({
   lister,
   emailAddress,
   username,
+  contactEmail,
 }) => ({
   when: actions([
     Requesting.request,
@@ -328,6 +329,14 @@ export const ExpressListingInterestRequest: Sync = ({
     { request },
   ]),
   where: async (frames) => {
+
+    console.log("=== 📩 ExpressListingInterestRequest WHERE RUNNING ===");
+
+    console.log("session:", session);
+    console.log("request:", request);
+    console.log("listingId:", listingId);
+    console.log("initial contactEmail (should be undefined):", contactEmail);
+
     // Get the logged-in user from session
     const userFrames = await frames.query(
       Sessioning._getUser,
@@ -337,12 +346,16 @@ export const ExpressListingInterestRequest: Sync = ({
       },
     );
 
+    console.log("👤 userFrames:", JSON.stringify(userFrames, null, 2));
+
     // Get the lister (owner) of the listing
     const listerFrames = await userFrames.query(
       Listing._getListerByListingId,
       { listingId },
       { lister },
     );
+
+    console.log("🏠 listerFrames:", JSON.stringify(listerFrames, null, 2));
 
     if (!listerFrames || listerFrames.length === 0) {
       console.warn(
@@ -352,12 +365,16 @@ export const ExpressListingInterestRequest: Sync = ({
       return listerFrames;
     }
 
+
+
     // Query for lister's email
     const emailFrames = await listerFrames.query(
       UserInfo._getUserEmailAddress,
       { user: lister },
       { emailAddress },
     );
+
+    console.log("📧 lister emailFrames:", JSON.stringify(emailFrames, null, 2));
 
     // Query for lister's username
     const usernameFrames = await emailFrames.query(
@@ -366,6 +383,8 @@ export const ExpressListingInterestRequest: Sync = ({
       { username },
     );
 
+    console.log("🙂 usernameFrames:", JSON.stringify(usernameFrames, null, 2));
+
     if (!usernameFrames || usernameFrames.length === 0) {
       console.warn(
         "⚠️ [ExpressListingInterestRequest] No username frames found for lister:",
@@ -373,7 +392,20 @@ export const ExpressListingInterestRequest: Sync = ({
       );
     }
 
-    return usernameFrames;
+    const contactEmailFrames = await usernameFrames.query(
+      UserInfo._getUserEmailAddress,
+      { user },         // the contacting user
+      { emailAddress: contactEmail },
+    );
+
+    if (!contactEmailFrames || contactEmailFrames.length === 0) {
+      console.warn(
+        "⚠️ [ExpressListingInterestRequest] No username frames found for contacter:",
+        lister,
+      );
+    }
+
+    return contactEmailFrames;
   },
   then: actions([
     Notification.createMessageBody,
@@ -381,6 +413,7 @@ export const ExpressListingInterestRequest: Sync = ({
       template: HOUSING_CONTACT_NOTIFICATION_TEMPLATE,
       email: emailAddress,
       name: username,
+      contactEmail,
       subjectOverride: "Someone is interested in your housing listing!",
     },
   ]),

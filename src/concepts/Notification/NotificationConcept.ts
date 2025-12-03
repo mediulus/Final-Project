@@ -31,25 +31,36 @@ export default class NotificationConcept {
    */
   async createMessageBody({
     template,
-    email,
+    email,          // recipient email
     name,
     subjectOverride,
+    contactEmail,   // NEW: optional email of the person reaching out
   }: {
     template: MessageTemplate;
-    email: string;
+    email: string;       // recipient
     name: string;
     subjectOverride?: string;
+    contactEmail?: string; // NEW
   }): Promise<{ message: Message }> {
     if (!template) throw new Error("template is required");
     if (!email) throw new Error("recipient email is required");
     if (!name) throw new Error("recipient name is required");
+
     if (!this.isValidEmail(email)) {
       throw new Error(`invalid email address: ${email}`);
     }
+    if (contactEmail && !this.isValidEmail(contactEmail)) {
+      throw new Error(`invalid contactEmail: ${contactEmail}`);
+    }
 
-    const body = template
+    let body = template
       .replace(/\{\{\s*name\s*\}\}/gi, name)
       .replace(/\{\{\s*email\s*\}\}/gi, email);
+
+    // NEW: optional replacement
+    if (contactEmail) {
+      body = body.replace(/\{\{\s*contactEmail\s*\}\}/gi, contactEmail);
+    }
 
     const subject = subjectOverride ?? `Notification for ${name}`;
     const from = Deno.env.get("GMAIL_SENDER") ?? "dam.good.housing@gmail.com";
@@ -64,6 +75,41 @@ export default class NotificationConcept {
       },
     };
   }
+  // async createMessageBody({
+  //   template,
+  //   email,
+  //   name,
+  //   subjectOverride,
+  // }: {
+  //   template: MessageTemplate;
+  //   email: string;
+  //   name: string;
+  //   subjectOverride?: string;
+  // }): Promise<{ message: Message }> {
+  //   if (!template) throw new Error("template is required");
+  //   if (!email) throw new Error("recipient email is required");
+  //   if (!name) throw new Error("recipient name is required");
+  //   if (!this.isValidEmail(email)) {
+  //     throw new Error(`invalid email address: ${email}`);
+  //   }
+
+  //   const body = template
+  //     .replace(/\{\{\s*name\s*\}\}/gi, name)
+  //     .replace(/\{\{\s*email\s*\}\}/gi, email);
+
+  //   const subject = subjectOverride ?? `Notification for ${name}`;
+  //   const from = Deno.env.get("GMAIL_SENDER") ?? "dam.good.housing@gmail.com";
+
+  //   return {
+  //     message: {
+  //       from,
+  //       to: email,
+  //       subject,
+  //       body,
+  //       html: false,
+  //     },
+  //   };
+  // }
 
   /**
    * ✅ Concept Action: sendEmail (message)

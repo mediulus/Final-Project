@@ -305,6 +305,7 @@ export const ContactRoommateRequest: Sync = ({
   poster,
   emailAddress,
   username,
+  contactEmail,
 }) => ({
   when: actions([
     Requesting.request,
@@ -357,7 +358,13 @@ export const ContactRoommateRequest: Sync = ({
       );
     }
 
-    return usernameFrames;
+    const contactEmailFrames = await usernameFrames.query(
+      UserInfo._getUserEmailAddress,
+      { user },      // contacting user
+      { emailAddress: contactEmail },
+    );
+
+    return contactEmailFrames;
   },
   then: actions([
     Notification.createMessageBody,
@@ -365,6 +372,7 @@ export const ContactRoommateRequest: Sync = ({
       template: ROOMMATE_CONTACT_NOTIFICATION_TEMPLATE,
       email: emailAddress,
       name: username,
+      contactEmail,
       subjectOverride: "Someone is interested in your roommate posting!",
     },
   ]),
