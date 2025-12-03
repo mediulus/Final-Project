@@ -4,6 +4,7 @@ Public Link: [https://damgoodhousing.onrender.com/login](https://damgoodhousing.
 
 ## Screen Recording
 
+[Video Link](https://drive.google.com/file/d/1z37d3MYUf7l99SWtE3yfNQsgxLMgaDQ7/view?usp=sharing)
 
 ## Updated Development Plan
 
@@ -37,31 +38,36 @@ Notes: Responsibilities between Alpha and Beta varied slightly
 
 # Key Updates/Changes From Alpha
 ## ListingConcept
-- Added editing functionality with syncs  
-- Added deletions to the front end and syncs  
-- Verified through syncs that users can only edit or delete their own listings  
+- Added editing functionality with syncs
+- Added deletions to the front end and syncs
+- Verified through syncs that users can only edit or delete their own listings
+- Added photo functionality: displaying, adding, deleting, editing
 
 ## RoommatePostingConcept
-- Added editing functionality with syncs  
-- Added deletions to the front end and syncs  
-- Verified through syncs that users can only edit or delete their own posts  
-- Added many attributes and corresponding actions to roommate posting, including:  
-  - Start/end dates  
-  - Daily rhythm  
-  - Cleanliness  
-  - Home environment  
-  - Visitors  
-  - Number of roommates  
+- Added editing functionality with syncs
+- Added deletions to the front end and syncs
+- Verified through syncs that users can only edit or delete their own posts
+- Added many attributes and corresponding actions to roommate posting, including:
+  - Start/end dates
+  - Daily rhythm
+  - Cleanliness
+  - Home environment
+  - Visitors
+  - Number of roommates
 
 ## General UI
-- Debugged “My Postings” so it functions properly now  
-- Design updates: click for more details about each post/listing  
+- Debugged “My Postings” so it functions properly now
+- Design updates: click for more details about each post/listing
 - New layout for design
-- Added delete/edit password  
-- Added show/hide password ability when typing it in  
+- Added delete/edit password
+- Added show/hide password ability when typing it in
+- Added map view for housing postings
 
-## Photos for listings
-- Added photo functionality: displaying, adding, deleting, editing  
+## Misc
+- Removed Reviewing concept because the idea of reviewing a housing posting doesn't make sense in such a design where postings are temporary for one summer, not recurring annually
+- Added filtering to better search for both housing listings and roommate postings
+  - Housing: can filter by price range and dates range
+  - Roommates: can filter by gender, age range, and city
 
 # Potential Improvements for Final Version
 - Better error message handling/displaying in front end
