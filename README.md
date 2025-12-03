@@ -6,3 +6,4 @@ Christina Beggs, Megan Diulus, Kailey Epstein, Camila Pierce
 - [Problem Framing](./DesignDocs//ProblemFraming.md)
 - [Functional Design](./DesignDocs/FunctionDesign.md)
 - [Alpha Checkpoint Submission](./DesignDocs/AlphaSubmission.md)
+- [Beta Checkpoint Submission](./DesignDocs/BetaSubmission.md)
