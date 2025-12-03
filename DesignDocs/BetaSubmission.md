@@ -57,11 +57,11 @@ Notes: Responsibilities between Alpha and Beta varied slightly
 - Debugged “My Postings” so it functions properly now  
 - Design updates: click for more details about each post/listing  
 - New layout for design
-
-## Photos
-- Added photo functionality: displaying, adding, deleting, editing  
 - Added delete/edit password  
 - Added show/hide password ability when typing it in  
+
+## Photos for listings
+- Added photo functionality: displaying, adding, deleting, editing  
 
 # Potential Improvements for Final Version
 - Better error message handling/displaying in front end
