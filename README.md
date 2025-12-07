@@ -7,3 +7,4 @@ Christina Beggs, Megan Diulus, Kailey Epstein, Camila Pierce
 - [Functional Design](./DesignDocs/FunctionDesign.md)
 - [Alpha Checkpoint Submission](./DesignDocs/AlphaSubmission.md)
 - [Beta Checkpoint Submission](./DesignDocs/BetaSubmission.md)
+- [User Testing](./DesignDocs/UserTesting.md)
