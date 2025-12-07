@@ -20,6 +20,7 @@ export const CreateRoommatePostingRequest: Sync = ({
   age,
   aboutYourself,
   lookingFor,
+  housingStatus,
   startDate,
   endDate,
   dailyRhythm,
@@ -39,6 +40,7 @@ export const CreateRoommatePostingRequest: Sync = ({
         age,
         aboutYourself,
         lookingFor,
+        housingStatus,
         startDate,
         endDate,
         dailyRhythm,
@@ -93,6 +95,7 @@ export const CreateRoommatePostingRequest: Sync = ({
         age,
         aboutYourself,
         lookingFor,
+        housingStatus,
         startDate,
         endDate,
         dailyRhythm,
@@ -1545,6 +1548,75 @@ export const EditRoommatePostingNumberOfRoommatesResponseError: Sync = ({
       { request },
     ],
     [RoommatePosting.editNumberOfRoommates, {}, { error }]
+  ),
+  then: actions([Requesting.respond, { request, error }]),
+});
+
+//-- Edit RoommatePosting Housing Status --//
+export const EditRoommatePostingHousingStatusRequest: Sync = ({
+  request,
+  session,
+  user,
+  poster,
+  newValue,
+}) => {
+  return {
+    when: actions([
+      Requesting.request,
+      {
+        path: "/RoommatePosting/editHousingStatus",
+        session,
+        poster,
+        newValue,
+      },
+      { request },
+    ]),
+    where: async (frames) => {
+      const result = await frames.query(
+        Sessioning._getUser,
+        { session },
+        {
+          user,
+        }
+      );
+      return result;
+    },
+    then: actions([
+      RoommatePosting.editHousingStatus,
+      {
+        poster: user,
+        newValue,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingHousingStatusResponse: Sync = ({
+  request,
+  posting,
+}) => ({
+  when: actions(
+    [
+      Requesting.request,
+      { path: "/RoommatePosting/editHousingStatus" },
+      { request },
+    ],
+    [RoommatePosting.editHousingStatus, {}, { posting }]
+  ),
+  then: actions([Requesting.respond, { request, posting }]),
+});
+
+export const EditRoommatePostingHousingStatusResponseError: Sync = ({
+  request,
+  error,
+}) => ({
+  when: actions(
+    [
+      Requesting.request,
+      { path: "/RoommatePosting/editHousingStatus" },
+      { request },
+    ],
+    [RoommatePosting.editHousingStatus, {}, { error }]
   ),
   then: actions([Requesting.respond, { request, error }]),
 });

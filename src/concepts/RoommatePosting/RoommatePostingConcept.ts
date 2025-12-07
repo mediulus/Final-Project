@@ -25,6 +25,7 @@ export interface RoommatePosting {
   age: number;
   aboutYourself: string;
   lookingFor: string;
+  housingStatus: string;
   startDate: Date;
   endDate: Date;
   dailyRhythm: string;
@@ -67,6 +68,7 @@ export default class RoommatePostingConcept {
    * @param age The poster's age
    * @param aboutYourself Details about the poster themselves
    * @param lookingFor What the poster is looking for in a roommate
+   * @param housingStatus The housing status (e.g., "Looking for housing", "Found housing")
    * @param startDate The start date of the housing period
    * @param endDate The end date of the housing period
    * @param dailyRhythm The poster's daily rhythm preference
@@ -83,6 +85,7 @@ export default class RoommatePostingConcept {
     age,
     aboutYourself,
     lookingFor,
+    housingStatus,
     startDate,
     endDate,
     dailyRhythm,
@@ -97,6 +100,7 @@ export default class RoommatePostingConcept {
     age: number;
     aboutYourself: string;
     lookingFor: string;
+    housingStatus: string;
     startDate: Date | string;
     endDate: Date | string;
     dailyRhythm: string;
@@ -132,6 +136,7 @@ export default class RoommatePostingConcept {
       age,
       aboutYourself,
       lookingFor,
+      housingStatus,
       startDate: start,
       endDate: end,
       dailyRhythm,
@@ -544,6 +549,41 @@ export default class RoommatePostingConcept {
       { _id: existingPosting._id },
       {
         $set: { guestsVisitors: newValue },
+      }
+    );
+    return { posting: { ...existingPosting } };
+  }
+
+  /**
+   * Updates the housing status field of a roommate posting
+   *
+   * @requires a roommatePosting with this poster exists in set of roommatePostings
+   * @effects updates the posting's housingStatus to the given value and returns the posting
+   *
+   * @param poster The user who owns the posting
+   * @param newValue The new housing status value
+   * @returns The updated RoommatePosting or error
+   */
+  async editHousingStatus({
+    poster,
+    newValue,
+  }: {
+    poster: ID;
+    newValue: string;
+  }): Promise<{ posting: RoommatePosting } | { error: string }> {
+    const existingPosting = await this.getPostingByPoster(poster);
+
+    if (!existingPosting) {
+      return {
+        error: `Edit housing status failed: No posting found for user '${poster}'.`,
+      };
+    }
+
+    existingPosting.housingStatus = newValue;
+    await this.postings.updateOne(
+      { _id: existingPosting._id },
+      {
+        $set: { housingStatus: newValue },
       }
     );
     return { posting: { ...existingPosting } };
