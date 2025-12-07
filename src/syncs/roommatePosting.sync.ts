@@ -18,7 +18,8 @@ export const CreateRoommatePostingRequest: Sync = ({
   city,
   gender,
   age,
-  description,
+  aboutYourself,
+  lookingFor,
   startDate,
   endDate,
   dailyRhythm,
@@ -36,7 +37,8 @@ export const CreateRoommatePostingRequest: Sync = ({
         city,
         gender,
         age,
-        description,
+        aboutYourself,
+        lookingFor,
         startDate,
         endDate,
         dailyRhythm,
@@ -49,8 +51,12 @@ export const CreateRoommatePostingRequest: Sync = ({
     ]),
     where: async (frames) => {
       console.log(
-        "CreateRoommatePostingRequest where clause - starting, frames count:",
+        "[CreateRoommatePostingRequest] where clause - starting, frames count:",
         frames.length
+      );
+      console.log(
+        "[CreateRoommatePostingRequest] where clause - frame data:",
+        frames.length > 0 ? JSON.stringify(frames[0], null, 2) : "no frames"
       );
       const result = await frames.query(
         Sessioning._getUser,
@@ -85,7 +91,8 @@ export const CreateRoommatePostingRequest: Sync = ({
         city,
         gender,
         age,
-        description,
+        aboutYourself,
+        lookingFor,
         startDate,
         endDate,
         dailyRhythm,
@@ -97,6 +104,9 @@ export const CreateRoommatePostingRequest: Sync = ({
     ]),
   };
 };
+
+// Add a console log at the top level to verify the sync is being loaded
+console.log("[roommatePosting.sync.ts] CreateRoommatePostingRequest sync loaded");
 
 export const CreateRoommatePostingResponseSuccess: Sync = ({
   request,
@@ -740,36 +750,36 @@ export const EditRoommatePostingAgeResponseError: Sync = ({
   then: actions([Requesting.respond, { request, error }]),
 });
 
-//-- Edit RoommatePosting Description --//
-export const EditRoommatePostingDescriptionRequest: Sync = ({
+//-- Edit RoommatePosting About Yourself --//
+export const EditRoommatePostingAboutYourselfRequest: Sync = ({
   request,
   session,
   user,
   poster,
-  newDescription,
+  newValue,
 }) => {
-  console.log("[EditRoommatePostingDescriptionRequest] Creating sync with:", {
-    path: "/RoommatePosting/editDescription",
+  console.log("[EditRoommatePostingAboutYourselfRequest] Creating sync with:", {
+    path: "/RoommatePosting/editAboutYourself",
     poster,
-    newDescription:
-      typeof newDescription === "string"
-        ? newDescription.substring(0, 50) + "..."
-        : newDescription,
+    newValue:
+      typeof newValue === "string"
+        ? newValue.substring(0, 50) + "..."
+        : newValue,
   });
   return {
     when: actions([
       Requesting.request,
       {
-        path: "/RoommatePosting/editDescription",
+        path: "/RoommatePosting/editAboutYourself",
         session,
         poster,
-        newDescription,
+        newValue,
       },
       { request },
     ]),
     where: async (frames) => {
       console.log(
-        "[EditRoommatePostingDescriptionRequest] where clause - starting, frames count:",
+        "[EditRoommatePostingAboutYourselfRequest] where clause - starting, frames count:",
         frames.length
       );
       const result = await frames.query(
@@ -780,7 +790,7 @@ export const EditRoommatePostingDescriptionRequest: Sync = ({
         }
       );
       console.log(
-        "[EditRoommatePostingDescriptionRequest] where clause - frames after query:",
+        "[EditRoommatePostingAboutYourselfRequest] where clause - frames after query:",
         result.length,
         "user bound:",
         result.length > 0 ? result[0][user] : "no frames"
@@ -788,21 +798,21 @@ export const EditRoommatePostingDescriptionRequest: Sync = ({
       return result;
     },
     then: actions([
-      RoommatePosting.editDescription,
+      RoommatePosting.editAboutYourself,
       {
         poster: user,
-        newDescription,
+        newValue,
       },
     ]),
   };
 };
 
-export const EditRoommatePostingDescriptionResponse: Sync = ({
+export const EditRoommatePostingAboutYourselfResponse: Sync = ({
   request,
   posting,
 }) => {
   console.log(
-    "[EditRoommatePostingDescriptionResponse] Creating sync, waiting for:",
+    "[EditRoommatePostingAboutYourselfResponse] Creating sync, waiting for:",
     request,
     posting
   );
@@ -810,19 +820,19 @@ export const EditRoommatePostingDescriptionResponse: Sync = ({
     when: actions(
       [
         Requesting.request,
-        { path: "/RoommatePosting/editDescription" },
+        { path: "/RoommatePosting/editAboutYourself" },
         { request },
       ],
-      [RoommatePosting.editDescription, {}, { posting }]
+      [RoommatePosting.editAboutYourself, {}, { posting }]
     ),
     where: async (frames) => {
       console.log(
-        "[EditRoommatePostingDescriptionResponse] where clause - frames count:",
+        "[EditRoommatePostingAboutYourselfResponse] where clause - frames count:",
         frames.length
       );
       if (frames.length > 0) {
         console.log(
-          "[EditRoommatePostingDescriptionResponse] Frame data:",
+          "[EditRoommatePostingAboutYourselfResponse] Frame data:",
           "request:",
           frames[0][request],
           "posting:",
@@ -841,17 +851,133 @@ export const EditRoommatePostingDescriptionResponse: Sync = ({
   };
 };
 
-export const EditRoommatePostingDescriptionResponseError: Sync = ({
+export const EditRoommatePostingAboutYourselfResponseError: Sync = ({
   request,
   error,
 }) => ({
   when: actions(
     [
       Requesting.request,
-      { path: "/RoommatePosting/editDescription" },
+      { path: "/RoommatePosting/editAboutYourself" },
       { request },
     ],
-    [RoommatePosting.editDescription, {}, { error }]
+    [RoommatePosting.editAboutYourself, {}, { error }]
+  ),
+  then: actions([Requesting.respond, { request, error }]),
+});
+
+//-- Edit RoommatePosting Looking For --//
+export const EditRoommatePostingLookingForRequest: Sync = ({
+  request,
+  session,
+  user,
+  poster,
+  newValue,
+}) => {
+  console.log("[EditRoommatePostingLookingForRequest] Creating sync with:", {
+    path: "/RoommatePosting/editLookingFor",
+    poster,
+    newValue:
+      typeof newValue === "string"
+        ? newValue.substring(0, 50) + "..."
+        : newValue,
+  });
+  return {
+    when: actions([
+      Requesting.request,
+      {
+        path: "/RoommatePosting/editLookingFor",
+        session,
+        poster,
+        newValue,
+      },
+      { request },
+    ]),
+    where: async (frames) => {
+      console.log(
+        "[EditRoommatePostingLookingForRequest] where clause - starting, frames count:",
+        frames.length
+      );
+      const result = await frames.query(
+        Sessioning._getUser,
+        { session },
+        {
+          user,
+        }
+      );
+      console.log(
+        "[EditRoommatePostingLookingForRequest] where clause - frames after query:",
+        result.length,
+        "user bound:",
+        result.length > 0 ? result[0][user] : "no frames"
+      );
+      return result;
+    },
+    then: actions([
+      RoommatePosting.editLookingFor,
+      {
+        poster: user,
+        newValue,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingLookingForResponse: Sync = ({
+  request,
+  posting,
+}) => {
+  console.log(
+    "[EditRoommatePostingLookingForResponse] Creating sync, waiting for:",
+    request,
+    posting
+  );
+  return {
+    when: actions(
+      [
+        Requesting.request,
+        { path: "/RoommatePosting/editLookingFor" },
+        { request },
+      ],
+      [RoommatePosting.editLookingFor, {}, { posting }]
+    ),
+    where: async (frames) => {
+      console.log(
+        "[EditRoommatePostingLookingForResponse] where clause - frames count:",
+        frames.length
+      );
+      if (frames.length > 0) {
+        console.log(
+          "[EditRoommatePostingLookingForResponse] Frame data:",
+          "request:",
+          frames[0][request],
+          "posting:",
+          frames[0][posting]
+        );
+      }
+      return frames;
+    },
+    then: actions([
+      Requesting.respond,
+      {
+        request,
+        posting,
+      },
+    ]),
+  };
+};
+
+export const EditRoommatePostingLookingForResponseError: Sync = ({
+  request,
+  error,
+}) => ({
+  when: actions(
+    [
+      Requesting.request,
+      { path: "/RoommatePosting/editLookingFor" },
+      { request },
+    ],
+    [RoommatePosting.editLookingFor, {}, { error }]
   ),
   then: actions([Requesting.respond, { request, error }]),
 });

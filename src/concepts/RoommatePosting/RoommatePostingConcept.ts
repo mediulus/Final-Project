@@ -23,7 +23,8 @@ export interface RoommatePosting {
   city: string;
   gender: Gender;
   age: number;
-  description: string;
+  aboutYourself: string;
+  lookingFor: string;
   startDate: Date;
   endDate: Date;
   dailyRhythm: string;
@@ -58,13 +59,14 @@ export default class RoommatePostingConcept {
    *
    * @requires a roommatePosting with this poster does not already exist in set of roommatePostings
    * @requires startDate < endDate
-   * @effects creates and returns new posting with the given poster, city, gender, age, description, startDate, endDate, dailyRhythm, cleanlinessPreference, homeEnvironment, guestsVisitors, and numberOfRoommates
+   * @effects creates and returns new posting with the given poster, city, gender, age, aboutYourself, lookingFor, startDate, endDate, dailyRhythm, cleanlinessPreference, homeEnvironment, guestsVisitors, and numberOfRoommates
    *
    * @param poster The user creating the posting
    * @param city The city where they're looking for housing
    * @param gender The poster's gender
    * @param age The poster's age
-   * @param description Details about preferences and plans
+   * @param aboutYourself Details about the poster themselves
+   * @param lookingFor What the poster is looking for in a roommate
    * @param startDate The start date of the housing period
    * @param endDate The end date of the housing period
    * @param dailyRhythm The poster's daily rhythm preference
@@ -79,7 +81,8 @@ export default class RoommatePostingConcept {
     city,
     gender,
     age,
-    description,
+    aboutYourself,
+    lookingFor,
     startDate,
     endDate,
     dailyRhythm,
@@ -92,7 +95,8 @@ export default class RoommatePostingConcept {
     city: string;
     gender: Gender;
     age: number;
-    description: string;
+    aboutYourself: string;
+    lookingFor: string;
     startDate: Date | string;
     endDate: Date | string;
     dailyRhythm: string;
@@ -126,7 +130,8 @@ export default class RoommatePostingConcept {
       city,
       gender,
       age,
-      description,
+      aboutYourself,
+      lookingFor,
       startDate: start,
       endDate: end,
       dailyRhythm,
@@ -246,35 +251,70 @@ export default class RoommatePostingConcept {
   }
 
   /**
-   * Updates the description field of a roommate posting
+   * Updates the aboutYourself field of a roommate posting
    *
    * @requires  a roomatePosting with this poster exists in set of roommatePostings
-   * @effects updates the posting's description to the given description and returns the posting
+   * @effects updates the posting's aboutYourself to the given value and returns the posting
    *
    * @param poster The user who owns the posting
-   * @param description The new description value
+   * @param newValue The new aboutYourself value
    * @returns The updated RoommatePosting or error
    */
-  async editDescription({
+  async editAboutYourself({
     poster,
-    newDescription,
+    newValue,
   }: {
     poster: ID;
-    newDescription: string;
+    newValue: string;
   }): Promise<{ posting: RoommatePosting } | { error: string }> {
     const existingPosting = await this.getPostingByPoster(poster);
 
     if (!existingPosting) {
       return {
-        error: `Edit description failed: No posting found for user '${poster}'.`,
+        error: `Edit about yourself failed: No posting found for user '${poster}'.`,
       };
     }
 
-    existingPosting.description = newDescription;
+    existingPosting.aboutYourself = newValue;
     await this.postings.updateOne(
       { _id: existingPosting._id },
       {
-        $set: { description: newDescription },
+        $set: { aboutYourself: newValue },
+      }
+    );
+    return { posting: { ...existingPosting } };
+  }
+
+  /**
+   * Updates the lookingFor field of a roommate posting
+   *
+   * @requires  a roomatePosting with this poster exists in set of roommatePostings
+   * @effects updates the posting's lookingFor to the given value and returns the posting
+   *
+   * @param poster The user who owns the posting
+   * @param newValue The new lookingFor value
+   * @returns The updated RoommatePosting or error
+   */
+  async editLookingFor({
+    poster,
+    newValue,
+  }: {
+    poster: ID;
+    newValue: string;
+  }): Promise<{ posting: RoommatePosting } | { error: string }> {
+    const existingPosting = await this.getPostingByPoster(poster);
+
+    if (!existingPosting) {
+      return {
+        error: `Edit looking for failed: No posting found for user '${poster}'.`,
+      };
+    }
+
+    existingPosting.lookingFor = newValue;
+    await this.postings.updateOne(
+      { _id: existingPosting._id },
+      {
+        $set: { lookingFor: newValue },
       }
     );
     return { posting: { ...existingPosting } };
