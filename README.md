@@ -8,3 +8,5 @@ Christina Beggs, Megan Diulus, Kailey Epstein, Camila Pierce
 - [Alpha Checkpoint Submission](./DesignDocs/AlphaSubmission.md)
 - [Beta Checkpoint Submission](./DesignDocs/BetaSubmission.md)
 - [User Testing](./DesignDocs/UserTesting.md)
+- [Final Design Document]()
+- [Final Reflections](DesignDocs/FinalReflections.md)
