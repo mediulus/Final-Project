@@ -113,7 +113,7 @@ export default class RoommatePostingConcept {
     const existingPosting = await this.getPostingByPoster(poster);
     if (existingPosting) {
       return {
-        error: `Create posting failed: User '${poster}' already has a roommate posting.`,
+        error: `You already have a roommate posting. Please edit or delete your existing posting before creating a new one.`,
       };
     }
 
