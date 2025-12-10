@@ -10,3 +10,5 @@ Christina Beggs, Megan Diulus, Kailey Epstein, Camila Pierce
 - [User Testing](./DesignDocs/UserTesting.md)
 - [Final Design Document]()
 - [Final Reflections](DesignDocs/FinalReflections.md)
+
+[Final User Experience Video](https://drive.google.com/file/d/1WGG4aKr7E4DtyWF2SLr67c3O3ZjitSq_/view?usp=sharing)
