@@ -10,5 +10,8 @@ Public Link: https://damgoodhousing.onrender.com/login
 - [Alpha Checkpoint Submission](./DesignDocs/AlphaSubmission.md)
 - [Beta Checkpoint Submission](./DesignDocs/BetaSubmission.md)
 - [User Testing](./DesignDocs/UserTesting.md)
+
+### Final Submission Links
 - [Final Design Document](DesignDocs/FinalDesignDoc.md)
 - [Final Reflections](DesignDocs/FinalReflections.md)
+- [Final Video Link]()
