@@ -14,4 +14,4 @@ Public Link: https://damgoodhousing.onrender.com/login
 ### Final Submission Links
 - [Final Design Document](DesignDocs/FinalDesignDoc.md)
 - [Final Reflections](DesignDocs/FinalReflections.md)
-- [Final Video Link]()
+- [Final Demo Video Link]()
