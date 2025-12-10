@@ -15,4 +15,4 @@ Public Link: https://damgoodhousing.onrender.com/login
 - [Final Design Document](DesignDocs/FinalDesignDoc.md)
 - [Final Reflections](DesignDocs/FinalReflections.md)
 - [Final Demo Video Link](https://drive.google.com/file/d/1WGG4aKr7E4DtyWF2SLr67c3O3ZjitSq_/view?usp=sharing)
-
+- [Brainstorming/Meeting Notes](https://docs.google.com/document/d/1fEV55l-PpJE60wxVwfp7jyOokykUK7t2LzwQ32phIMk/)
