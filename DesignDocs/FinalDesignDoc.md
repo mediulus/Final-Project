@@ -74,4 +74,4 @@ Our design evolved significantly from the original proposal through iterative de
 ---
 
 ## Summary of Impact
-The project evolved from a minimal housing board into a well-integrated, user-friendly housing and roommate platform with polished data handling, visual clarity, and seamless user communication. The updates prioritized usability and interactivity, resulting in a cohesive, complete final product.
+The project evolved from a minimal housing board into a well-integrated, user-friendly housing and roommate platform with polished data handling, visual clarity, and seamless user communication. The updates prioritized usability and interactivity, resulting in a cohesive, complete final product for our users.
