@@ -52,6 +52,13 @@ export const inclusions: Record<string, string> = {
     "can delete listings by lister via passthrough",
   "/api/Listing/_getListerByListingId":
     "can query lister by listing ID via passthrough",
+  "/api/RoommatePosting/editAboutYourself":
+    "can edit about yourself if you have access to that post",
+  "/api/RoommatePosting/editLookingFor":
+     "can edit about yourself if you have access to that post",
+  "/api/RoommatePosting/editHousingStatus":
+    "can edit about post if you have access to it",
+
 
   // RoommatePosting - query methods
   "/api/RoommatePosting/getPostingByPoster":
